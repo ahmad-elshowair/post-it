@@ -12,12 +12,12 @@ class LikeModel {
    */
   private validateRequiredFields(
     fields: Record<string, any>,
-    fieldsNames: string[]
+    fieldsNames: string[],
   ): void {
     const missingFields = fieldsNames.filter((fieldName) => !fields[fieldName]);
     if (missingFields.length > 0) {
       throw new Error(
-        `Missing required fields: ${missingFields.join(", ")} are required`
+        `Missing required fields: ${missingFields.join(", ")} are required`,
       );
     }
   }
@@ -28,7 +28,7 @@ class LikeModel {
    * @throws {Error} Error if required fields are missing or operation fails
    */
   async like(
-    like: Like
+    like: Like,
   ): Promise<{ message: string; action: "liked" | "unliked" }> {
     this.validateRequiredFields(like, ["post_id", "user_id"]);
 
@@ -48,7 +48,7 @@ class LikeModel {
 
       const postAndLikeStatus: QueryResult = await connection.query(
         postCheckSql,
-        [like.post_id, like.user_id]
+        [like.post_id, like.user_id],
       );
 
       // If the post does not exist, return an error message
@@ -110,14 +110,13 @@ class LikeModel {
    */
   async checkIfLiked(
     user_id: string,
-    post_id: string
+    post_id: string,
   ): Promise<{ isLiked: boolean }> {
     this.validateRequiredFields({ user_id, post_id }, ["user_id", "post_id"]);
 
     const connection: PoolClient = await pool.connect();
 
     try {
-      await connection.query("BEGIN");
       const sql = `
 				SELECT 1
 				FROM likes
@@ -128,10 +127,8 @@ class LikeModel {
         post_id,
       ]);
 
-      await connection.query("COMMIT");
       return { isLiked: result.rows.length > 0 };
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[LIKE MODEL] checkIfLiked error", error);
       throw new Error(`Failed to check like: ${(error as Error).message}`);
     } finally {
@@ -152,13 +149,12 @@ class LikeModel {
     post_id: string,
     limit: number = 10,
     cursor: string,
-    direction: "next" | "previous" = "next"
+    direction: "next" | "previous" = "next",
   ): Promise<{ users: TUsersLike[]; totalCount: number }> {
     this.validateRequiredFields({ post_id }, ["post_id"]);
 
     const connection: PoolClient = await pool.connect();
     try {
-      await connection.query("BEGIN");
       const params: (string | number)[] = [post_id];
 
       let sql = `
@@ -192,13 +188,13 @@ class LikeModel {
           ? " ORDER BY l.created_at DESC"
           : " ORDER BY l.created_at ASC";
 
-      sql += `LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
 
       const result: QueryResult<TUsersLike> = await connection.query(
         sql,
-        params
+        params,
       );
 
       const countSql = `
@@ -211,14 +207,11 @@ class LikeModel {
 
       const totalCount = countResult.rows[0].total;
 
-      await connection.query("COMMIT");
-
       return { users: result.rows, totalCount };
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[LIKE MODEL] getLikesByPostId error", error);
       throw new Error(
-        `Failed to get likes by post id: ${(error as Error).message}`
+        `Failed to get likes by post id: ${(error as Error).message}`,
       );
     } finally {
       connection.release();

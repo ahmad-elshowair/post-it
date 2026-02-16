@@ -1,28 +1,19 @@
-import { useCallback, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useCallback } from "react";
 import { loginUser, logoutUser, registerUser } from "../services/auth";
 import { LoginCredentials, RegisterCredentials } from "../types/TAuth";
 
 const useAuthActions = () => {
-  const { dispatch } = useContext(AuthContext);
+  const login = useCallback(async (credentials: LoginCredentials) => {
+    return loginUser(credentials);
+  }, []);
 
-  const login = useCallback(
-    async (credentials: LoginCredentials) => {
-      return loginUser(credentials, dispatch);
-    },
-    [dispatch]
-  );
-
-  const register = useCallback(
-    async (userData: RegisterCredentials) => {
-      return registerUser(userData, dispatch);
-    },
-    [dispatch]
-  );
+  const register = useCallback(async (userData: RegisterCredentials) => {
+    return registerUser(userData);
+  }, []);
 
   const logout = useCallback(async () => {
-    return logoutUser(dispatch);
-  }, [dispatch]);
+    return logoutUser();
+  }, []);
 
   return {
     login,

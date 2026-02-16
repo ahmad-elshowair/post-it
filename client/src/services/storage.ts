@@ -30,7 +30,7 @@ export const getFingerprintFromCookie = (): string | null => {
   const cookieName =
     configs.node_env === "development"
       ? "x-fingerprint"
-      : "_Host-x-fingerprint";
+      : "__Host-x-fingerprint";
   const cookies = document.cookie.split("; ");
   for (let cookie of cookies) {
     const [name, value] = cookie.trim().split("=");
@@ -43,7 +43,7 @@ export const getFingerprintFromCookie = (): string | null => {
 
 export const getCsrfFromCookie = (): string | null => {
   const cookieName =
-    configs.node_env === "development" ? "csrf_token" : "_Secure-csrf_token";
+    configs.node_env === "development" ? "csrf_token" : "__Secure-csrf_token";
   const cookies = document.cookie.split("; ");
   for (let cookie of cookies) {
     const [name, value] = cookie.trim().split("=");

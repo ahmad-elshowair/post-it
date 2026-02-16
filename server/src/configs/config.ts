@@ -46,6 +46,6 @@ export default {
   rate_limit_max_requests: Number(process.env.RATE_LIMIT_MAX_REQUESTS || 60), // 60 requests per minute
 
   // Session management
-  enable_token_rotation: process.env.ENABLE_TOKEN_ROTATION === "true" || true,
-  enable_fingerprinting: process.env.ENABLE_FINGERPRINTING === "true" || true,
+  enable_token_rotation: process.env.ENABLE_TOKEN_ROTATION !== "false",
+  enable_fingerprinting: process.env.ENABLE_FINGERPRINTING !== "false",
 };

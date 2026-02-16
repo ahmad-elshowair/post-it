@@ -1,6 +1,5 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap";
-import { useContext } from "react";
 import {
   Navigate,
   Route,
@@ -10,14 +9,14 @@ import {
 import "./App.css";
 import { PersistLogin } from "./components/auth/PersistLogin";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import { AuthContext } from "./context/AuthContext";
+import useAuthStore from "./stores/useAuthStore";
 import { Home } from "./pages/home/Home";
 import { Login } from "./pages/login/Login";
 import { Profile } from "./pages/profile/Profile";
 import { Register } from "./pages/register/Register";
 
 function App() {
-  const { state } = useContext(AuthContext);
+  const user = useAuthStore((s) => s.user);
 
   return (
     <Router>
@@ -25,11 +24,11 @@ function App() {
         {/* PUBLIC ROUTES  */}
         <Route
           path="/login"
-          element={state.user ? <Navigate to="/" replace /> : <Login />}
+          element={user ? <Navigate to="/" replace /> : <Login />}
         />
         <Route
           path="/register"
-          element={state.user ? <Navigate to="/" replace /> : <Register />}
+          element={user ? <Navigate to="/" replace /> : <Register />}
         />
 
         {/* PRIVATE ROUTES  */}

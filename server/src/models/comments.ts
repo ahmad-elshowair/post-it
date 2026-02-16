@@ -23,7 +23,7 @@ class CommentModel {
       // UPDATE POST COMMENT COUNT.
       await connection.query(
         `UPDATE posts SET number_of_comments = number_of_comments + 1 WHERE post_id = $1`,
-        [comment.post_id]
+        [comment.post_id],
       );
 
       await connection.query("COMMIT");
@@ -32,7 +32,7 @@ class CommentModel {
       await connection.query("ROLLBACK");
       console.error(error);
       throw new Error(
-        `create comment model error: ${(error as Error).message}`
+        `create comment model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -42,7 +42,7 @@ class CommentModel {
   async update(
     comment_id: string,
     content: string,
-    user_id: string
+    user_id: string,
   ): Promise<IComment> {
     const connection = await pool.connect();
     try {
@@ -56,7 +56,7 @@ class CommentModel {
 
       const commentExist = await connection.query(
         `SELECT * FROM comments WHERE comment_id = $1 AND user_id = $2`,
-        [comment_id, user_id]
+        [comment_id, user_id],
       );
       if (commentExist.rowCount === 0) {
         throw new Error("Comment not found or does not belong to the user");
@@ -69,7 +69,7 @@ class CommentModel {
       await connection.query("ROLLBACK");
       console.error(error);
       throw new Error(
-        `update comment model error: ${(error as Error).message}`
+        `update comment model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -78,7 +78,7 @@ class CommentModel {
 
   async delete(
     comment_id: string,
-    user_id: string
+    user_id: string,
   ): Promise<{ message: string }> {
     const connection = await pool.connect();
     try {
@@ -87,7 +87,7 @@ class CommentModel {
       // CHECK IF THE COMMENT EXISTS OR BELONGS TO THE USER.
       const checkCommentExist = await connection.query(
         `SELECT * FROM comments WHERE comment_id = $1 AND user_id = $2`,
-        [comment_id, user_id]
+        [comment_id, user_id],
       );
       if (checkCommentExist.rowCount === 0) {
         throw new Error("Comment not found or does not belong to the user");
@@ -104,7 +104,7 @@ class CommentModel {
       // UPDATE POST COMMENT COUNT.
       await connection.query(
         `UPDATE posts SET number_of_comments = GREATEST(number_of_comments - 1, 0) WHERE post_id = $1`,
-        [post_id]
+        [post_id],
       );
       await connection.query("COMMIT");
       return { message: "Comment deleted successfully" };
@@ -112,7 +112,7 @@ class CommentModel {
       await connection.query("ROLLBACK");
       console.error(error);
       throw new Error(
-        `delete comment model error: ${(error as Error).message}`
+        `delete comment model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -122,7 +122,6 @@ class CommentModel {
   async getCommentsByPostId(post_id: string): Promise<IComment[]> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
       const sql = `
             SELECT 
                 c.comment_id,
@@ -150,13 +149,11 @@ class CommentModel {
         post_id,
       ]);
 
-      await connection.query("COMMIT");
       return comments.rows;
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error(error);
       throw new Error(
-        `get comments by post id model error: ${(error as Error).message}`
+        `get comments by post id model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -166,7 +163,6 @@ class CommentModel {
   async getRepliesByCommentId(comment_id: string): Promise<IComment[]> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
       const sql = `
             SELECT 
                 c.comment_id,
@@ -194,13 +190,11 @@ class CommentModel {
         comment_id,
       ]);
 
-      await connection.query("COMMIT");
       return replies.rows;
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error(error);
       throw new Error(
-        `get replies by comment id model error: ${(error as Error).message}`
+        `get replies by comment id model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();

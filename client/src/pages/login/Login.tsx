@@ -1,16 +1,18 @@
 import { CircularProgress } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import config from "../../configs";
-import { AuthContext } from "../../context/AuthContext";
+import useAuthStore from "../../stores/useAuthStore";
 import { loginUser } from "../../services/auth";
 import { LoginCredentials } from "../../types/TAuth";
 import "./login.css";
 
 export const Login = () => {
-  const { state, dispatch } = useContext(AuthContext);
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
+  const errors = useAuthStore((s) => s.errors);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const togglePasswordVisibility = () => {
@@ -18,23 +20,23 @@ export const Login = () => {
   };
 
   useEffect(() => {
-    if (state.user) {
+    if (user) {
       console.log("User authenticated, redirecting to home");
       navigate("/");
     }
-  }, [state.user, navigate]);
+  }, [user, navigate]);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors: formErrors },
   } = useForm<LoginCredentials>();
 
   const onSubmit: SubmitHandler<LoginCredentials> = async (
-    loginData: LoginCredentials
+    loginData: LoginCredentials,
   ) => {
     try {
-      await loginUser(loginData, dispatch);
+      await loginUser(loginData);
     } catch (error) {
       console.error("Login error:", error);
     }
@@ -87,9 +89,9 @@ export const Login = () => {
                   },
                 })}
               />
-              {errors.email && (
+              {formErrors.email && (
                 <span className="alert alert-warning p-2 text-danger text-center mt-1">
-                  {errors.email.message}
+                  {formErrors.email.message}
                 </span>
               )}
             </div>
@@ -127,22 +129,22 @@ export const Login = () => {
                   )}
                 </button>
               </div>
-              {errors.password && (
+              {formErrors.password && (
                 <span className="alert alert-warning p-2 text-danger text-center mt-1">
-                  {errors.password.message}
+                  {formErrors.password.message}
                 </span>
               )}
             </div>
             <button className="btn btn-chat" type="submit">
-              {state.loading ? <CircularProgress size={"20px"} /> : "Login"}
+              {loading ? <CircularProgress size={"20px"} /> : "Login"}
             </button>
             <Link to="/register" className="btn-new fw-light text-center">
               I'm new Here!
             </Link>
           </div>
-          {state.errors && state.errors.length > 0 && (
+          {errors && errors.length > 0 && (
             <article className="w-100 text-center">
-              {state.errors.map((error, index) => (
+              {errors.map((error: string, index: number) => (
                 <p
                   key={index}
                   className="alert alert-warning p-2 mt-3 text-danger"

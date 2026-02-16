@@ -1,5 +1,4 @@
 import { AxiosRequestConfig } from "axios";
-import { Dispatch } from "react";
 import { ApiError } from "../api/ApiError";
 import { UserPayload } from "./TUser";
 
@@ -56,10 +55,6 @@ export type AuthState = {
   authChecked?: boolean;
 };
 
-export interface Store {
-  dispatch: Dispatch<AuthAction>;
-}
-
 export type TRequestOptions = {
   params?: Record<string, string>;
   data?: any;
@@ -76,12 +71,12 @@ export interface ISecureApiReturn {
   post: <T = any>(
     url: string,
     data?: any,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ) => Promise<T | null>;
   put: <T = any>(
     url: string,
     data?: any,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ) => Promise<T | null>;
   del: <T = any>(url: string, options?: TRequestOptions) => Promise<T | null>;
 }

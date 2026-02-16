@@ -11,22 +11,14 @@ class UserModel {
   async index(): Promise<TUser[]> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-
       const sql = "SELECT * FROM users";
       const result: QueryResult<TUser> = await connection.query(sql);
-      // if there are not users return a message
       if (result.rowCount === 0) {
         return [];
       }
-      await connection.query("COMMIT");
-
-      // return the users
       return result.rows;
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[USER MODEL] error getting all users", error);
-
       throw new Error(`Failed to get users: ${(error as Error).message}`);
     } finally {
       connection.release();
@@ -43,11 +35,10 @@ class UserModel {
   async indexWithPagination(
     limit: number = 10,
     cursor: string,
-    direction: "next" | "previous" = "next"
+    direction: "next" | "previous" = "next",
   ): Promise<{ users: TUser[]; totalCount: number }> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
       const params: any[] = [];
 
       let sql = "SELECT * FROM users";
@@ -66,7 +57,7 @@ class UserModel {
           ? " ORDER BY user_id ASC"
           : " ORDER BY user_id DESC";
 
-      sql += `LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
       const result: QueryResult<TUser> = await connection.query(sql, params);
@@ -74,22 +65,17 @@ class UserModel {
       const users =
         direction === "previous" ? result.rows.reverse() : result.rows;
       const countResult = await connection.query(
-        "SELECT COUNT(*) AS total FROM users"
+        "SELECT COUNT(*) AS total FROM users",
       );
-
-      await connection.query("COMMIT");
 
       const totalCount = parseInt(countResult.rows[0].total);
 
-      // return the users
       return { users, totalCount };
     } catch (error) {
-      await connection.query("ROLLBACK");
-
       console.error("[USER MODEL] indexWithPagination error", error);
 
       throw new Error(
-        `Failed to get pagination users: ${(error as Error).message}`
+        `Failed to get pagination users: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -103,29 +89,20 @@ class UserModel {
    * @throws {Error} If the user is not found.
    */
   async getUserById(user_id: string): Promise<TUser> {
-    // connect to the database
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-
       const sql = "SELECT * FROM users WHERE user_id = ($1)";
-
       const result: QueryResult<TUser> = await connection.query(sql, [user_id]);
 
-      // if the user is not found return a message
       if (result.rowCount === 0) {
         throw new Error("User not found");
       }
 
-      await connection.query("COMMIT");
-      // return the user
       return result.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[USER MODEL] getUserById error", error);
       throw new Error(`Failed to get user by ID: ${(error as Error).message}`);
     } finally {
-      // close the connection
       connection.release();
     }
   }
@@ -137,11 +114,8 @@ class UserModel {
    * @throws {Error} If the user is not found.
    */
   async getUserByUsername(user_name: string): Promise<TUser> {
-    // connect to the database
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-
       const sql = `SELECT * FROM users WHERE user_name = $1`;
       const result: QueryResult<TUser> = await connection.query(sql, [
         user_name,
@@ -151,14 +125,11 @@ class UserModel {
         throw new Error("User not found");
       }
 
-      await connection.query("COMMIT");
-
       return result.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[USER MODEL] getUserByUsername error", error);
       throw new Error(
-        `Failed to get user by user name: ${(error as Error).message}`
+        `Failed to get user by user name: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -187,7 +158,7 @@ class UserModel {
       const [updateUserQuery, values] = buildUpdateQuery(user_id, user);
       const UpdateUser: QueryResult<TUser> = await connection.query(
         updateUserQuery,
-        values
+        values,
       );
 
       await connection.query("COMMIT");
@@ -245,8 +216,6 @@ class UserModel {
     // connect to the database
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-
       const sql = `SELECT
 										u.user_id,
 										u.first_name,
@@ -261,14 +230,12 @@ class UserModel {
       const result: QueryResult<TUnknownUser> = await connection.query(sql, [
         user_id,
       ]);
-      await connection.query("COMMIT");
 
       return result.rows;
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[USER MODEL] getUnknowns error", error);
       throw new Error(
-        `Failed to get unknown users ${(error as Error).message}`
+        `Failed to get unknown users ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -284,7 +251,7 @@ class UserModel {
    */
   async updateOnlineStatus(
     user_id: string,
-    is_online: boolean
+    is_online: boolean,
   ): Promise<TUser> {
     const connection: PoolClient = await pool.connect();
     try {
@@ -312,7 +279,7 @@ class UserModel {
       await connection.query("ROLLBACK");
       console.error("[USER MODEL] update online status error", error);
       throw new Error(
-        `Failed to update online status due to ${(error as Error).message}`
+        `Failed to update online status due to ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -334,12 +301,10 @@ class UserModel {
     is_online: boolean = false,
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next"
+    direction: "next" | "previous" = "next",
   ): Promise<{ users: TFriend[]; totalCount: number }> {
     const connection: PoolClient = await pool.connect();
     try {
-      await connection.query("BEGIN");
-
       const params: any[] = [user_id];
 
       let sql = `SELECT
@@ -380,13 +345,25 @@ class UserModel {
       params.push(limit);
 
       const result: QueryResult<TFriend> = await connection.query(sql, params);
-      const totalCount = result.rows.length;
 
-      await connection.query("COMMIT");
+      // Use a proper COUNT(*) query for accurate total count
+      let countSql = `SELECT COUNT(*) AS total
+				FROM users u
+				JOIN follows f1 ON u.user_id = f1.user_id_followed
+				JOIN follows f2 ON f1.user_id_following = f2.user_id_followed
+				WHERE f1.user_id_following = $1
+				AND f2.user_id_following = u.user_id
+				AND u.user_id != $1`;
+
+      if (is_online) {
+        countSql += ` AND u.is_online = true`;
+      }
+
+      const countResult = await connection.query(countSql, [user_id]);
+      const totalCount = parseInt(countResult.rows[0].total);
 
       return { users: result.rows, totalCount };
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("[USER MODEL] get friends error", error);
       throw new Error(`Failed to get friends ${(error as Error).message}`);
     } finally {

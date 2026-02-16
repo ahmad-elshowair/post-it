@@ -1,12 +1,21 @@
-import { useContext } from "react";
-import { PostContext } from "../context/PostContext";
+import usePostStore from "../stores/usePostStore";
 
 export const usePost = () => {
-  const context = useContext(PostContext);
+  const posts = usePostStore((s) => s.posts);
+  const pagination = usePostStore((s) => s.pagination);
+  const isLoading = usePostStore((s) => s.isLoading);
+  const addPost = usePostStore((s) => s.addPost);
+  const removePost = usePostStore((s) => s.removePost);
+  const refreshPosts = usePostStore((s) => s.refreshPosts);
+  const setPosts = usePostStore((s) => s.setPosts);
 
-  if (!context) {
-    throw new Error("usePost must be used within a PostProvider");
-  }
-
-  return context;
+  return {
+    posts,
+    pagination,
+    isLoading,
+    addPost,
+    removePost,
+    refreshPosts,
+    setPosts,
+  };
 };

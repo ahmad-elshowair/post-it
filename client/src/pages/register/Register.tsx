@@ -1,9 +1,9 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import config from "../../configs";
-import { AuthContext } from "../../context/AuthContext";
+import useAuthState from "../../hooks/useAuthState";
 import { registerUser } from "../../services/auth";
 import { RegisterCredentials } from "../../types/TAuth";
 import "./register.css";
@@ -13,8 +13,7 @@ export const Register = () => {
     confirm_password: string;
   };
 
-  const { state, dispatch } = useContext(AuthContext);
-  const { errors: backendErrors } = state;
+  const { errors: backendErrors } = useAuthState();
 
   // USE USE FORM HOOK
   const {
@@ -28,7 +27,7 @@ export const Register = () => {
     try {
       // OMIT 'confirm_password' WHEN SENDING DATA TO API.
       const { confirm_password, ...userData } = data;
-      await registerUser(userData, dispatch);
+      await registerUser(userData);
     } catch (error) {
       console.error(error);
     }

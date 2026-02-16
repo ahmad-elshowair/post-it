@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { NextFunction, Response } from "express";
 import config from "../configs/config";
 import { ICustomRequest } from "../interfaces/ICustomRequest";
@@ -6,7 +7,7 @@ import { hashFingerprint, verifyAccessToken } from "../utilities/tokens";
 const authorizeUser = (
   req: ICustomRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // Get token from cookie first (preferred) or from Authorization header if not in cookie.
@@ -25,7 +26,7 @@ const authorizeUser = (
     // Check if token exists
     if (!token) {
       console.error(
-        ` No token found in the cookies (${accessTokenName}) or Authorization header`
+        ` No token found in the cookies (${accessTokenName}) or Authorization header`,
       );
       return res.status(401).json({
         message: "Authentication Required",
@@ -48,8 +49,8 @@ const authorizeUser = (
     // GET fingerprint FROM COOKIES OR HEADERS.
     const fingerprintName =
       config.node_env === "development"
-        ? "__Host-x-fingerprint"
-        : "x-fingerprint";
+        ? "x-fingerprint"
+        : "__Host-x-fingerprint";
 
     const fingerprint =
       req.cookies[fingerprintName] || (req.headers["x-fingerprint"] as string);
@@ -61,7 +62,7 @@ const authorizeUser = (
       // COMPARE fingerprints.
       if (hashedFingerprint !== decodedUser.fingerprint) {
         console.warn(
-          `Potential token theft detected for user ID: ${decodedUser.id}`
+          `Potential token theft detected for user ID: ${decodedUser.id}`,
         );
         return res.status(403).json({
           message: "Authentication Failed",
@@ -94,7 +95,7 @@ const authorizeUser = (
       // PROPER VALIDATION OF TOKEN PRESENCE AND FORMAT.
       if (!csrfToken || typeof csrfToken !== "string") {
         console.error(
-          "CSRF validation failed - missing or invalid format in header"
+          "CSRF validation failed - missing or invalid format in header",
         );
         return res.status(403).json({
           message: "Authentication failed",
@@ -111,11 +112,11 @@ const authorizeUser = (
       }
 
       // USE CONSTANT-TIME COMPARISON TO PREVENT TIMING ATTACKS.
-      const crypto = require("crypto");
+      // Using top-level crypto import for constant-time comparison
       try {
         const tokenMatch = crypto.timingSafeEqual(
           Buffer.from(csrfToken, "utf8"),
-          Buffer.from(storedCsrfToken, "utf8")
+          Buffer.from(storedCsrfToken, "utf8"),
         );
         if (!tokenMatch) {
           console.error("CSRF validation failed - token mismatch");

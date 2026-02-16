@@ -1,27 +1,27 @@
-import { useContext, useEffect } from "react";
+import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext";
-import useAuthState from "../../hooks/useAuthState";
+import useAuthStore from "../../stores/useAuthStore";
 import useAuthVerification from "../../hooks/useAuthVerification";
 import { getFingerprint } from "../../services/storage";
 
 export const PersistLogin = () => {
   const { verifyAuth } = useAuthVerification();
-  const { dispatch } = useContext(AuthContext);
-  const { isLoading, isAuthChecked } = useAuthState();
+  const isLoading = useAuthStore((s) => s.loading);
+  const isAuthChecked = useAuthStore((s) => s.authChecked);
+  const checkAuthStatus = useAuthStore((s) => s.checkAuthStatus);
 
   useEffect(() => {
     const fingerprint = getFingerprint();
     if (!isAuthChecked) {
       if (!fingerprint) {
-        dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+        checkAuthStatus(false);
       } else {
         verifyAuth().catch((error) => {
           console.error("Initial Auth Verification Failed", error);
         });
       }
     }
-  }, [verifyAuth, isAuthChecked, dispatch]);
+  }, [verifyAuth, isAuthChecked, checkAuthStatus]);
 
   // SHOW LOADING STATE WHILE CHECKING AUTH, THEN RENDER CHILD ROUTES
   return isLoading || !isAuthChecked ? (

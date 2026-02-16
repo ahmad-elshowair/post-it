@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { Response } from "express";
 import jwt, { JwtPayload, Secret, SignOptions } from "jsonwebtoken";
 import config from "../configs/config";
@@ -8,7 +9,7 @@ export const getDurationInMs = (duration: string): number => {
   // Validate duration format
   if (!/^[0-9]+[smhd]$/.test(duration)) {
     throw new Error(
-      "Invalid duration format. Must be a number followed by s, m, h, or d"
+      "Invalid duration format. Must be a number followed by s, m, h, or d",
     );
   }
 
@@ -39,16 +40,13 @@ export const generateFingerprint = () => {
   return crypto.randomUUID();
 };
 export const hashFingerprint = (fingerprint: string) => {
-  return require("crypto")
-    .createHash("sha256")
-    .update(fingerprint)
-    .digest("hex");
+  return crypto.createHash("sha256").update(fingerprint).digest("hex");
 };
 
 export const generateToken = (
   payload: IUserPayload,
   secret: Secret,
-  expiresIn: SignOptions["expiresIn"]
+  expiresIn: SignOptions["expiresIn"],
 ) => {
   const tokenPayload = {
     ...payload,
@@ -59,14 +57,14 @@ export const generateToken = (
 };
 
 const generateCSRF = (): string => {
-  return require("crypto").randomBytes(32).toString("hex");
+  return crypto.randomBytes(32).toString("hex");
 };
 
 export const setTokensInCookies = (
   res: Response,
   access_token: string,
   refresh_token: string,
-  fingerprint?: string
+  fingerprint?: string,
 ) => {
   const isProduction = config.node_env === "production";
 

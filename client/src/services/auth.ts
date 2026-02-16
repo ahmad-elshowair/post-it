@@ -1,13 +1,9 @@
 import axios from "axios";
-import { Dispatch } from "react";
 import { ApiError } from "../api/ApiError";
 import configs from "../configs";
 import { createSecureApi } from "../hooks/useSecureApi";
-import {
-  AuthAction,
-  LoginCredentials,
-  RegisterCredentials,
-} from "../types/TAuth";
+import useAuthStore from "../stores/useAuthStore";
+import { LoginCredentials, RegisterCredentials } from "../types/TAuth";
 import { UserPayload } from "../types/TUser";
 import {
   clearAuthStorage,
@@ -19,11 +15,9 @@ import {
 
 const { post } = createSecureApi();
 
-export const registerUser = async (
-  userData: RegisterCredentials,
-  dispatch: Dispatch<AuthAction>
-) => {
-  dispatch({ type: "START" });
+export const registerUser = async (userData: RegisterCredentials) => {
+  const { start, succeeded, failure } = useAuthStore.getState();
+  start();
   try {
     const response = await post<{
       success: boolean;
@@ -36,10 +30,7 @@ export const registerUser = async (
 
     if (!response || !response.success) {
       console.error(" Registration Failed - response error");
-      dispatch({
-        type: "FAILURE",
-        payload: ["Registration failed - Please try again later."],
-      });
+      failure(["Registration failed - Please try again later."]);
       return;
     }
 
@@ -48,13 +39,13 @@ export const registerUser = async (
     // CHECK IF SECURITY TOKENS ARE PRESENT WHEN THE RESPONSE IS RECEIVED.
     if (!csrf) {
       console.error("CSRF TOKEN NOT FOUND IN LOGIN RESPONSE");
-      dispatch({ type: "FAILURE", payload: ["CSRF TOKEN NOT FOUND"] });
+      failure(["CSRF TOKEN NOT FOUND"]);
       return;
     }
 
     if (!fingerprint) {
       console.error("FINGERPRINT NOT FOUND IN LOGIN RESPONSE");
-      dispatch({ type: "FAILURE", payload: ["FINGERPRINT NOT FOUND"] });
+      failure(["FINGERPRINT NOT FOUND"]);
       return;
     }
 
@@ -66,18 +57,15 @@ export const registerUser = async (
     const storedFingerprint = getFingerprint();
     if (!storedFingerprint) {
       console.error("Failed to store fingerprint in localStorage");
-      dispatch({ type: "FAILURE", payload: ["Authentication error occurred"] });
+      failure(["Authentication error occurred"]);
       return;
     }
 
-    const payload = {
+    succeeded({
       user,
       csrf,
       fingerprint,
-      success: true,
-    };
-
-    dispatch({ type: "SUCCEEDED", payload });
+    });
   } catch (error) {
     console.error("Registration failed:", error);
 
@@ -92,55 +80,51 @@ export const registerUser = async (
     } else if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 400 && error.response.data.errors) {
         errorMessage = error.response.data.errors.map(
-          (err: { msg: string }) => err.msg
+          (err: { msg: string }) => err.msg,
         );
       } else {
         errorMessage = [error.response.data || "Registration Failed"];
       }
     }
-    dispatch({ type: "FAILURE", payload: errorMessage });
+    failure(errorMessage);
   }
 };
 
-export const loginUser = async (
-  userCredentials: LoginCredentials,
-  dispatch: Dispatch<AuthAction>
-) => {
-  dispatch({ type: "START" });
+export const loginUser = async (userCredentials: LoginCredentials) => {
+  const { start, succeeded, failure } = useAuthStore.getState();
+  start();
   try {
     // ENSURE WE'RE USING withCredentials FOR THIS CRITICAL REQUEST.
     const response = await post<{
       success: boolean;
-      data: { user: UserPayload; csrf: string; fingerprint: string };
+      data: {
+        user: UserPayload;
+        csrf: string;
+        fingerprint: string;
+      };
     }>(`/auth/login`, userCredentials);
     if (!response) {
       console.error("LOGIN Failed - No Response received");
-      dispatch({
-        type: "FAILURE",
-        payload: ["No Response from server - Please try again later"],
-      });
+      failure(["No Response from server - Please try again later"]);
       return;
     }
 
     if (!response.success) {
       console.error("LOGIN Failed - Server returned Error");
-      dispatch({
-        type: "FAILURE",
-        payload: ["Login Failed - Please try again later"],
-      });
+      failure(["Login Failed - Please try again later"]);
       return;
     }
     const { csrf, fingerprint, user } = response.data;
     // CHECK IF SECURITY TOKENS ARE PRESENT WHEN THE RESPONSE IS RECEIVED.
     if (!csrf) {
       console.error("CSRF TOKEN NOT FOUND IN LOGIN RESPONSE");
-      dispatch({ type: "FAILURE", payload: ["CSRF TOKEN NOT FOUND"] });
+      failure(["CSRF TOKEN NOT FOUND"]);
       return;
     }
 
     if (!fingerprint) {
       console.error("FINGERPRINT NOT FOUND IN LOGIN RESPONSE");
-      dispatch({ type: "FAILURE", payload: ["FINGERPRINT NOT FOUND"] });
+      failure(["FINGERPRINT NOT FOUND"]);
       return;
     }
 
@@ -153,16 +137,14 @@ export const loginUser = async (
     const storedFingerprint = getFingerprint();
     if (!storedFingerprint) {
       console.error("Failed to store fingerprint in localStorage");
-      dispatch({ type: "FAILURE", payload: ["Authentication error occurred"] });
+      failure(["Authentication error occurred"]);
       return;
     }
-    const payload = {
+    succeeded({
       user,
       csrf,
       fingerprint,
-      success: true,
-    };
-    dispatch({ type: "SUCCEEDED", payload });
+    });
   } catch (error) {
     console.error("LOGIN failed:", error);
 
@@ -177,24 +159,25 @@ export const loginUser = async (
     } else if (axios.isAxiosError(error) && error.response) {
       if (error.response.status === 400 && error.response.data.errors) {
         errorMessage = error.response.data.errors.map(
-          (err: { msg: string }) => err.msg
+          (err: { msg: string }) => err.msg,
         );
       } else {
         errorMessage = [error.response.data || "LOGIN Failed"];
       }
     }
-    dispatch({ type: "FAILURE", payload: errorMessage });
+    failure(errorMessage);
   }
 };
 
-export const logoutUser = async (dispatch: Dispatch<AuthAction>) => {
-  dispatch({ type: "START" });
+export const logoutUser = async () => {
+  const { start, logout } = useAuthStore.getState();
+  start();
   try {
     await post("/auth/logout", {});
 
     clearAuthStorage();
 
-    dispatch({ type: "LOGOUT" });
+    logout();
     return true;
   } catch (error) {
     console.error("LOGOUT ERROR:", error);
@@ -214,7 +197,7 @@ export const logoutUser = async (dispatch: Dispatch<AuthAction>) => {
     }
     // STILL LOGOUT CLIENT-SIDE EVEN IF THE SERVER FAILS.
     clearAuthStorage();
-    dispatch({ type: "LOGOUT" });
+    logout();
     return false;
   }
 };

@@ -11,7 +11,7 @@ class AuthModel {
       await connection.query("BEGIN");
 
       const hashedPassword = passwords.hashPassword(
-        registerCredentials.password
+        registerCredentials.password,
       );
       const sql = `
           INSERT INTO users (
@@ -51,21 +51,27 @@ class AuthModel {
   async login(email: string, password: string): Promise<TUser> {
     const connection = await db.connect();
     try {
-      await connection.query("BEGIN");
       const result = await connection.query<TUser>(
         "SELECT * FROM users WHERE email=$1",
-        [email]
+        [email],
       );
       const user = result.rows[0];
       if (!user) {
         throw new Error(`user not found !`);
       }
 
+      // Verify the password
+      const isPasswordValid = passwords.checkPassword(password, user.password);
+      if (!isPasswordValid) {
+        throw new Error("Invalid credentials!");
+      }
+
       if (user.is_online === false) {
+        await connection.query("BEGIN");
         await user_model.updateOnlineStatus(user.user_id as string, true);
         const updatedUserResult = await connection.query<TUser>(
           "SELECT * FROM users WHERE user_id=$1",
-          [user.user_id]
+          [user.user_id],
         );
 
         await connection.query("COMMIT");

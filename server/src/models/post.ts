@@ -12,18 +12,15 @@ class PostModel {
   private async checkPostExist(id: string): Promise<boolean> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
       const post: QueryResult<Post> = await connection.query(
         `SELECT * FROM posts WHERE post_id = $1`,
-        [id]
+        [id],
       );
-      await connection.query("COMMIT");
       if (post) {
         return true;
       }
       return false;
     } catch (error) {
-      await connection.query("ROLLBACK");
       throw error;
     } finally {
       connection.release();
@@ -64,18 +61,15 @@ class PostModel {
   async fetchPostById(post_id: string): Promise<Post> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
       const post: QueryResult<Post> = await connection.query(
         "SELECT * FROM posts WHERE post_id = $1",
-        [post_id]
+        [post_id],
       );
-      await connection.query("COMMIT");
       if (post.rowCount === 0) {
         throw new Error("Post not found");
       }
       return post.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
       throw new Error(`fetch post by id model: ${(error as Error).message}`);
     } finally {
       connection.release();
@@ -89,7 +83,7 @@ class PostModel {
   async index(
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next"
+    direction: "next" | "previous" = "next",
   ): Promise<{ posts: Post[]; totalCount: number }> {
     const connection = await pool.connect();
     try {
@@ -122,7 +116,7 @@ class PostModel {
           ? " ORDER BY p.updated_at DESC"
           : " ORDER BY p.updated_at ASC";
 
-      sql += `LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
 
@@ -132,7 +126,7 @@ class PostModel {
         direction === "previous" ? result.rows.reverse() : result.rows;
 
       const resultCount = await connection.query(
-        "SELECT COUNT(*) AS total FROM posts"
+        "SELECT COUNT(*) AS total FROM posts",
       );
 
       const totalCount = parseInt(resultCount.rows[0].total);
@@ -161,7 +155,7 @@ class PostModel {
       }
       const updatePost: QueryResult<Post> = await connection.query(
         "UPDATE posts SET description = $1, image = $2, updated_at = $3 WHERE post_id = $4 RETURNING *",
-        [post.description, post.image, post.updated_at, id]
+        [post.description, post.image, post.updated_at, id],
       );
       await connection.query("COMMIT");
       return updatePost.rows[0];
@@ -208,7 +202,7 @@ class PostModel {
     user_id: string,
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next"
+    direction: "next" | "previous" = "next",
   ) {
     const connection = await pool.connect();
     try {
@@ -232,7 +226,7 @@ class PostModel {
         try {
           const postCheck = await connection.query(
             `SELECT updated_at FROM posts WHERE post_id = $1`,
-            [cursor]
+            [cursor],
           );
 
           if (postCheck.rows.length > 0) {
@@ -256,13 +250,13 @@ class PostModel {
           ? " ORDER BY p.updated_at DESC, p.post_id DESC "
           : " ORDER BY p.updated_at ASC, p.post_id ASC ";
 
-      sql += `LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
 
       const result: QueryResult<IFeedPost> = await connection.query(
         sql,
-        params
+        params,
       );
 
       const posts =
@@ -278,7 +272,7 @@ class PostModel {
 			WHERE
 				p.user_id = $1
 			`,
-          [user_id]
+          [user_id],
         );
 
       const totalCount = parseInt(resultCount.rows[0].total);
@@ -304,7 +298,7 @@ class PostModel {
     user_id: string,
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next"
+    direction: "next" | "previous" = "next",
   ): Promise<{ posts: IFeedPost[]; totalCount: number }> {
     const connection = await pool.connect();
     try {
@@ -336,7 +330,7 @@ class PostModel {
         try {
           const postCheck = await connection.query(
             `SELECT updated_at FROM posts WHERE post_id = $1`,
-            [cursor]
+            [cursor],
           );
 
           if (postCheck.rows.length > 0) {
@@ -360,7 +354,7 @@ class PostModel {
           ? " ORDER BY p.updated_at DESC, p.post_id DESC "
           : " ORDER BY p.updated_at ASC, p.post_id ASC ";
 
-      sql += `LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
 
@@ -380,7 +374,7 @@ class PostModel {
 			OR
 				p.user_id IN (SELECT user_id_followed FROM follows WHERE user_id_following = $1)
 		`,
-        [user_id]
+        [user_id],
       );
 
       const totalCount = resultCount.rows[0].total;

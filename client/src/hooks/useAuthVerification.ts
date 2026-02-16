@@ -1,8 +1,8 @@
 import axios from "axios";
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import api from "../api/axiosInstance";
 import configs from "../configs";
-import { AuthContext } from "../context/AuthContext";
+import useAuthStore from "../stores/useAuthStore";
 import {
   clearAuthStorage,
   getCsrf,
@@ -14,8 +14,6 @@ import {
 } from "../services/storage";
 
 const useAuthVerification = () => {
-  const { dispatch } = useContext(AuthContext);
-
   const refreshTokens = useCallback(async () => {
     try {
       // SYNC ALL AUTH TOKENS FROM COOKIES TO LOCAL STORAGE.
@@ -30,7 +28,7 @@ const useAuthVerification = () => {
         return false;
       }
 
-      // SET UP HEADER WITH fingerprint  CSRF TOKEN IF AVAILABLE.
+      // SET UP HEADER WITH fingerprint CSRF TOKEN IF AVAILABLE.
       const headers: Record<string, string> = {
         "X-Fingerprint": storedFingerprint,
       };
@@ -46,7 +44,11 @@ const useAuthVerification = () => {
         const refreshResult = await api.post(
           "/auth/refresh-token",
           {},
-          { withCredentials: true, headers, timeout: 10000 }
+          {
+            withCredentials: true,
+            headers,
+            timeout: 10000,
+          },
         );
 
         const { user, fingerprint, csrf } = refreshResult?.data || {};
@@ -63,13 +65,10 @@ const useAuthVerification = () => {
           }
 
           // UPDATE AUTH STATE WITH NEW USER INFO.
-          dispatch({
-            type: "SUCCEEDED",
-            payload: {
-              user,
-              fingerprint,
-              csrf,
-            },
+          useAuthStore.getState().succeeded({
+            user,
+            fingerprint,
+            csrf,
           });
           return true;
         }
@@ -79,7 +78,7 @@ const useAuthVerification = () => {
           if (refreshError.response?.status === 403) {
             console.error("Token validation failed clearing credentials");
             clearAuthStorage();
-            dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+            useAuthStore.getState().checkAuthStatus(false);
           }
           console.error("Status code:", refreshError.response?.status);
           console.error("Response data:", refreshError.response?.data);
@@ -98,7 +97,7 @@ const useAuthVerification = () => {
       }
       return false;
     }
-  }, [dispatch]);
+  }, []);
 
   const checkAuthStatus = useCallback(async () => {
     try {
@@ -125,28 +124,19 @@ const useAuthVerification = () => {
           }
 
           // UPDATE AUTH STATE WITH NEW USER INFO.
-          dispatch({
-            type: "SUCCEEDED",
-            payload: {
-              user,
-              fingerprint,
-              csrf,
-            },
+          useAuthStore.getState().succeeded({
+            user,
+            fingerprint,
+            csrf,
           });
         } else {
           // SIMPLE AUTHENTICATED FLAG WITHOUT USER DATA (BACKWARD COMPATIBILITY.)
-          dispatch({
-            type: "CHECK_AUTH_STATUS",
-            payload: true,
-          });
+          useAuthStore.getState().checkAuthStatus(true);
         }
         return true;
       } else {
         console.log("User is NOT authenticated!");
-        dispatch({
-          type: "CHECK_AUTH_STATUS",
-          payload: false,
-        });
+        useAuthStore.getState().checkAuthStatus(false);
         return false;
       }
     } catch (error) {
@@ -161,18 +151,19 @@ const useAuthVerification = () => {
           console.error("No response received from server");
         }
       }
-      dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+      useAuthStore.getState().checkAuthStatus(false);
       return false;
     }
-  }, [dispatch]);
+  }, []);
 
   const verifyAuth = useCallback(async () => {
+    const { start, checkAuthStatus: checkAuth } = useAuthStore.getState();
     // DISPATCH START ACTION TO INDICATE LOADING.
-    dispatch({ type: "START" });
+    start();
     // CREATE AN OVERALL TIMEOUT PROTECTION.
     const authTimeout = setTimeout(() => {
       console.error("Auth verification timeout after 10 seconds");
-      dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+      useAuthStore.getState().checkAuthStatus(false);
     }, 10000);
     try {
       // SYNC ALL AUTH TOKENS FROM COOKIES TO LOCAL STORAGE.
@@ -186,7 +177,7 @@ const useAuthVerification = () => {
 
       while (!storedFingerprint && retryCount < maxRetries) {
         console.warn(
-          `Retry ${retryCount + 1}/${maxRetries} to get fingerprint...`
+          `Retry ${retryCount + 1}/${maxRetries} to get fingerprint...`,
         );
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
         storedFingerprint = getFingerprint();
@@ -196,7 +187,7 @@ const useAuthVerification = () => {
       if (!storedFingerprint) {
         console.error("Failed to retrieve fingerprint after retries");
         clearAuthStorage();
-        dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+        checkAuth(false);
         return;
       }
 
@@ -208,7 +199,7 @@ const useAuthVerification = () => {
       } catch (error) {
         console.log(
           "Direct auth check failed, attempting token refresh:",
-          error
+          error,
         );
       }
 
@@ -217,7 +208,7 @@ const useAuthVerification = () => {
         const refreshResult = await refreshTokens();
         if (!refreshResult) {
           clearAuthStorage();
-          dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+          checkAuth(false);
         }
         return;
       }
@@ -233,16 +224,16 @@ const useAuthVerification = () => {
         const refreshResult = await refreshTokens();
         if (!refreshResult) {
           clearAuthStorage();
-          dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+          checkAuth(false);
         }
       }
     } catch (error) {
       console.error("Authentication verification failed: ", error);
-      dispatch({ type: "CHECK_AUTH_STATUS", payload: false });
+      useAuthStore.getState().checkAuthStatus(false);
     } finally {
       clearTimeout(authTimeout);
     }
-  }, [refreshTokens, checkAuthStatus, dispatch]);
+  }, [refreshTokens, checkAuthStatus]);
 
   return {
     refreshTokens,

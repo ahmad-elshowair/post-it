@@ -6,7 +6,7 @@ class RefreshTokenModel {
   async createToken(
     userId: string,
     fingerprintHash: string,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<string> {
     // connect to the database
     const connection = await pool.connect();
@@ -21,7 +21,7 @@ class RefreshTokenModel {
       // insert token data
       const result: QueryResult<RefreshToken> = await connection.query(
         sql,
-        values
+        values,
       );
       await connection.query("COMMIT");
       // return token
@@ -30,7 +30,7 @@ class RefreshTokenModel {
       await connection.query("ROLLBACK");
       console.error("error creating refresh token", error);
       throw new Error(
-        `create refresh token model error: ${(error as Error).message}`
+        `create refresh token model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -38,11 +38,8 @@ class RefreshTokenModel {
   }
 
   async verifyToken(userId: string, fingerprintHash: string): Promise<boolean> {
-    // connect to the database
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-      // verify token query
       const sql = `SELECT * FROM refresh_tokens
         WHERE user_id = $1
         AND fingerprint_hash = $2
@@ -53,16 +50,13 @@ class RefreshTokenModel {
 
       const result: QueryResult<RefreshToken> = await connection.query(
         sql,
-        values
+        values,
       );
-      await connection.query("COMMIT");
-      // return token
       return result.rows.length > 0;
     } catch (error) {
-      await connection.query("ROLLBACK");
       console.error("error verifying refresh token", error);
       throw new Error(
-        `verify refresh token model error: ${(error as Error).message}`
+        `verify refresh token model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -73,7 +67,7 @@ class RefreshTokenModel {
     userId: string,
     oldFingerprintHash: string,
     newFingerprintHash: string,
-    expiresAt: Date
+    expiresAt: Date,
   ): Promise<string> {
     // connect to the database
     const connection = await pool.connect();
@@ -95,7 +89,7 @@ class RefreshTokenModel {
       const newTokenId = await this.createToken(
         userId,
         newFingerprintHash,
-        expiresAt
+        expiresAt,
       );
       // Commit transaction
       await connection.query("COMMIT");
@@ -106,7 +100,7 @@ class RefreshTokenModel {
       await connection.query("ROLLBACK");
       console.error("error rotating refresh token", error);
       throw new Error(
-        `rotate refresh token model error: ${(error as Error).message}`
+        `rotate refresh token model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -133,7 +127,7 @@ class RefreshTokenModel {
       await connection.query("ROLLBACK");
       console.error("error revoking all user tokens", error);
       throw new Error(
-        `revoke all user tokens model error: ${(error as Error).message}`
+        `revoke all user tokens model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();
@@ -164,7 +158,7 @@ class RefreshTokenModel {
       await connection.query("ROLLBACK");
       console.error("error removing all expired token", error);
       throw new Error(
-        `remove expired token model error: ${(error as Error).message}`
+        `remove expired token model error: ${(error as Error).message}`,
       );
     } finally {
       connection.release();

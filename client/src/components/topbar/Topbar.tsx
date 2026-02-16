@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import {
   FaBell,
   FaComment,
@@ -8,17 +7,15 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import config from "../../configs";
-import { AuthContext } from "../../context/AuthContext";
 import useAuthState from "../../hooks/useAuthState";
 import { logoutUser } from "../../services/auth";
 import "./topbar.css";
 
 export const Topbar = () => {
   const { user } = useAuthState();
-  const { dispatch } = useContext(AuthContext);
 
   const handleLogout = () => {
-    logoutUser(dispatch);
+    logoutUser();
   };
 
   return (
