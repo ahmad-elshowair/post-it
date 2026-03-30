@@ -7,6 +7,10 @@
   margin: 0;
 }
 
+.profile-cover-container img {
+  object-fit: cover;
+}
+
 .profile-right {
   flex: 9;
 }

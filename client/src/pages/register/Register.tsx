@@ -44,12 +44,12 @@ export const Register = () => {
       <div className="container d-flex flex-lg-row flex-column gap-5 justify-content-center align-items-center h-100">
         <header className="register-page__header d-flex align-items-center justify-content-center flex-column gap-4">
           <img
-            src={`${config.api_url}/images/chat_it.png`}
+            src={`${config.api_url}/images/post_it.png`}
             className="w-75"
             alt="logo"
           />
           <h1 className="d-none d-lg-block fw-bold fs-2 text-uppercase">
-            Chat it with Concern !
+            Post It with Confidence !
           </h1>
         </header>
         <form
@@ -257,7 +257,7 @@ export const Register = () => {
                 )}
               </div>
             </div>
-            <button className="btn btn-chat" type="submit">
+            <button className="btn btn-post" type="submit">
               Register
             </button>
             <Link to="/login" className="btn-homie  text-center fw-light">

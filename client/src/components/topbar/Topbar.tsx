@@ -23,8 +23,8 @@ export const Topbar = () => {
       <section className="container-fluid">
         <Link className="navbar-brand" to="/">
           <img
-            src={`${config.api_url}/images/chat_it.png`}
-            alt="lgo chat it"
+            src={`${config.api_url}/images/post_it.png`}
+            alt="Post It logo"
             height={60}
           />
         </Link>
@@ -33,7 +33,7 @@ export const Topbar = () => {
           <input
             type="search"
             aria-label="search"
-            placeholder="search chat it"
+            placeholder="search post it"
             className="form-control"
           />
         </form>

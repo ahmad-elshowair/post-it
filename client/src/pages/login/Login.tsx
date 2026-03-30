@@ -42,7 +42,7 @@ export const Login = () => {
     }
   };
 
-  const imageUrl = `${config.api_url}/images/chat_it.png`;
+  const imageUrl = `${config.api_url}/images/post_it.png`;
 
   return (
     <section className="vh-100 py-5">
@@ -135,7 +135,7 @@ export const Login = () => {
                 </span>
               )}
             </div>
-            <button className="btn btn-chat" type="submit">
+            <button className="btn btn-post" type="submit">
               {loading ? <CircularProgress size={"20px"} /> : "Login"}
             </button>
             <Link to="/register" className="btn-new fw-light text-center">

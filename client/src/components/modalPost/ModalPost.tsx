@@ -69,7 +69,7 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
         } else {
           console.error(
             "Upload Failed: No filepath in response.",
-            uploadResponse
+            uploadResponse,
           );
         }
       }
@@ -84,7 +84,7 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
 
       const response = await post<{ success: boolean; data: TPost }>(
         "/posts/create",
-        postData
+        postData,
       );
 
       if (response?.success) {
@@ -194,7 +194,7 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
               />
             </Form.Group>
             <button
-              className="btn-chat border-0 px-4 py-1"
+              className="btn-post border-0 px-4 py-1"
               type="submit"
               disabled={
                 isLoading || uploadProgress || (!description.trim() && !file)

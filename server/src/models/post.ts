@@ -91,7 +91,18 @@ class PostModel {
       const params: any[] = [];
       let sql = `
 		SELECT 
-			p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, p.updated_at, u.picture, u.first_name, u.last_name
+			p.post_id,
+      p.description,
+      p.updated_at,
+      p.image,
+      p.number_of_likes,
+      p.number_of_comments,
+      u.user_id,
+      u.user_name,
+      p.updated_at,
+      u.picture,
+      u.first_name,
+      u.last_name
 		FROM 
 			posts p
 		JOIN 

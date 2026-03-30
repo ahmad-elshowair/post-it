@@ -128,7 +128,7 @@ export const Profile = () => {
                 ...prevUser,
                 number_of_followers: Math.max(
                   0,
-                  (prevUser.number_of_followers || 0) - 1
+                  (prevUser.number_of_followers || 0) - 1,
                 ),
               };
             }
@@ -151,7 +151,7 @@ export const Profile = () => {
                 ...prevUser,
                 number_of_followers: Math.max(
                   0,
-                  (prevUser.number_of_followers || 0) + 1
+                  (prevUser.number_of_followers || 0) + 1,
                 ),
               };
             }
@@ -191,7 +191,7 @@ export const Profile = () => {
   const CoverImageSrc = useMemo(() => {
     return user?.cover
       ? `${config.api_url}/images/avatars/${user?.cover}`
-      : `${config.api_url}/images/noCover.png`;
+      : `${config.api_url}/images/no-cover.png`;
   }, [user?.cover]);
 
   if (!user) {
@@ -268,7 +268,7 @@ export const Profile = () => {
               </article>
               {user?.user_name !== currentUser?.user_name && (
                 <button
-                  className={`${isFollowed ? "follow-btn" : "btn-chat"}`}
+                  className={`${isFollowed ? "follow-btn" : "btn-post"}`}
                   onClick={handleFollow}
                   disabled={isLoading || apiLoading}
                 >
