@@ -57,7 +57,7 @@ Rate-limit configuration values MUST be sourced from environment variables and M
 File uploads via `multer` MUST enforce all three of the following controls — none are optional:
 1. **MIME-type validation**: The server MUST verify the actual internal file signature (magic bytes), not rely on the client-provided extension or `Content-Type` header. Acceptable MIME types MUST be an explicit allow-list (e.g., `image/jpeg`, `image/png`, `image/webp`).
 2. **File size limit**: A strict maximum of 5 MB per file MUST be enforced via `multer`'s `limits.fileSize` option to prevent storage-exhaustion attacks.
-3. **Path safety**: Any user-supplied `folder` or path component MUST be sanitized before use in filesystem operations to prevent directory traversal.
+3. **Path safety**: Any user-supplied `folder` or path component MUST be validated before use in filesystem operations, and any request containing unsafe path characters MUST be rejected (not silently sanitized) to prevent directory traversal.
 
 ### VIII. Frontend Efficiency & Performance
 Interactive controls that trigger API calls on rapid user input (e.g., like buttons) MUST implement debounce or throttle logic in the frontend layer. A minimum debounce interval of 500 ms is required to collapse rapid repeated actions into a single API request.
@@ -83,4 +83,4 @@ This Constitution supersedes all other documentation, READMEs, and ad-hoc practi
 
 **Compliance Review**: Every PR MUST pass a constitution compliance check referencing the applicable principle numbers before approval.
 
-**Version**: 1.1.0 | **Ratified**: 2026-03-30 | **Last Amended**: 2026-04-02
+**Version**: 1.1.1 | **Ratified**: 2026-03-30 | **Last Amended**: 2026-04-03
