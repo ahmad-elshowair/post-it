@@ -1,5 +1,6 @@
 export interface ICursorPaginationOptions {
   limit: number;
+  originalLimit: number;
   cursor?: string;
   direction?: "next" | "previous";
 }

@@ -31,8 +31,8 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Create tiered rate limiter middleware in server/src/middlewares/rateLimiter.ts — export globalLimiter (150 req/60s by IP), authLimiter (5 req/900s by IP), contentCreationLimiter (25 req/60s by authenticated user ID); use express-rate-limit with rate-limit-redis store connected via redis.ts client; set standardHeaders: true, custom keyGenerator for user-ID vs IP; return 429 with standardized error envelope on limit exceeded
-- [ ] T007 [P] Remove totalCount parameter from createPaginationResult in server/src/utilities/pagination.ts — update getCursorPaginationOptions to request limit+1, derive hasMore from data.length > originalLimit, strip extra item from returned data, remove totalCount from IPaginatedResult interface
+- [x] T006 Create tiered rate limiter middleware in server/src/middlewares/rateLimiter.ts — export globalLimiter (150 req/60s by IP), authLimiter (5 req/900s by IP), contentCreationLimiter (25 req/60s by authenticated user ID); use express-rate-limit with rate-limit-redis store connected via redis.ts client; set standardHeaders: true, custom keyGenerator for user-ID vs IP; return 429 with standardized error envelope on limit exceeded
+- [x] T007 [P] Remove totalCount parameter from createPaginationResult in server/src/utilities/pagination.ts — update getCursorPaginationOptions to request limit+1, derive hasMore from data.length > originalLimit, strip extra item from returned data, remove totalCount from IPaginatedResult interface
 
 **Checkpoint**: Foundation ready — rate limiter middleware and pagination utility refactor complete, user story implementation can begin
 
