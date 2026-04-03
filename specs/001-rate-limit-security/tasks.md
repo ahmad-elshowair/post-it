@@ -119,6 +119,7 @@
 - [ ] T030 [P] Verify no totalCount references remain in any server response payloads or controller/model code
 - [ ] T031 [P] Verify feed pagination response time consistency — manually time paginated feed queries at different data volumes to confirm no degradation (SC-006)
 - [ ] T032 Run pnpm test && pnpm run lint to validate no regressions
+- [ ] T033 Update all existing sectional comments across the codebase to match the new 1.2.0 constitution standard (// ───── SECTION ────────────────────────────── and file-specific variants)
 
 ---
 
