@@ -85,10 +85,16 @@ As a highly active user who rapidly likes multiple posts, I need the application
   → **Resolution**: The request completes server-side (idempotent like/unlike). No abort controller needed. UI state on the new page is independent.
 - What happens when the MIME-type inspection yields an ambiguous result (e.g., a valid image with extra metadata appended)?
   → **Resolution**: Reject the file. If `file-type` cannot conclusively identify the MIME, the file is treated as disallowed. Strict validation: only files with a detected MIME matching the allowlist are accepted.
+- What happens when a file has valid magic bytes (passes MIME check) but is corrupted or truncated (e.g., a partial JPEG)?
+  → **Resolution**: Accept the file. The upload endpoint validates content type via magic bytes only, not file integrity. Storage of a corrupted image is a quality issue, not a security issue. The frontend should handle display failures gracefully (broken image icon). Adding full image integrity validation is out of scope for this iteration.
 - What happens if a CSP-compliant inline script is needed for a third-party integration in the future?
   → **Resolution**: Out of scope for this iteration. Future integrations would require a constitution amendment to update CSP directives.
 - What happens when multiple legitimate users share a single IP address (NAT/corporate network) and collectively exceed the 150/min global limit?
   → **Resolution**: Known limitation. The 150 req/min global limit applies per IP. Users behind shared NAT may hit limits faster. Authenticated content-creation tier (25/min per user ID) mitigates this for logged-in users. Future: consider user-ID-based keys for global tier when authenticated.
+- What happens on a fresh Redis instance with no existing rate limit counters?
+  → **Resolution**: Counters start at 0 for each new client key. This is the default behavior of express-rate-limit with rate-limit-redis — the first request from any client creates a new counter. No special initialization is required.
+- What happens when Redis is unavailable during a rate limit check (connection failure, timeout)?
+  → **Resolution**: Fail-open. If Redis cannot be reached, the rate limiter MUST allow the request to proceed and log a structured error (source IP, endpoint, "rate-limit-store-unavailable"). This prevents a Redis outage from blocking all traffic. The `redis.ts` client should handle reconnection automatically via ioredis defaults. A monitoring alert should be configured for sustained Redis connection failures.
 
 ## Requirements
 
@@ -105,7 +111,7 @@ As a highly active user who rapidly likes multiple posts, I need the application
 - **FR-009**: The system MUST include a Content-Security-Policy header in all responses that restricts `script-src` to 'self', `object-src` to 'none', and `base-uri` to 'self'.
 - **FR-010**: The system MUST allow development-specific CSP relaxations (localhost, unsafe-eval) only in non-production environments.
 - **FR-011**: The system MUST store rate limit counters in a shared Redis instance to ensure global consistency across multiple app servers. Production Redis hardening (authentication, TLS, Sentinel) is out of scope for this iteration; the implementation uses a single `REDIS_URL` environment variable.
-- **FR-012**: The system MUST identify unique clients using their source IP address (via `X-Forwarded-For` or similar headers) for unauthenticated tiered rate limits.
+- **FR-012**: The system MUST identify unique clients using their source IP address (via `X-Forwarded-For` or similar headers) for unauthenticated tiered rate limits. The system MUST use the first IP in the `X-Forwarded-For` header (leftmost value) as the client identity and configure Express `trust proxy` appropriately for the deployment environment.
 - **FR-013**: The client MUST update the like/unlike UI state instantly upon user interaction, before receiving a server response.
 - **FR-014**: The client MUST collapse rapid like/unlike interactions within a 500-millisecond window into a single server request reflecting the final state, with an independent debounce timer per post (liking different posts in quick succession sends separate requests per post).
 - **FR-015**: The client MUST revert the like/unlike UI state and display a global toast error notification if the debounced server request fails.

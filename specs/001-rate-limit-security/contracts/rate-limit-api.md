@@ -44,3 +44,20 @@ routes.use("/follows", globalLimiter, follows);       // Global limiter on follo
 - Connection URL from `REDIS_URL` env var
 - Key prefix: `postit:ratelimit:` (configurable)
 - Sliding window via `windowMs` parameter (trailing window, not fixed)
+
+## Client Identity Resolution
+- Express must be configured with `app.set('trust proxy', <level>)` appropriate for the deployment (e.g., `1` for a single reverse proxy like Nginx)
+- Rate limiter `keyGenerator` uses `req.ip` which respects the `trust proxy` setting
+- For `X-Forwarded-For`, the first (leftmost) IP is used as the client identity
+- In development (no proxy), `req.ip` falls back to `req.connection.remoteAddress`
+
+## Redis Failure Behavior
+- **Strategy**: Fail-open — if Redis is unavailable, allow the request to proceed
+- **Logging**: Log a structured error with source IP, endpoint, and `"rate-limit-store-unavailable"` reason
+- **Rationale**: A Redis outage must not block all application traffic; rate limiting is a protective measure, not an availability gate
+- **Reconnection**: ioredis handles automatic reconnection by default; no special retry logic needed in the rate limiter middleware
+
+## Redis Zero-State Behavior
+- On a fresh Redis instance with no existing counters, the first request from any client creates a new counter starting at 0
+- No initialization or seed data is required — express-rate-limit creates keys on demand
+- Counters expire automatically via Redis TTL set to the window duration

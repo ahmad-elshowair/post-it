@@ -40,6 +40,8 @@ const upload = multer({
 5. If MIME doesn't match — reject with 400 error
 6. Validate folder name against ALLOWED_FOLDERS allowlist
 
+**Note on file integrity**: The validation flow checks content type only (magic bytes), not file integrity. A file with valid magic bytes but corrupted/truncated content (e.g., a partial JPEG) will pass validation. This is acceptable because corrupted images are a quality issue, not a security vulnerability. Full image integrity validation is out of scope.
+
 ## Folder Name Validation
 - Reject (not sanitize) any folder containing: `..`, `/`, `\\`, null bytes
 - Return 400 error with message: "Invalid folder name"
