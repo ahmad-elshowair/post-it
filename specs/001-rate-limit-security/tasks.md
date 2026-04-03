@@ -46,10 +46,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Apply rate limiters to route groups in server/src/routes/index.ts — import globalLimiter, authLimiter from rateLimiter; apply authLimiter before auth routes, globalLimiter before posts/comments/follows routes
-- [ ] T009 [US1] Apply contentCreationLimiter to POST/PUT/DELETE routes on posts in server/src/routes/apis/posts.routes.ts
-- [ ] T010 [P] [US1] Apply contentCreationLimiter to POST/PUT/DELETE routes on comments in server/src/routes/apis/comments.routes.ts
-- [ ] T011 [US1] Add structured logging for all 429 responses — rate limit rejections in server/src/middlewares/rateLimiter.ts, upload validation rejections in server/src/routes/apis/upload.routes.ts; log source IP, endpoint/type, and rejection reason (OR-002)
+- [x] T008 [US1] Apply rate limiters to route groups in server/src/routes/index.ts — import globalLimiter, authLimiter from rateLimiter; apply authLimiter before auth routes, globalLimiter before posts/comments/follows routes
+- [x] T009 [US1] Apply contentCreationLimiter to POST/PUT/DELETE routes on posts in server/src/routes/apis/posts.routes.ts
+- [x] T010 [P] [US1] Apply contentCreationLimiter to POST/PUT/DELETE routes on comments in server/src/routes/apis/comments.routes.ts
+- [x] T011 [US1] Add structured logging for all 429 responses — rate limit rejections in server/src/middlewares/rateLimiter.ts, upload validation rejections in server/src/routes/apis/upload.routes.ts; log source IP, endpoint/type, and rejection reason (OR-002)
 
 **Checkpoint**: Rate limiting fully functional — send 160 requests to confirm 429 after request 151, send 6 auth requests to confirm 429 after request 6
 

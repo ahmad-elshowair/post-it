@@ -37,6 +37,17 @@ const upload = multer({ storage });
 uploadRouter.post("/", upload.single("file"), (req: Request, res: Response) => {
   try {
     if (!req.file) {
+      console.warn(
+        JSON.stringify({
+          level: "warn",
+          message: "Upload validation failed",
+          type: "UPLOAD_VALIDATION",
+          ip: req.ip,
+          userId: (req as any).user?.id || "anonymous",
+          path: req.path,
+          reason: "No file uploaded",
+        }),
+      );
       return sendResponse.error(res, "No file uploaded", 400);
     }
     // Generate the relative file path for the URL

@@ -13,7 +13,14 @@ const limitHandler = (req: Request, res: Response) => {
   const isAuthTier = req.path.includes('/auth');
   const type = isAuthTier ? 'AUTH_LIMIT' : 'GLOBAL_LIMIT';
   
-  console.warn(`[429] Rate limit exceeded. IP: ${req.ip}, Path: ${req.path}, Type: ${type}`);
+  console.warn(JSON.stringify({
+    level: 'warn',
+    message: 'Rate limit exceeded',
+    type: type,
+    ip: req.ip,
+    userId: (req as any).user?.id || 'anonymous',
+    path: req.path
+  }));
   
   return sendResponse.error(
     res,
@@ -80,7 +87,7 @@ export const contentCreationLimiter = rateLimit({
   }),
   handler: (req: Request, res: Response) => {
     const customReq = req as ICustomRequest;
-    console.warn(`[429] Content limit exceeded. UserID: ${customReq.user?.id}, IP: ${req.ip}`);
+    console.warn(`[SECURITY_REJECTION] Type: CONTENT_LIMIT, IP: ${req.ip}, UserID: ${customReq.user?.id}, Path: ${req.path}, Reason: Content creation rate limit exceeded`);
     
     return sendResponse.error(
       res,

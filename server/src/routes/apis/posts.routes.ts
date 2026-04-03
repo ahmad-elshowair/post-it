@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { contentCreationLimiter } from "../../middlewares/rateLimiter";
 import commentsController from "../../controllers/comments.controller";
 import likeController from "../../controllers/likes.controller";
 import postController from "../../controllers/posts.controller";
@@ -14,48 +15,58 @@ import {
   userPostsValidator,
 } from "../../middlewares/validations/posts";
 
+// ───── POSTS ROUTES ──────────────────────────────
 const postRoute: Router = Router();
+
+// Content Creation & Modification Routes (Rate limited)
 
 postRoute.post(
   "/create",
   authorize_user,
+  contentCreationLimiter,
   createPostValidator,
-  postController.create
+  postController.create,
 );
 
 postRoute.put(
   "/update/:post_id",
   authorize_user,
+  contentCreationLimiter,
   updatePostValidator,
-  postController.update
+  postController.update,
 );
 
 postRoute.post(
   "/like/:post_id",
   authorize_user,
+  contentCreationLimiter,
   validateLikeAction,
-  likeController.handleLike
+  likeController.handleLike,
 );
+
+postRoute.delete(
+  "/delete/:post_id",
+  authorize_user,
+  contentCreationLimiter,
+  deletePostValidator,
+  postController.deletePost,
+);
+
+// ───── SECTION ──────────────────────────────
+// Content Retrieval Routes
 
 postRoute.get(
   "/is-liked/:post_id",
   authorize_user,
   validateLikeAction,
-  likeController.checkIfLiked
+  likeController.checkIfLiked,
 );
 
 postRoute.get(
   "/all",
   authorize_user,
   paginationValidator,
-  postController.index
-);
-
-postRoute.delete(
-  "/delete/:post_id",
-  authorize_user,
-  deletePostValidator,
-  postController.deletePost
+  postController.index,
 );
 
 postRoute.get(
@@ -63,27 +74,27 @@ postRoute.get(
   authorize_user,
   paginationValidator,
   userPostsValidator,
-  postController.userPosts
+  postController.userPosts,
 );
 
 postRoute.get(
   "/feed",
   authorize_user,
   paginationValidator,
-  postController.feed
+  postController.feed,
 );
 
 postRoute.get(
   "/:post_id",
   authorize_user,
   getPostByIdValidator,
-  postController.getPostById
+  postController.getPostById,
 );
 
 postRoute.get(
   "/:post_id/comments",
   authorize_user,
   getCommentsByPostIdValidator,
-  commentsController.getCommentsByPostId
+  commentsController.getCommentsByPostId,
 );
 export default postRoute;
