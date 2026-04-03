@@ -17,11 +17,11 @@
 
 **Purpose**: Install new dependencies, add Redis connection, add rate limit configuration
 
-- [ ] T001 Install new server dependencies: express-rate-limit, rate-limit-redis, ioredis, file-type in server/package.json
-- [ ] T002 [P] Install dev dependency @types/ioredis in server/package.json
-- [ ] T003 Add REDIS_URL and rate limit environment variables to server/.env (REDIS_URL=redis://localhost:6379, RATE_LIMIT_GLOBAL_WINDOW_MS=60000, RATE_LIMIT_GLOBAL_MAX=150, RATE_LIMIT_AUTH_WINDOW_MS=900000, RATE_LIMIT_AUTH_MAX=5, RATE_LIMIT_CONTENT_WINDOW_MS=60000, RATE_LIMIT_CONTENT_MAX=25, UPLOAD_MAX_SIZE_BYTES=5242880)
-- [ ] T004 [P] Create Redis connection client in server/src/database/redis.ts — connect using ioredis with REDIS_URL env var, export client instance, handle connection errors with process exit
-- [ ] T005 [P] Add Redis and rate limit config properties to server/src/configs/config.ts (redisUrl, rate limit tier configs, upload size and allowed MIME types)
+- [x] T001 Install new server dependencies: express-rate-limit, rate-limit-redis, ioredis, file-type in server/package.json
+- [x] T002 [P] Install dev dependency @types/ioredis in server/package.json
+- [x] T003 Add REDIS_URL and rate limit environment variables to server/.env (REDIS_URL=redis://localhost:6379, RATE_LIMIT_GLOBAL_WINDOW_MS=60000, RATE_LIMIT_GLOBAL_MAX=150, RATE_LIMIT_AUTH_WINDOW_MS=900000, RATE_LIMIT_AUTH_MAX=5, RATE_LIMIT_CONTENT_WINDOW_MS=60000, RATE_LIMIT_CONTENT_MAX=25, UPLOAD_MAX_SIZE_BYTES=5242880)
+- [x] T004 [P] Create Redis connection client in server/src/database/redis.ts — connect using ioredis with REDIS_URL env var, export client instance, handle connection errors with process exit
+- [x] T005 [P] Add Redis and rate limit config properties to server/src/configs/config.ts (redisUrl, rate limit tier configs, upload size and allowed MIME types)
 
 ---
 
