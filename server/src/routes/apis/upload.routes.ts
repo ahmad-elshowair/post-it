@@ -14,9 +14,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const uploadRouter = Router();
 
-// ───── SECTION ──────────────────────────────
-// Configuration
-
 /**
  * Using memoryStorage as a secure landing zone to allow magic-byte validation
  * before committing the file to the persistent filesystem.
@@ -30,8 +27,7 @@ const upload = multer({
   },
 });
 
-// ───── SECTION ──────────────────────────────
-// Routes
+// ───── UPLOAD ROUTE ──────────────────────────────
 
 /**
  * Enhanced Secure File Upload Endpoint

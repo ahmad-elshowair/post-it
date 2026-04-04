@@ -52,7 +52,7 @@ postRoute.delete(
   postController.deletePost,
 );
 
-// ───── SECTION ──────────────────────────────
+// ───── POST RETRIEVAL ROUTES ──────────────────────────────
 // Content Retrieval Routes
 
 postRoute.get(

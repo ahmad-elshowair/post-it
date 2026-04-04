@@ -78,12 +78,12 @@ Paginated data feeds MUST use cursor-based (keyset) pagination exclusively. The 
 
 - **Code Formatting & Linting**: All frontend code MUST pass the `eslint-config-react-app` standard. No code can be merged into the main branch with unresolved linter warnings.
 - **Testing Requirements**: _Deferred per user input_. Quality processes rely strictly on thorough manual checks and senior developer best practices until designated test frameworks are established.
-- **Sectional Comments**: To maintain readability in large files, logical blocks MUST be separated by sectional comments using the following standardized pattern (adapted for file type syntax):
-  - **TypeScript/JavaScript**: `// ───── SECTION ──────────────────────────────`
-  - **CSS**: `/* ───── SECTION ────────────────────────────── */`
-  - **Python/YAML/Makefile/dotenv**: `# ───── SECTION ──────────────────────────────`
-  - **HTML/Markdown**: `<!-- ───── SECTION ────────────────────────────── -->`
-  - **SQL**: `-- ───── SECTION ──────────────────────────────`
+- **Sectional Comments**: To maintain readability in large files, logical blocks MUST be separated by sectional comments using the following standardized pattern (adapted for file type syntax). The `LABEL` MUST be a concise, descriptive name for the code block that follows — never the literal word "SECTION":
+  - **TypeScript/JavaScript**: `// ───── LABEL ──────────────────────────────`
+  - **CSS**: `/* ───── LABEL ────────────────────────────── */`
+  - **Python/YAML/Makefile/dotenv**: `# ───── LABEL ──────────────────────────────`
+  - **HTML/Markdown**: `<!-- ───── LABEL ────────────────────────────── -->`
+  - **SQL**: `-- ───── LABEL ──────────────────────────────`
 
 ## Development Workflow
 

@@ -11,15 +11,14 @@ import {
 
 const router = Router();
 
-// ───── SECTION ──────────────────────────────
-// Content Creation & Modification Routes (Rate limited)
+// ───── CONTENT CREATION & MODIFICATION ROUTES (RATE LIMITED) ────────────────────────
 
 router.post(
   "/create",
   authorize_user,
   contentCreationLimiter,
   createCommentValidator,
-  commentController.createComment
+  commentController.createComment,
 );
 
 router.put(
@@ -27,7 +26,7 @@ router.put(
   authorize_user,
   contentCreationLimiter,
   updateCommentValidator,
-  commentController.updateComment
+  commentController.updateComment,
 );
 
 router.delete(
@@ -35,17 +34,16 @@ router.delete(
   authorize_user,
   contentCreationLimiter,
   deleteCommentValidator,
-  commentController.deleteComment
+  commentController.deleteComment,
 );
 
-// ───── SECTION ──────────────────────────────
-// Content Retrieval Routes
+// ───── CONTENT RETRIEVAL ROUTES ──────────────────────────────
 
 router.get(
   "/:comment_id/replies",
   authorize_user,
   getRepliesByCommentIdValidator,
-  commentController.getRepliesByCommentId
+  commentController.getRepliesByCommentId,
 );
 
 export default router;
