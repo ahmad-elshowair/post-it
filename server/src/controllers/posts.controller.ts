@@ -130,7 +130,7 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
 
     const paginationOptions = getCursorPaginationOptions(req);
 
-    const { posts, totalCount } = await post_model.index(
+    const { posts } = await post_model.index(
       paginationOptions.limit,
       paginationOptions.cursor,
       paginationOptions.direction
@@ -206,7 +206,7 @@ const userPosts = async (req: Request, res: Response, next: NextFunction) => {
     const user_id = req.params.user_id;
     const paginationOptions = getCursorPaginationOptions(req);
 
-    const { posts, totalCount } = await post_model.userPosts(
+    const { posts } = await post_model.userPosts(
       user_id,
       paginationOptions.limit,
       paginationOptions.cursor,
@@ -244,7 +244,7 @@ const feed = async (req: ICustomRequest, res: Response, next: NextFunction) => {
 
     const paginationOptions = getCursorPaginationOptions(req);
 
-    const { posts, totalCount } = await post_model.feed(
+    const { posts } = await post_model.feed(
       user_id,
       paginationOptions.limit,
       paginationOptions.cursor,

@@ -93,18 +93,18 @@
 
 ### Implementation for User Story 4
 
-- [ ] T016 [US4] Remove SELECT COUNT(*) query from user model pagination methods (indexWithPagination, getFriends) in server/src/models/user.ts — remove totalCount query, update return types to exclude totalCount, update createPaginationResult calls to not pass totalCount
-- [ ] T017 [P] [US4] Remove SELECT COUNT(*) query from post model pagination methods (index, userPosts, feed) in server/src/models/post.ts — remove totalCount query, update return types to exclude totalCount, update createPaginationResult calls to not pass totalCount
-- [ ] T018 [US4] Update posts controller pagination calls in server/src/controllers/posts.controller.ts — remove totalCount destructuring from model call results, remove totalCount argument from createPaginationResult calls
-- [ ] T019 [P] [US4] Remove SELECT COUNT(*) query from follow model pagination methods (getFollowings, getFollowers) in server/src/models/follow.ts — remove totalCount query, update return types to exclude totalCount, update createPaginationResult calls to not pass totalCount
-- [ ] T020 [US4] Update follows controller pagination calls in server/src/controllers/follows.controller.ts — remove totalCount destructuring from model call results, remove totalCount argument from createPaginationResult calls
-- [ ] T021 [US4] Update users controller pagination calls in server/src/controllers/users.controller.ts — remove totalCount destructuring from model call results in getUsers() and getFriends(), remove totalCount argument from createPaginationResult calls
-- [ ] T022 [US4] Add LEFT JOIN to likes table in feed query in server/src/models/post.ts — add is_liked boolean field to feed query result, join on likes.post_id and likes.user_id = current authenticated user
-- [ ] T023 [P] [US4] Add is_liked field to IFeedPost interface in server/src/interfaces/IPost.ts
-- [ ] T024 [P] [US4] Add is_liked optional boolean field to TPost type in client/src/types/TPost.ts
-- [ ] T025 [US4] Create useDebouncedLike hook in client/src/hooks/useDebouncedLike.ts — per-post independent debounce with 500ms timer via Map<postId, timeoutId>. Optimistic update stays in Post.tsx local state (useState). Hook manages debounce timers and API calls only. On API success, caller updates local state. On error, hook calls a rollback callback and triggers global toast notification.
-- [ ] T026 [US4] Update Post component in client/src/components/post/Post.tsx to use useDebouncedLike hook instead of direct API call in likeHandler — remove the checkIfLiked useEffect when is_liked is provided in post data from feed response, read is_liked from TPost prop instead of making individual API calls
-- [ ] T027 [P] [US4] Verify no client-side code references totalCount from server pagination responses — search client/src/ for any totalCount usage and remove if found; the existing TPagination type already lacks totalCount and usePostStore never references it
+- [x] T016 [US4] Remove SELECT COUNT(*) query from user model pagination methods (indexWithPagination, getFriends) in server/src/models/user.ts — remove totalCount query, update return types to exclude totalCount, update createPaginationResult calls to not pass totalCount
+- [x] T017 [P] [US4] Remove SELECT COUNT(*) query from post model pagination methods (index, userPosts, feed) in server/src/models/post.ts — remove totalCount query, update return types to exclude totalCount, update createPaginationResult calls to not pass totalCount
+- [x] T018 [US4] Update posts controller pagination calls in server/src/controllers/posts.controller.ts — remove totalCount destructuring from model call results, remove totalCount argument from createPaginationResult calls
+- [x] T019 [P] [US4] Remove SELECT COUNT(*) query from follow model pagination methods (getFollowings, getFollowers) in server/src/models/follow.ts — remove totalCount query, update return types to exclude totalCount, update createPaginationResult calls to not pass totalCount
+- [x] T020 [US4] Update follows controller pagination calls in server/src/controllers/follows.controller.ts — remove totalCount destructuring from model call results, remove totalCount argument from createPaginationResult calls
+- [x] T021 [US4] Update users controller pagination calls in server/src/controllers/users.controller.ts — remove totalCount destructuring from model call results in getUsers() and getFriends(), remove totalCount argument from createPaginationResult calls
+- [x] T022 [US4] Add LEFT JOIN to likes table in feed query in server/src/models/post.ts — add is_liked boolean field to feed query result, join on likes.post_id and likes.user_id = current authenticated user
+- [x] T023 [P] [US4] Add is_liked field to IFeedPost interface in server/src/interfaces/IPost.ts
+- [x] T024 [P] [US4] Add is_liked optional boolean field to TPost type in client/src/types/TPost.ts
+- [x] T025 [US4] Create useDebouncedLike hook in client/src/hooks/useDebouncedLike.ts — per-post independent debounce with 500ms timer via Map<postId, timeoutId>. Optimistic update stays in Post.tsx local state (useState). Hook manages debounce timers and API calls only. On API success, caller updates local state. On error, hook calls a rollback callback and triggers global toast notification.
+- [x] T026 [US4] Update Post component in client/src/components/post/Post.tsx to use useDebouncedLike hook instead of direct API call in likeHandler — remove the checkIfLiked useEffect when is_liked is provided in post data from feed response, read is_liked from TPost prop instead of making individual API calls
+- [x] T027 [P] [US4] Verify no client-side code references totalCount from server pagination responses — search client/src/ for any totalCount usage and remove if found; the existing TPagination type already lacks totalCount and usePostStore never references it
 
 **Checkpoint**: Feed loads with is_liked embedded (no N+1), like button debounces rapid clicks into single request, pagination works without totalCount across all endpoints (posts, users, friends, follows)
 

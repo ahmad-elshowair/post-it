@@ -8,6 +8,7 @@ export type TPost = {
   number_of_likes: number;
   number_of_comments: number;
   user_name?: string;
+  is_liked?: boolean;
 };
 
 export type DeletePostModalProps = {

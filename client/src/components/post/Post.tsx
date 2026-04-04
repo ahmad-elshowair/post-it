@@ -5,6 +5,7 @@ import { FaComments, FaRegComment, FaTrash } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import config from "../../configs";
 import useAuthState from "../../hooks/useAuthState";
+import { useDebouncedLike } from "../../hooks/useDebouncedLike";
 import { useSecureApi } from "../../hooks/useSecureApi";
 import { TPost } from "../../types/TPost";
 import { TUser } from "../../types/TUser";
@@ -21,18 +22,33 @@ export const Post: FC<TPost> = ({
   number_of_likes,
   updated_at,
   post_id,
+  is_liked,
 }) => {
   const [user, setUser] = useState<TUser | null>(null);
   const [likeState, setLikeState] = useState({
-    isLiked: false,
+    isLiked: is_liked ?? false,
     likes: number_of_likes || 0,
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const { user: currentUser } = useAuthState();
-  const { get, post, isLoading } = useSecureApi();
+  const { get } = useSecureApi();
 
+  const { debouncedLike } = useDebouncedLike({
+    onError: (failedPostId, error) => {
+      console.error(`Like failed for post ${failedPostId}:`, error);
+      // ───── ROLLBACK OPTIMISTIC UPDATE ─────
+      setLikeState((prev) => ({
+        isLiked: !prev.isLiked,
+        likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
+      }));
+    },
+  });
+
+  // ───── ONLY FETCH IS_LIKED FROM THE API IF IT WAS NOT PROVIDED BY THE FEED RESPONSE ─────
   useEffect(() => {
+    if (is_liked !== undefined) return;
+
     const checkIfLiked = async () => {
       if (!currentUser?.user_id || !post_id) return;
 
@@ -44,8 +60,6 @@ export const Post: FC<TPost> = ({
 
         if (response?.success) {
           const { isLiked } = response.data;
-          console.log("the response of checking liking:", response);
-
           setLikeState((prevState) => ({
             ...prevState,
             isLiked: isLiked,
@@ -56,7 +70,7 @@ export const Post: FC<TPost> = ({
       }
     };
     checkIfLiked();
-  }, [post_id, currentUser?.user_id, get]);
+  }, [post_id, currentUser?.user_id, get, is_liked]);
 
   useEffect(() => {
     const fetchAUser = async () => {
@@ -78,37 +92,17 @@ export const Post: FC<TPost> = ({
 
   const relativeDate = formatRelativeTime(updatedAtDate);
 
-  const likeHandler = async () => {
-    const currentLikedStat = likeState.isLiked;
-    try {
-      const response = await post<{
-        success: boolean;
-        data: {
-          message: string;
-          action: "liked" | "unlinked";
-        };
-      }>(`/posts/like/${post_id}`, {});
+  const likeHandler = () => {
+    if (!post_id) return;
 
-      if (response?.success) {
-        console.log("the response of likeHandler: ", response);
+    // ───── OPTIMISTIC UPDATE ─────
+    setLikeState((prev) => ({
+      isLiked: !prev.isLiked,
+      likes: prev.isLiked ? prev.likes - 1 : prev.likes + 1,
+    }));
 
-        const { action } = response.data;
-        setLikeState((pervState) => ({
-          ...pervState,
-          isLiked: action === "liked",
-          likes: action === "liked" ? pervState.likes + 1 : pervState.likes - 1,
-        }));
-      }
-    } catch (error) {
-      console.error(`Failed to like/unlike post: `, error);
-
-      // IF IT'S NOT A CSRF MISMATCH, JUST TOGGLE THE LIKE
-      setLikeState((prevState) => ({
-        ...prevState,
-        isLiked: currentLikedStat,
-        likes: currentLikedStat ? prevState.likes + 1 : prevState.likes - 1,
-      }));
-    }
+    // ───── DEBOUNCED API CALL ─────
+    debouncedLike(post_id);
   };
 
   const toggleComments = () => {
@@ -196,7 +190,6 @@ export const Post: FC<TPost> = ({
               type="button"
               onClick={likeHandler}
               aria-label={likeState.isLiked ? "Unlike Post" : "Like post"}
-              disabled={isLoading}
             >
               {likeState.isLiked ? (
                 <section className="d-flex align-items-center gap-2 justify-content-center">

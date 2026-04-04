@@ -84,7 +84,7 @@ class PostModel {
     limit: number = 10,
     cursor?: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ posts: Post[]; totalCount: number }> {
+  ): Promise<{ posts: Post[] }> {
     const connection = await pool.connect();
     try {
       await connection.query("BEGIN");
@@ -136,13 +136,8 @@ class PostModel {
       const posts =
         direction === "previous" ? result.rows.reverse() : result.rows;
 
-      const resultCount = await connection.query(
-        "SELECT COUNT(*) AS total FROM posts",
-      );
-
-      const totalCount = parseInt(resultCount.rows[0].total);
       await connection.query("COMMIT");
-      return { posts, totalCount };
+      return { posts };
     } catch (error) {
       await connection.query("ROLLBACK");
       throw new Error(`index model: ${(error as Error).message}`);
@@ -273,22 +268,8 @@ class PostModel {
       const posts =
         direction === "previous" ? result.rows.reverse() : result.rows;
 
-      const resultCount: QueryResult<{ total: string }> =
-        await connection.query(
-          `
-			SELECT
-				COUNT(*) AS total
-			FROM
-				posts p
-			WHERE
-				p.user_id = $1
-			`,
-          [user_id],
-        );
-
-      const totalCount = parseInt(resultCount.rows[0].total);
       await connection.query("COMMIT");
-      return { posts, totalCount };
+      return { posts };
     } catch (error) {
       await connection.query("ROLLBACK");
       throw new Error(`userPosts model: ${(error as Error).message}`);
@@ -310,20 +291,25 @@ class PostModel {
     limit: number = 10,
     cursor?: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ posts: IFeedPost[]; totalCount: number }> {
+  ): Promise<{ posts: IFeedPost[] }> {
     const connection = await pool.connect();
     try {
       await connection.query("BEGIN");
       let params: (string | number)[] = [user_id];
       let sql = `
 				SELECT 
-					p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name, u.last_name
+					p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name, u.last_name,
+					CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked
 				FROM 
 					posts p
 				JOIN 
 					users u 
 				ON 
 					p.user_id = u.user_id
+				LEFT JOIN
+					likes l
+				ON
+					l.post_id = p.post_id AND l.user_id = $1
 				WHERE 
 					u.user_id = $1
    			OR 
@@ -374,23 +360,8 @@ class PostModel {
       const posts =
         direction === "previous" ? result.rows.reverse() : result.rows;
 
-      const resultCount = await connection.query(
-        `
-			SELECT
-				COUNT(*) AS total
-			FROM
-				posts p
-			WHERE
-				p.user_id = $1
-			OR
-				p.user_id IN (SELECT user_id_followed FROM follows WHERE user_id_following = $1)
-		`,
-        [user_id],
-      );
-
-      const totalCount = resultCount.rows[0].total;
       await connection.query("COMMIT");
-      return { posts, totalCount };
+      return { posts };
     } catch (error) {
       await connection.query("ROLLBACK");
       throw new Error(`feed model: ${(error as Error).message}`);

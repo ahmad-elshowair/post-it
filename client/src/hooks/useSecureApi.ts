@@ -5,6 +5,7 @@ import api from "../api/axiosInstance";
 import { AuthService } from "../services/authService";
 import { TRequestOptions } from "../types/TAuth";
 
+// ───── CREATE SECURE API ──────────────────────────────
 export function createSecureApi() {
   /**
    * Makes a secure API request with automatic token synchronization
@@ -19,7 +20,7 @@ export function createSecureApi() {
     method: string,
     url: string,
     data: any,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ): Promise<TResponse | null> => {
     const { syncTokens = true, onError, config = {} } = options || {};
     try {
@@ -56,7 +57,7 @@ export function createSecureApi() {
    */
   const get = async <TResponse>(
     url: string,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ): Promise<TResponse | null> => {
     return request<TResponse>("GET", url, undefined, options);
   };
@@ -64,7 +65,7 @@ export function createSecureApi() {
   const post = async <TResponse>(
     url: string,
     data: any,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ): Promise<TResponse | null> => {
     return request<TResponse>("POST", url, data, options);
   };
@@ -72,14 +73,14 @@ export function createSecureApi() {
   const put = async <TResponse>(
     url: string,
     data: any,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ): Promise<TResponse | null> => {
     return request<TResponse>("PUT", url, data, options);
   };
 
   const del = async <TResponse>(
     url: string,
-    options?: TRequestOptions
+    options?: TRequestOptions,
   ): Promise<TResponse | null> => {
     return request<TResponse>("DELETE", url, undefined, options);
   };
@@ -92,6 +93,7 @@ export function createSecureApi() {
   };
 }
 
+// ───── SECURE API HOOK ──────────────────────────────
 export function useSecureApi() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
@@ -103,7 +105,7 @@ export function useSecureApi() {
       method: string,
       url: string,
       data?: any,
-      options?: TRequestOptions
+      options?: TRequestOptions,
     ): Promise<TResponse | null> => {
       const { syncTokens = true, onError, config = {} } = options || {};
       try {
@@ -137,28 +139,28 @@ export function useSecureApi() {
         setIsLoading(false);
       }
     },
-    [clearError]
+    [clearError],
   );
 
   const get = useCallback(
     <TResponse = any>(
       url: string,
-      options?: TRequestOptions
+      options?: TRequestOptions,
     ): Promise<TResponse | null> => {
       return request<TResponse>("GET", url, undefined, options);
     },
-    [request]
+    [request],
   );
 
   const post = useCallback(
     <TResponse = any>(
       url: string,
       data?: any,
-      options?: TRequestOptions
+      options?: TRequestOptions,
     ): Promise<TResponse | null> => {
       return request<TResponse>("POST", url, data, options);
     },
-    [request]
+    [request],
   );
 
   /**
@@ -172,11 +174,11 @@ export function useSecureApi() {
     <TResponse = any>(
       url: string,
       data?: any,
-      options?: TRequestOptions
+      options?: TRequestOptions,
     ): Promise<TResponse | null> => {
       return request<TResponse>("PUT", url, data, options);
     },
-    [request]
+    [request],
   );
 
   /**
@@ -188,11 +190,11 @@ export function useSecureApi() {
   const del = useCallback(
     <TResponse = any>(
       url: string,
-      options?: TRequestOptions
+      options?: TRequestOptions,
     ): Promise<TResponse | null> => {
       return request<TResponse>("DELETE", url, undefined, options);
     },
-    [request]
+    [request],
   );
 
   return {

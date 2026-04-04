@@ -237,7 +237,7 @@ export default class FollowModel {
     limit: number = 10,
     cursor?: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ followings: TFollowings[]; totalCount: number }> {
+  ): Promise<{ followings: TFollowings[] }> {
     if (!user_id) {
       throw new Error("Missing required fields: user_id is required");
     }
@@ -284,20 +284,10 @@ export default class FollowModel {
         params,
       );
 
-      const countSql = `
-      SELECT COUNT(*) AS total
-      FROM follows
-      WHERE user_id_following = $1
-    `;
-      const countResult: QueryResult<{ total: number }> =
-        await connection.query(countSql, [user_id]);
-
-      const totalCount = countResult.rows[0].total;
-
       const followings = result.rows;
       // COMMIT TRANSACTION.
       await connection.query("COMMIT");
-      return { followings, totalCount };
+      return { followings };
     } catch (error) {
       await connection.query("ROLLBACK");
       console.error("[FOLLOW MODEL] getFollowings error", error);
@@ -313,7 +303,7 @@ export default class FollowModel {
    * @param {number} limit .
    * @param {string} cursor .
    * @param {"next" | "previous"} direction .
-   * @returns {Promise<{ followers: TFollowers[]; totalCount: number }>}
+   * @returns {Promise<{ followers: TFollowers[] }>}
    * @throws {Error} Error if required fields are missing or operation fails
    */
   async getFollowers(
@@ -321,7 +311,7 @@ export default class FollowModel {
     limit: number = 10,
     cursor?: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ followers: TFollowers[]; totalCount: number }> {
+  ): Promise<{ followers: TFollowers[] }> {
     if (!user_id) {
       throw new Error("Missing required fields: user_id is required");
     }
@@ -369,18 +359,8 @@ export default class FollowModel {
       );
       const followers = result.rows;
 
-      const countSql = `
-      SELECT COUNT(*) AS total
-      FROM follows
-      WHERE user_id_followed = $1
-    `;
-      const countResult: QueryResult<{ total: number }> =
-        await connection.query(countSql, [user_id]);
-
-      const totalCount = countResult.rows[0].total;
-
       await connection.query("COMMIT");
-      return { followers, totalCount };
+      return { followers };
     } catch (error) {
       await connection.query("ROLLBACK");
       console.error("[FOLLOW MODEL] getFollowers error", error);

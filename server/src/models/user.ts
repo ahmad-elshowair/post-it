@@ -30,13 +30,13 @@ class UserModel {
    * @param limit limit
    * @param cursor cursor
    * @param direction direction
-   * @returns {Promise<{ users: TUser[]; totalCount: number }>}
+   * @returns {Promise<{ users: TUser[] }>}
    */
   async indexWithPagination(
     limit: number = 10,
     cursor: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ users: TUser[]; totalCount: number }> {
+  ): Promise<{ users: TUser[] }> {
     const connection = await pool.connect();
     try {
       const params: any[] = [];
@@ -64,13 +64,8 @@ class UserModel {
 
       const users =
         direction === "previous" ? result.rows.reverse() : result.rows;
-      const countResult = await connection.query(
-        "SELECT COUNT(*) AS total FROM users",
-      );
 
-      const totalCount = parseInt(countResult.rows[0].total);
-
-      return { users, totalCount };
+      return { users };
     } catch (error) {
       console.error("[USER MODEL] indexWithPagination error", error);
 
@@ -293,7 +288,7 @@ class UserModel {
    * @param {number} limit
    * @param {string} cursor
    * @param {"next" | "previous"} direction
-   * @returns {Promise<{ users: TFriend[]; totalCount: number }>}
+   * @returns {Promise<{ users: TFriend[] }>}
    * @throws {Error} If the user is not found.
    */
   async getFriends(
@@ -302,7 +297,7 @@ class UserModel {
     limit: number = 10,
     cursor?: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ users: TFriend[]; totalCount: number }> {
+  ): Promise<{ users: TFriend[] }> {
     const connection: PoolClient = await pool.connect();
     try {
       const params: any[] = [user_id];
@@ -346,23 +341,7 @@ class UserModel {
 
       const result: QueryResult<TFriend> = await connection.query(sql, params);
 
-      // Use a proper COUNT(*) query for accurate total count
-      let countSql = `SELECT COUNT(*) AS total
-				FROM users u
-				JOIN follows f1 ON u.user_id = f1.user_id_followed
-				JOIN follows f2 ON f1.user_id_following = f2.user_id_followed
-				WHERE f1.user_id_following = $1
-				AND f2.user_id_following = u.user_id
-				AND u.user_id != $1`;
-
-      if (is_online) {
-        countSql += ` AND u.is_online = true`;
-      }
-
-      const countResult = await connection.query(countSql, [user_id]);
-      const totalCount = parseInt(countResult.rows[0].total);
-
-      return { users: result.rows, totalCount };
+      return { users: result.rows };
     } catch (error) {
       console.error("[USER MODEL] get friends error", error);
       throw new Error(`Failed to get friends ${(error as Error).message}`);
