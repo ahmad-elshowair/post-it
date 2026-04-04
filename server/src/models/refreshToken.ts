@@ -1,6 +1,6 @@
 import { QueryResult } from "pg";
-import pool from "../database/pool";
-import { RefreshToken } from "../types/refreshToken";
+import pool from "../database/pool.js";
+import { RefreshToken } from "../types/refreshToken.js";
 
 class RefreshTokenModel {
   async createToken(

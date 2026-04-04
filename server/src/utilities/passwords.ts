@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import config from "../configs/config";
+import config from "../configs/config.js";
 
 const checkPassword = (userPassword: string, dbPassword: string) => {
   return bcrypt.compareSync(userPassword + config.pepper, dbPassword);

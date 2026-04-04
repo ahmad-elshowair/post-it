@@ -1,13 +1,13 @@
 import { Router } from "express";
-import { contentCreationLimiter } from "../../middlewares/rateLimiter";
-import commentController from "../../controllers/comments.controller";
-import authorize_user from "../../middlewares/auth";
+import { contentCreationLimiter } from "../../middlewares/rateLimiter.js";
+import commentController from "../../controllers/comments.controller.js";
+import authorize_user from "../../middlewares/auth.js";
 import {
   createCommentValidator,
   deleteCommentValidator,
   getRepliesByCommentIdValidator,
   updateCommentValidator,
-} from "../../middlewares/validations/comments";
+} from "../../middlewares/validations/comments.js";
 
 const router = Router();
 

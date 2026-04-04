@@ -1,6 +1,6 @@
 import { PoolClient, QueryResult } from "pg";
-import db from "../database/pool";
-import { TFollowers, TFollowings } from "../types/follow";
+import db from "../database/pool.js";
+import { TFollowers, TFollowings } from "../types/follow.js";
 
 export default class FollowModel {
   /**

@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import config from "../configs/config";
+import config from "../configs/config.js";
 
 // connect the database of postgresql
 const pool = new Pool({

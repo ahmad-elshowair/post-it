@@ -1,8 +1,8 @@
 import { QueryResult } from "pg";
-import { user_model } from "../controllers/factory";
-import db from "../database/pool";
-import { TRegisterCredentials, TUser } from "../types/users";
-import passwords from "../utilities/passwords";
+import { user_model } from "../controllers/factory.js";
+import db from "../database/pool.js";
+import { TRegisterCredentials, TUser } from "../types/users.js";
+import passwords from "../utilities/passwords.js";
 
 class AuthModel {
   async register(registerCredentials: TRegisterCredentials): Promise<TUser> {

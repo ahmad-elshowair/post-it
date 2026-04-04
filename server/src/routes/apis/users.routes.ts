@@ -1,14 +1,14 @@
 import { Router } from "express";
-import userController from "../../controllers/users.controller";
-import authorizeUser from "../../middlewares/auth";
-import { paginationValidator } from "../../middlewares/validations/pagination";
+import userController from "../../controllers/users.controller.js";
+import authorizeUser from "../../middlewares/auth.js";
+import { paginationValidator } from "../../middlewares/validations/pagination.js";
 import {
   validateDeleteUser,
   validateGetFriends,
   validateGetUserByUsername,
   validateGetUsers,
   validateUpdateUser,
-} from "../../middlewares/validations/user";
+} from "../../middlewares/validations/user.js";
 const userRoute: Router = Router();
 
 userRoute.get("/unknowns", authorizeUser, userController.getUnknownUsers);

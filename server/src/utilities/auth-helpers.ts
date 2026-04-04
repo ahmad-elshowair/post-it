@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import config from "../configs/config";
-import { refresh_token_model, user_model } from "../controllers/factory";
-import { IUserPayload } from "../interfaces/IUserPayload";
+import config from "../configs/config.js";
+import { refresh_token_model, user_model } from "../controllers/factory.js";
+import { IUserPayload } from "../interfaces/IUserPayload.js";
 import {
   calculateExpirationDate,
   clearAuthCookies,
@@ -10,7 +10,7 @@ import {
   hashFingerprint,
   setTokensInCookies,
   verifyRefreshToken,
-} from "./tokens";
+} from "./tokens.js";
 
 export const getUserData = async (user_id?: string) => {
   try {

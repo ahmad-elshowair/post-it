@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
-import config from '../configs/config';
-import redisClient from '../database/redis';
-import { sendResponse } from '../utilities/response';
-import { ICustomRequest } from '../interfaces/ICustomRequest';
+import config from '../configs/config.js';
+import redisClient from '../database/redis.js';
+import { sendResponse } from '../utilities/response.js';
+import { ICustomRequest } from '../interfaces/ICustomRequest.js';
 
 /**
  * Standardized 429 Error Handler
@@ -43,7 +43,7 @@ export const globalLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({
-    // @ts-expect-error - ioredis and rate-limit-redis type mismatch in some versions
+    // @ts-expect-error - ioredis and rate-limit-redis type mismatch
     sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:global:',
   }),
@@ -60,7 +60,7 @@ export const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({
-    // @ts-expect-error - ioredis and rate-limit-redis type mismatch in some versions
+    // @ts-expect-error - ioredis and rate-limit-redis type mismatch
     sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:auth:',
   }),
@@ -81,7 +81,7 @@ export const contentCreationLimiter = rateLimit({
     return customReq.user?.id || req.ip || 'anonymous';
   },
   store: new RedisStore({
-    // @ts-expect-error - ioredis and rate-limit-redis type mismatch in some versions
+    // @ts-expect-error - ioredis and rate-limit-redis type mismatch
     sendCommand: (...args: string[]) => redisClient.call(...args),
     prefix: 'rl:content:',
   }),

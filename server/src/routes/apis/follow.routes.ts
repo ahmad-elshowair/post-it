@@ -1,10 +1,10 @@
 import { Router } from "express";
-import followController from "../../controllers/follows.controller";
-import authorize_user from "../../middlewares/auth";
+import followController from "../../controllers/follows.controller.js";
+import authorize_user from "../../middlewares/auth.js";
 import {
   validateFollowAction,
   validateIsFollowedAction,
-} from "../../middlewares/validations/follow";
+} from "../../middlewares/validations/follow.js";
 
 // create an instance of Router for follow
 

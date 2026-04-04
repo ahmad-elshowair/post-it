@@ -1,6 +1,6 @@
 import { body, param, query } from "express-validator";
-import { validateUUID } from "./common";
-import { paginationValidator } from "./pagination";
+import { validateUUID } from "./common.js";
+import { paginationValidator } from "./pagination.js";
 
 export const validateGetUsers = paginationValidator;
 

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import config from "../configs/config";
-import { IError } from "../interfaces/IError";
+import config from "../configs/config.js";
+import { IError } from "../interfaces/IError.js";
 const errorMiddleware = (
   error: IError,
   req: Request,

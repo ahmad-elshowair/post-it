@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import config from "../configs/config";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import { IUserPayload } from "../interfaces/IUserPayload";
+import config from "../configs/config.js";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import { IUserPayload } from "../interfaces/IUserPayload.js";
 import {
   handleAuthError,
   handleInvalidToken,
@@ -9,8 +9,8 @@ import {
   sendAuthStatusResponse,
   validateAuthToken,
   validateFingerprint,
-} from "../utilities/auth-helpers";
-import { sendResponse } from "../utilities/response";
+} from "../utilities/auth-helpers.js";
+import { sendResponse } from "../utilities/response.js";
 import {
   calculateExpirationDate,
   clearAuthCookies,
@@ -18,8 +18,8 @@ import {
   generateToken,
   hashFingerprint,
   setTokensInCookies,
-} from "../utilities/tokens";
-import { auth_model, refresh_token_model, user_model } from "./factory";
+} from "../utilities/tokens.js";
+import { auth_model, refresh_token_model, user_model } from "./factory.js";
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   try {

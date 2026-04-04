@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import RefreshTokenModel from "../models/refreshToken";
+import RefreshTokenModel from "../models/refreshToken.js";
 
 const refresh_token_model = new RefreshTokenModel();
 

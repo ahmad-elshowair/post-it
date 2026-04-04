@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import { IPaginatedResult } from "../interfaces/IPagination";
-import { IFeedPost } from "../interfaces/IPost";
-import { Post } from "../types/post";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import { IPaginatedResult } from "../interfaces/IPagination.js";
+import { IFeedPost } from "../interfaces/IPost.js";
+import { Post } from "../types/post.js";
 import {
   createPaginationResult,
   getCursorPaginationOptions,
-} from "../utilities/pagination";
-import { sendResponse } from "../utilities/response";
-import { post_model } from "./factory";
+} from "../utilities/pagination.js";
+import { sendResponse } from "../utilities/response.js";
+import { post_model } from "./factory.js";
 
 /**
  * CREATE NEW POST
@@ -139,7 +139,6 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
     const result = createPaginationResult(
       posts,
       paginationOptions,
-      totalCount,
       "post_id"
     );
 
@@ -217,7 +216,6 @@ const userPosts = async (req: Request, res: Response, next: NextFunction) => {
     const result = createPaginationResult(
       posts,
       paginationOptions,
-      totalCount,
       "post_id"
     );
 
@@ -256,7 +254,6 @@ const feed = async (req: ICustomRequest, res: Response, next: NextFunction) => {
     const result = createPaginationResult(
       posts,
       paginationOptions,
-      totalCount,
       "post_id"
     );
     return sendResponse.success<IPaginatedResult<IFeedPost>>(res, result);

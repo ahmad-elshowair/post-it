@@ -1,5 +1,5 @@
 import { body } from "express-validator";
-import { validateUUID } from "./common";
+import { validateUUID } from "./common.js";
 
 export const createCommentValidator = [
   body("post_id")

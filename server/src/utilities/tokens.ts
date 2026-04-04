@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { Response } from "express";
 import jwt, { JwtPayload, Secret, SignOptions } from "jsonwebtoken";
-import config from "../configs/config";
-import { IUserPayload } from "../interfaces/IUserPayload";
+import config from "../configs/config.js";
+import { IUserPayload } from "../interfaces/IUserPayload.js";
 
 // Parse a duration string (like "7d", "15m") to milliseconds
 export const getDurationInMs = (duration: string): number => {

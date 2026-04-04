@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { authLimiter, globalLimiter } from "../middlewares/rateLimiter";
-import authentication from "./apis/auth.routes";
-import comments from "./apis/comments.routes";
-import follows from "./apis/follow.routes";
-import posts from "./apis/posts.routes";
-import uploadRouter from "./apis/upload.routes";
-import users from "./apis/users.routes";
+import { authLimiter, globalLimiter } from "../middlewares/rateLimiter.js";
+import authentication from "./apis/auth.routes.js";
+import comments from "./apis/comments.routes.js";
+import follows from "./apis/follow.routes.js";
+import posts from "./apis/posts.routes.js";
+import uploadRouter from "./apis/upload.routes.js";
+import users from "./apis/users.routes.js";
 const routes: Router = Router();
 
 // Apply strict rate limiting to authentication routes

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import CommentModel from "../models/comments";
-import { IComment } from "../types/comments";
-import { sendResponse } from "../utilities/response";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import CommentModel from "../models/comments.js";
+import { IComment } from "../types/comments.js";
+import { sendResponse } from "../utilities/response.js";
 
 const comment_model = new CommentModel();
 

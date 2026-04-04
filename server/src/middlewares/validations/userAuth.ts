@@ -1,8 +1,8 @@
 import { ValidationChain, check } from "express-validator";
 import { QueryResult } from "pg";
-import { user_model } from "../../controllers/factory";
-import db from "../../database/pool";
-import passwords from "../../utilities/passwords";
+import { user_model } from "../../controllers/factory.js";
+import db from "../../database/pool.js";
+import passwords from "../../utilities/passwords.js";
 
 // A helper function to check the length
 export const checkLength = (

@@ -1,7 +1,7 @@
 import { QueryResult } from "pg";
-import pool from "../database/pool";
-import { IFeedPost } from "../interfaces/IPost";
-import { Post } from "../types/post";
+import pool from "../database/pool.js";
+import { IFeedPost } from "../interfaces/IPost.js";
+import { Post } from "../types/post.js";
 
 class PostModel {
   /**

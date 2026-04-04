@@ -1,6 +1,6 @@
 import { QueryResult } from "pg";
-import pool from "../database/pool";
-import { IComment } from "../types/comments";
+import pool from "../database/pool.js";
+import { IComment } from "../types/comments.js";
 
 class CommentModel {
   async create(comment: IComment): Promise<IComment> {

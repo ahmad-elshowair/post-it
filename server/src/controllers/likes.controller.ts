@@ -1,9 +1,9 @@
 import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import { Like } from "../types/like";
-import { sendResponse } from "../utilities/response";
-import { like_model } from "./factory";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import { Like } from "../types/like.js";
+import { sendResponse } from "../utilities/response.js";
+import { like_model } from "./factory.js";
 
 /**
  * Handle like/unlike action for a post.

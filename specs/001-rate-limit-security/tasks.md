@@ -63,9 +63,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Create MIME magic-byte validation utility in server/src/utilities/uploadValidation.ts — use file-type library to detect actual MIME from buffer, define ALLOWED_MIMES constant (image/jpeg, image/png, image/webp, image/gif), define ALLOWED_FOLDERS constant (posts, profiles, covers), export validateFileMime(buffer) and validateFolderName(folder) functions
-- [ ] T013 [US2] Update Multer config in server/src/routes/apis/upload.routes.ts — add limits.fileSize from config, add fileFilter that reads buffer and calls validateFileMime, add folder validation via validateFolderName before path.join, return proper error codes per upload-validation.md contract (400 for bad type/folder, 413 for size)
-- [ ] T014 [US2] Switch Multer storage to memoryStorage for pre-save validation in server/src/routes/apis/upload.routes.ts — preserve existing filename generation logic (date-based uniqueSuffix + originalname) and directory creation (mkdir recursive), move these operations to after MIME validation passes using fs.writeFile
+- [x] T012 [US2] Create MIME magic-byte validation utility in server/src/utilities/uploadValidation.ts — use file-type library to detect actual MIME from buffer, define ALLOWED_MIMES constant (image/jpeg, image/png, image/webp, image/gif), define ALLOWED_FOLDERS constant (posts, profiles, covers), export validateFileMime(buffer) and validateFolderName(folder) functions
+- [x] T013 [US2] Update Multer config in server/src/routes/apis/upload.routes.ts — add limits.fileSize from config, add fileFilter that reads buffer and calls validateFileMime, add folder validation via validateFolderName before path.join, return proper error codes per upload-validation.md contract (400 for bad type/folder, 413 for size)
+- [x] T014 [US2] Switch Multer storage to memoryStorage for pre-save validation in server/src/routes/apis/upload.routes.ts — preserve existing filename generation logic (date-based uniqueSuffix + originalname) and directory creation (mkdir recursive), move these operations to after MIME validation passes using fs.writeFile
 
 **Checkpoint**: Upload security fully functional — test with renamed executable, oversized file, and path traversal folder name to confirm rejections
 

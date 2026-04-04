@@ -1,6 +1,6 @@
 import { PoolClient, QueryResult } from "pg";
-import pool from "../database/pool";
-import { Like, TUsersLike } from "../types/like";
+import pool from "../database/pool.js";
+import { Like, TUsersLike } from "../types/like.js";
 
 class LikeModel {
   /**

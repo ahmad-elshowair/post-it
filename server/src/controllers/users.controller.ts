@@ -1,14 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import { IPaginatedResult } from "../interfaces/IPagination";
-import { TFriend, TUnknownUser, TUser } from "../types/users";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import { IPaginatedResult } from "../interfaces/IPagination.js";
+import { TFriend, TUnknownUser, TUser } from "../types/users.js";
 import {
   createPaginationResult,
   getCursorPaginationOptions,
-} from "../utilities/pagination";
-import { sendResponse } from "../utilities/response";
-import { user_model } from "./factory";
+} from "../utilities/pagination.js";
+import { sendResponse } from "../utilities/response.js";
+import { user_model } from "./factory.js";
 
 /**
  * Get all users with pagination
@@ -20,17 +20,16 @@ export const getUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { limit, cursor, direction } = getCursorPaginationOptions(req);
-  const { users, totalCount } = await user_model.indexWithPagination(
-    limit,
-    cursor!,
-    direction
+  const paginationOptions = getCursorPaginationOptions(req);
+  const { users } = await user_model.indexWithPagination(
+    paginationOptions.limit,
+    paginationOptions.cursor!,
+    paginationOptions.direction
   );
 
   const result = createPaginationResult(
     users,
-    { limit, cursor, direction },
-    totalCount,
+    paginationOptions,
     "user_id"
   );
 
@@ -200,18 +199,17 @@ const getFriends = async (req: Request, res: Response, next: NextFunction) => {
     const user_id = req.params.user_id;
     const isOnline = req.query.is_online === "true";
 
-    const { limit, cursor, direction } = getCursorPaginationOptions(req);
-    const { users, totalCount } = await user_model.getFriends(
+    const paginationOptions = getCursorPaginationOptions(req);
+    const { users } = await user_model.getFriends(
       user_id,
       isOnline,
-      limit,
-      cursor,
-      direction
+      paginationOptions.limit,
+      paginationOptions.cursor,
+      paginationOptions.direction
     );
     const result = createPaginationResult(
       users,
-      { limit, cursor, direction },
-      totalCount,
+      paginationOptions,
       "user_id"
     );
     return sendResponse.success<IPaginatedResult<TFriend>>(res, result);

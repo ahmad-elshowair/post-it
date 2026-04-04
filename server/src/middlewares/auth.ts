@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { NextFunction, Response } from "express";
-import config from "../configs/config";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import { hashFingerprint, verifyAccessToken } from "../utilities/tokens";
+import config from "../configs/config.js";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import { hashFingerprint, verifyAccessToken } from "../utilities/tokens.js";
 
 const authorizeUser = (
   req: ICustomRequest,

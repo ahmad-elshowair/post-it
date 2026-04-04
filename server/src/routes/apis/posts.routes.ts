@@ -1,19 +1,19 @@
 import { Router } from "express";
-import { contentCreationLimiter } from "../../middlewares/rateLimiter";
-import commentsController from "../../controllers/comments.controller";
-import likeController from "../../controllers/likes.controller";
-import postController from "../../controllers/posts.controller";
-import authorize_user from "../../middlewares/auth";
-import { getCommentsByPostIdValidator } from "../../middlewares/validations/comments";
-import { validateLikeAction } from "../../middlewares/validations/likes";
-import { paginationValidator } from "../../middlewares/validations/pagination";
+import { contentCreationLimiter } from "../../middlewares/rateLimiter.js";
+import commentsController from "../../controllers/comments.controller.js";
+import likeController from "../../controllers/likes.controller.js";
+import postController from "../../controllers/posts.controller.js";
+import authorize_user from "../../middlewares/auth.js";
+import { getCommentsByPostIdValidator } from "../../middlewares/validations/comments.js";
+import { validateLikeAction } from "../../middlewares/validations/likes.js";
+import { paginationValidator } from "../../middlewares/validations/pagination.js";
 import {
   createPostValidator,
   deletePostValidator,
   getPostByIdValidator,
   updatePostValidator,
   userPostsValidator,
-} from "../../middlewares/validations/posts";
+} from "../../middlewares/validations/posts.js";
 
 // ───── POSTS ROUTES ──────────────────────────────
 const postRoute: Router = Router();

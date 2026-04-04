@@ -1,14 +1,14 @@
 import { NextFunction, Response } from "express";
 import { validationResult } from "express-validator";
-import { ICustomRequest } from "../interfaces/ICustomRequest";
-import { IPaginatedResult } from "../interfaces/IPagination";
-import { TFollowers, TFollowings } from "../types/follow";
+import { ICustomRequest } from "../interfaces/ICustomRequest.js";
+import { IPaginatedResult } from "../interfaces/IPagination.js";
+import { TFollowers, TFollowings } from "../types/follow.js";
 import {
   createPaginationResult,
   getCursorPaginationOptions,
-} from "../utilities/pagination";
-import { sendResponse } from "../utilities/response";
-import { follow_model } from "./factory";
+} from "../utilities/pagination.js";
+import { sendResponse } from "../utilities/response.js";
+import { follow_model } from "./factory.js";
 
 /**
  * Follow a user identified by user_id_followed in the request body.
@@ -177,19 +177,18 @@ const getFollowings = async (
       );
     }
 
-    const { limit, cursor, direction } = getCursorPaginationOptions(req);
+    const paginationOptions = getCursorPaginationOptions(req);
 
-    const { followings, totalCount } = await follow_model.getFollowings(
+    const { followings } = await follow_model.getFollowings(
       user_id,
-      limit,
-      cursor,
-      direction
+      paginationOptions.limit,
+      paginationOptions.cursor,
+      paginationOptions.direction
     );
 
     const result = createPaginationResult(
       followings,
-      { limit, cursor, direction },
-      totalCount,
+      paginationOptions,
       "user_id"
     );
 
@@ -224,19 +223,18 @@ const getFollowers = async (
       );
     }
 
-    const { limit, cursor, direction } = getCursorPaginationOptions(req);
+    const paginationOptions = getCursorPaginationOptions(req);
 
-    const { followers, totalCount } = await follow_model.getFollowers(
+    const { followers } = await follow_model.getFollowers(
       user_id,
-      limit,
-      cursor,
-      direction
+      paginationOptions.limit,
+      paginationOptions.cursor,
+      paginationOptions.direction
     );
 
     const result = createPaginationResult(
       followers,
-      { limit, cursor, direction },
-      totalCount,
+      paginationOptions,
       "user_id"
     );
     return sendResponse.success<IPaginatedResult<TFollowers>>(res, result, 200);

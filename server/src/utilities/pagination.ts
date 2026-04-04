@@ -2,7 +2,7 @@ import { Request } from "express";
 import {
   ICursorPaginationOptions,
   IPaginatedResult,
-} from "../interfaces/IPagination";
+} from "../interfaces/IPagination.js";
 
 export const getCursorPaginationOptions = (req: Request): ICursorPaginationOptions => {
   const limit = parseInt(req.query.limit as string) || 10;

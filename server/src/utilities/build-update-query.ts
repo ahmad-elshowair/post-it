@@ -1,5 +1,5 @@
-import { TUser } from "../types/users";
-import passwords from "./passwords";
+import { TUser } from "../types/users.js";
+import passwords from "./passwords.js";
 
 /**
  * Allowed fields that can be updated via the user update endpoint.

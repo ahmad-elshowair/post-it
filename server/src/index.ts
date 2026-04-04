@@ -4,10 +4,13 @@ import express, { Application, Request, Response } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 import path from "path";
-import config from "./configs/config";
-import errorMiddleware from "./middlewares/error";
-import routes from "./routes";
-import { scheduledTokenCleanup } from "./utilities/scheduledTasks";
+import { fileURLToPath } from "url";
+import config from "./configs/config.js";
+import errorMiddleware from "./middlewares/error.js";
+import routes from "./routes/index.js";
+import { scheduledTokenCleanup } from "./utilities/scheduledTasks.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // create an instance of app
 const app: Application = express();

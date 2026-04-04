@@ -1,7 +1,7 @@
 import { PoolClient, QueryResult } from "pg";
-import pool from "../database/pool";
-import { TFriend, TUnknownUser, TUser } from "../types/users";
-import { buildUpdateQuery } from "../utilities/build-update-query";
+import pool from "../database/pool.js";
+import { TFriend, TUnknownUser, TUser } from "../types/users.js";
+import { buildUpdateQuery } from "../utilities/build-update-query.js";
 
 class UserModel {
   /**
