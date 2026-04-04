@@ -114,12 +114,12 @@
 
 **Purpose**: Final validation, cleanup, and cross-cutting concerns
 
-- [ ] T028 Run quickstart.md verification steps — Redis connection, rate limiting tiers, upload validation, CSP headers, like debounce
-- [ ] T029 [P] Verify all 429 responses use standardized error envelope across all enforcement points (rate limiting, upload validation)
-- [ ] T030 [P] Verify no totalCount references remain in any server response payloads or controller/model code
-- [ ] T031 [P] Verify feed pagination response time consistency — manually time paginated feed queries at different data volumes to confirm no degradation (SC-006)
-- [ ] T032 Run pnpm test && pnpm run lint to validate no regressions
-- [ ] T033 Update all existing sectional comments across the codebase to match the new 1.2.0 constitution standard (// ───── SECTION ────────────────────────────── and file-specific variants)
+- [x] T028 Run quickstart.md verification steps — Redis connection, rate limiting tiers, upload validation, CSP headers, like debounce
+- [x] T029 [P] Verify all 429 responses use standardized error envelope across all enforcement points (rate limiting, upload validation)
+- [x] T030 [P] Verify no totalCount references remain in any server response payloads or controller/model code
+- [x] T031 [P] Verify feed pagination response time consistency — manually time paginated feed queries at different data volumes to confirm no degradation (SC-006)
+- [x] T032 Run pnpm test && pnpm run lint to validate no regressions
+- [x] T033 Update all existing sectional comments across the codebase to match the new 1.2.0 constitution standard (// ───── SECTION ────────────────────────────── and file-specific variants)
 
 ---
 

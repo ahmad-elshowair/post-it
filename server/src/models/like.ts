@@ -142,7 +142,7 @@ class LikeModel {
    * @param {number} limit - The number of likes to return.
    * @param {string} cursor - The cursor to use for pagination.
    * @param {"next" | "previous"} direction - The direction to use for pagination.
-   * @returns {Promise<{ users: TUsersLike[]; totalCount: number }>}
+   * @returns {Promise<{ users: TUsersLike[] }>}
    * @throws {Error} Error if required fields are missing or operation fails
    */
   async getLikesByPostId(
@@ -150,7 +150,7 @@ class LikeModel {
     limit: number = 10,
     cursor: string,
     direction: "next" | "previous" = "next",
-  ): Promise<{ users: TUsersLike[]; totalCount: number }> {
+  ): Promise<{ users: TUsersLike[] }> {
     this.validateRequiredFields({ post_id }, ["post_id"]);
 
     const connection: PoolClient = await pool.connect();
@@ -197,17 +197,7 @@ class LikeModel {
         params,
       );
 
-      const countSql = `
-        SELECT COUNT(*) AS total
-        FROM likes
-        WHERE post_id = $1
-      `;
-      const countResult: QueryResult<{ total: number }> =
-        await connection.query(countSql, [post_id]);
-
-      const totalCount = countResult.rows[0].total;
-
-      return { users: result.rows, totalCount };
+      return { users: result.rows };
     } catch (error) {
       console.error("[LIKE MODEL] getLikesByPostId error", error);
       throw new Error(
