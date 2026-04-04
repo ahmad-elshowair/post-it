@@ -39,14 +39,14 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     const access_token = generateToken(
       payload,
       config.jwt_access_secret,
-      config.access_token_expiry
+      config.access_token_expiry,
     );
 
     // Generate refresh token - long lived (7 days)
     const refresh_token = generateToken(
       payload,
       config.jwt_refresh_secret,
-      config.refresh_token_expiry
+      config.refresh_token_expiry,
     );
 
     // calculate the expiration date
@@ -56,11 +56,11 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
     await refresh_token_model.createToken(
       user.user_id!,
       hashedFingerprint,
-      expiresAt
+      expiresAt,
     );
 
     // Set tokens in HttpOnly cookies
-    setTokensInCookies(res, access_token, refresh_token);
+    setTokensInCookies(res, access_token, refresh_token, fingerprint);
 
     // Return minimal user info to client
     return sendResponse.success(
@@ -81,7 +81,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
         }),
         fingerprint: fingerprint,
       },
-      201
+      201,
     );
   } catch (error) {
     console.error("[AUTH]: Register Error: ", error);
@@ -119,13 +119,13 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     const access_token = generateToken(
       payload,
       config.jwt_access_secret,
-      config.access_token_expiry
+      config.access_token_expiry,
     );
     // Generate refresh token - long lived (7 days)
     const refresh_token = generateToken(
       payload,
       config.jwt_refresh_secret,
-      config.refresh_token_expiry
+      config.refresh_token_expiry,
     );
 
     // Calculate token expiration date (7 days from now)
@@ -138,7 +138,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     await refresh_token_model.createToken(
       user.user_id!,
       hashedFingerprint,
-      expiresAt
+      expiresAt,
     );
 
     // Set tokens in HttpOnly cookies
@@ -164,7 +164,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
         }),
         fingerprint: fingerprint,
       },
-      200
+      200,
     );
   } catch (error) {
     console.error("[AUTH]: Login Error: ", error);
@@ -205,7 +205,7 @@ const logout = async (req: ICustomRequest, res: Response) => {
     } catch (error) {
       console.warn(
         `Failed to revoke all refresh tokens for user: ${userId}`,
-        error
+        error,
       );
     }
 
@@ -235,27 +235,27 @@ const refreshToken = async (req: Request, res: Response) => {
       return handleInvalidToken(
         res,
         fingerprintValidationResult.reason,
-        decodeUser?.id
+        decodeUser?.id,
       );
     }
 
     // 3- VERIFY TOKEN IN DATABASE.
     const isTokenValid = await refresh_token_model.verifyToken(
       decodeUser?.id!,
-      hashFingerprint(fingerprintValidationResult.fingerprint!)
+      hashFingerprint(fingerprintValidationResult.fingerprint!),
     );
     if (!isTokenValid) {
       return handleInvalidToken(
         res,
         "Token has been revoked or expired!",
-        decodeUser?.id
+        decodeUser?.id,
       );
     }
 
     // 4- ROTATE TOKENS FOR ENHANCED SECURITY.
     const tokenRotation = await rotateTokens(
       decodeUser!,
-      fingerprintValidationResult.fingerprint!
+      fingerprintValidationResult.fingerprint!,
     );
 
     // 5- SEND AUTH STATUS RESPONSE WITH USER DATA.
@@ -281,27 +281,27 @@ const checkAuthStatus = async (req: ICustomRequest, res: Response) => {
       return handleInvalidToken(
         res,
         fingerprintValidationResult.reason,
-        decodeUser?.id
+        decodeUser?.id,
       );
     }
 
     // 3- VERIFY TOKEN IN DATABASE.
     const isTokenValid = await refresh_token_model.verifyToken(
       decodeUser?.id!,
-      hashFingerprint(fingerprintValidationResult.fingerprint!)
+      hashFingerprint(fingerprintValidationResult.fingerprint!),
     );
     if (!isTokenValid) {
       return handleInvalidToken(
         res,
         "Token has been revoked or not found in database!",
-        decodeUser?.id
+        decodeUser?.id,
       );
     }
 
     // 4- ROTATE TOKENS FOR ENHANCED SECURITY.
     const tokenRotation = await rotateTokens(
       decodeUser!,
-      fingerprintValidationResult.fingerprint!
+      fingerprintValidationResult.fingerprint!,
     );
 
     // 5- SEND AUTH STATUS RESPONSE WITH USER DATA.

@@ -7,7 +7,30 @@ import { sendResponse } from '../utilities/response.js';
 import { ICustomRequest } from '../interfaces/ICustomRequest.js';
 
 /**
- * Standardized 429 Error Handler
+ * Helper: Send command with strict timeout to prevent hangs.
+ * If Redis is down, the command is queued but our timeout will trigger first.
+ */
+const safeSendCommand = async (...args: string[]) => {
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Redis command timeout')), 200)
+  );
+
+  try {
+    // Race the actual command against our 200ms timeout
+    return await Promise.race([
+      // @ts-expect-error - ioredis and rate-limit-redis type mismatch
+      redisClient.call(...args).catch(() => {}),
+      timeoutPromise
+    ]);
+  } catch (err) {
+    // All errors (connection or timeout) are caught here.
+    // passOnStoreError: true will then let the request proceed.
+    throw err;
+  }
+};
+
+/**
+ * Standardized 429 Error Handler (SC-002: Structured Security Logging)
  */
 const limitHandler = (req: Request, res: Response) => {
   const isAuthTier = req.path.includes('/auth');
@@ -35,16 +58,16 @@ const limitHandler = (req: Request, res: Response) => {
 
 /**
  * Global Rate Limiter (Tier 1)
- * 150 requests per 60 seconds per IP
  */
 export const globalLimiter = rateLimit({
   windowMs: config.rate_limit_global_window_ms,
   max: config.rate_limit_global_max_requests,
   standardHeaders: true,
   legacyHeaders: false,
+  passOnStoreError: true,
   store: new RedisStore({
     // @ts-expect-error - ioredis and rate-limit-redis type mismatch
-    sendCommand: (...args: string[]) => redisClient.call(...args),
+    sendCommand: safeSendCommand,
     prefix: 'rl:global:',
   }),
   handler: limitHandler,
@@ -52,16 +75,16 @@ export const globalLimiter = rateLimit({
 
 /**
  * Auth Rate Limiter (Tier 2)
- * 5 requests per 15 minutes per IP
  */
 export const authLimiter = rateLimit({
   windowMs: config.rate_limit_auth_window_ms,
   max: config.rate_limit_auth_max_requests,
   standardHeaders: true,
   legacyHeaders: false,
+  passOnStoreError: true,
   store: new RedisStore({
     // @ts-expect-error - ioredis and rate-limit-redis type mismatch
-    sendCommand: (...args: string[]) => redisClient.call(...args),
+    sendCommand: safeSendCommand,
     prefix: 'rl:auth:',
   }),
   handler: limitHandler,
@@ -69,13 +92,13 @@ export const authLimiter = rateLimit({
 
 /**
  * Content Creation Rate Limiter (Tier 3)
- * 25 requests per 60 seconds per User ID
  */
 export const contentCreationLimiter = rateLimit({
   windowMs: config.rate_limit_content_window_ms,
   max: config.rate_limit_content_max_requests,
   standardHeaders: true,
   legacyHeaders: false,
+  passOnStoreError: true,
   validate: { keyGeneratorIpFallback: false },
   keyGenerator: (req: Request) => {
     const customReq = req as ICustomRequest;
@@ -83,7 +106,7 @@ export const contentCreationLimiter = rateLimit({
   },
   store: new RedisStore({
     // @ts-expect-error - ioredis and rate-limit-redis type mismatch
-    sendCommand: (...args: string[]) => redisClient.call(...args),
+    sendCommand: safeSendCommand,
     prefix: 'rl:content:',
   }),
   handler: (req: Request, res: Response) => {

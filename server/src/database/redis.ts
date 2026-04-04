@@ -2,6 +2,7 @@ import Redis from 'ioredis';
 import config from '../configs/config.js';
 
 const redisClient = new Redis.default(config.redisUrl, {
+  enableOfflineQueue: true, // Allow queuing during startup to prevent crashes
   maxRetriesPerRequest: null, // Required for rate-limit-redis compatibility
   retryStrategy(times: number) {
     if (times > 5) {
