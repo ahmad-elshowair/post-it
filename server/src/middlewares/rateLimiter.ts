@@ -76,6 +76,7 @@ export const contentCreationLimiter = rateLimit({
   max: config.rate_limit_content_max_requests,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { keyGeneratorIpFallback: false },
   keyGenerator: (req: Request) => {
     const customReq = req as ICustomRequest;
     return customReq.user?.id || req.ip || 'anonymous';

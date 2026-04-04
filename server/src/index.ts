@@ -12,15 +12,13 @@ import { scheduledTokenCleanup } from "./utilities/scheduledTasks.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// create an instance of app
 const app: Application = express();
 
-// create port variable that is assigned from the config file
 const port: number = config.port;
 
 app.use(
   "/api/images",
-  express.static(path.join(__dirname, "../public/images"))
+  express.static(path.join(__dirname, "../public/images")),
 );
 
 // use the middleware of express.json and helmet and morgan
@@ -39,7 +37,12 @@ const prodCSPDirectives: Record<string, string[]> = {
 };
 
 const devCSPDirectives: Record<string, string[]> = {
-  "script-src": ["'self'", "'unsafe-eval'", "'unsafe-inline'", "http://localhost:3000"],
+  "script-src": [
+    "'self'",
+    "'unsafe-eval'",
+    "'unsafe-inline'",
+    "http://localhost:3000",
+  ],
   "object-src": ["'none'"],
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
@@ -50,13 +53,16 @@ const devCSPDirectives: Record<string, string[]> = {
   "connect-src": ["'self'", "http://localhost:3000", "ws://localhost:3000"],
 };
 
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: config.node_env === "development"
-      ? devCSPDirectives
-      : prodCSPDirectives,
-  },
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives:
+        config.node_env === "development"
+          ? devCSPDirectives
+          : prodCSPDirectives,
+    },
+  }),
+);
 app.use(morgan("dev"));
 app.use(cookieParser());
 
@@ -92,7 +98,7 @@ app.use(
       "Accept",
     ],
     exposedHeaders: ["X-CSRF-Token"],
-  })
+  }),
 );
 
 // create a get request of home endpoint
