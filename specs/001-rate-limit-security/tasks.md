@@ -79,7 +79,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Add environment-conditional CSP directives to Helmet configuration in server/src/index.ts — production: script-src 'self', object-src 'none', base-uri 'self', form-action 'self', frame-ancestors 'none', img-src 'self', style-src 'self' 'unsafe-inline', font-src 'self', connect-src 'self'; development: add 'unsafe-eval', 'unsafe-inline', http://localhost:3000 to script-src, add http://localhost:3000 to img-src/style-src/connect-src, add ws://localhost:3000 to connect-src
+- [x] T015 [US3] Add environment-conditional CSP directives to Helmet configuration in server/src/index.ts — production: script-src 'self', object-src 'none', base-uri 'self', form-action 'self', frame-ancestors 'none', img-src 'self', style-src 'self' 'unsafe-inline', font-src 'self', connect-src 'self'; development: add 'unsafe-eval', 'unsafe-inline', http://localhost:3000 to script-src, add http://localhost:3000 to img-src/style-src/connect-src, add ws://localhost:3000 to connect-src
 
 **Checkpoint**: CSP fully functional — curl -I to verify Content-Security-Policy header present; test with script injection in post content
 

@@ -26,7 +26,37 @@ app.use(
 // use the middleware of express.json and helmet and morgan
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(helmet());
+const prodCSPDirectives: Record<string, string[]> = {
+  "script-src": ["'self'"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  "form-action": ["'self'"],
+  "frame-ancestors": ["'none'"],
+  "img-src": ["'self'"],
+  "style-src": ["'self'", "'unsafe-inline'"],
+  "font-src": ["'self'"],
+  "connect-src": ["'self'"],
+};
+
+const devCSPDirectives: Record<string, string[]> = {
+  "script-src": ["'self'", "'unsafe-eval'", "'unsafe-inline'", "http://localhost:3000"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  "form-action": ["'self'"],
+  "frame-ancestors": ["'none'"],
+  "img-src": ["'self'", "http://localhost:3000"],
+  "style-src": ["'self'", "'unsafe-inline'", "http://localhost:3000"],
+  "font-src": ["'self'"],
+  "connect-src": ["'self'", "http://localhost:3000", "ws://localhost:3000"],
+};
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: config.node_env === "development"
+      ? devCSPDirectives
+      : prodCSPDirectives,
+  },
+}));
 app.use(morgan("dev"));
 app.use(cookieParser());
 
