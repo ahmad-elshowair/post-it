@@ -1,8 +1,10 @@
 # post-it Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-02
+Auto-generated from all feature plans. Last updated: 2026-04-04
 
 ## Active Technologies
+- TypeScript 5.x (strict mode), Node.js + Express 4, express-rate-limit, rate-limit-redis, Redis, pg 8 (002-fix-auth-rate-limit)
+- Redis (rate limit counters), PostgreSQL (user data) (002-fix-auth-rate-limit)
 
 - TypeScript 5.x (strict mode), Node.js + Express 4, React 18, Zustand 5, Multer 1.4, Helmet 7, pg 8, jsonwebtoken 9, bcryptjs 3 (001-rate-limit-security)
 
@@ -22,6 +24,7 @@ pnpm test && pnpm run lint
 TypeScript 5.x (strict mode), Node.js: Follow standard conventions
 
 ## Recent Changes
+- 002-fix-auth-rate-limit: Added TypeScript 5.x (strict mode), Node.js + Express 4, express-rate-limit, rate-limit-redis, Redis, pg 8
 
 - 001-rate-limit-security: Added TypeScript 5.x (strict mode), Node.js + Express 4, React 18, Zustand 5, Multer 1.4, Helmet 7, pg 8, jsonwebtoken 9, bcryptjs 3
 
