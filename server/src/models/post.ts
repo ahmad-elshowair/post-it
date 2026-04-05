@@ -1,7 +1,7 @@
-import { QueryResult } from "pg";
-import pool from "../database/pool.js";
-import { IFeedPost } from "../interfaces/IPost.js";
-import { Post } from "../types/post.js";
+import { QueryResult } from 'pg';
+import pool from '../database/pool.js';
+import { IFeedPost } from '../interfaces/IPost.js';
+import { Post } from '../types/post.js';
 
 class PostModel {
   /**
@@ -16,12 +16,7 @@ class PostModel {
         `SELECT * FROM posts WHERE post_id = $1`,
         [id],
       );
-      if (post) {
-        return true;
-      }
-      return false;
-    } catch (error) {
-      throw error;
+      return (post.rowCount ?? 0) > 0;
     } finally {
       connection.release();
     }
@@ -35,19 +30,18 @@ class PostModel {
   async create(post: Post): Promise<Post> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-      const sql =
-        "INSERT INTO posts (user_id, description, image) VALUES($1, $2, $3) RETURNING *";
+      await connection.query('BEGIN');
+      const sql = 'INSERT INTO posts (user_id, description, image) VALUES($1, $2, $3) RETURNING *';
       const insertPost: QueryResult<Post> = await connection.query(sql, [
         post.user_id,
         post.description,
         post.image,
       ]);
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return insertPost.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
-      throw new Error(`create post model: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      throw new Error(`create post model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -62,15 +56,15 @@ class PostModel {
     const connection = await pool.connect();
     try {
       const post: QueryResult<Post> = await connection.query(
-        "SELECT * FROM posts WHERE post_id = $1",
+        'SELECT * FROM posts WHERE post_id = $1',
         [post_id],
       );
       if (post.rowCount === 0) {
-        throw new Error("Post not found");
+        throw new Error('Post not found');
       }
       return post.rows[0];
     } catch (error) {
-      throw new Error(`fetch post by id model: ${(error as Error).message}`);
+      throw new Error(`fetch post by id model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -83,12 +77,12 @@ class PostModel {
   async index(
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next",
+    direction: 'next' | 'previous' = 'next',
   ): Promise<{ posts: Post[] }> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-      const params: any[] = [];
+      await connection.query('BEGIN');
+      const params: (string | number)[] = [];
       let sql = `
 		SELECT 
 			p.post_id,
@@ -112,20 +106,15 @@ class PostModel {
 	`;
 
       if (cursor) {
-        if (direction === "next") {
-          sql +=
-            " AND p.updated_at < (SELECT updated_at FROM posts WHERE post_id = $1)";
+        if (direction === 'next') {
+          sql += ' AND p.updated_at < (SELECT updated_at FROM posts WHERE post_id = $1)';
         } else {
-          sql +=
-            " AND p.updated_at > (SELECT updated_at FROM posts WHERE post_id = $1)";
+          sql += ' AND p.updated_at > (SELECT updated_at FROM posts WHERE post_id = $1)';
         }
         params.push(cursor);
       }
 
-      sql +=
-        direction === "next"
-          ? " ORDER BY p.updated_at DESC"
-          : " ORDER BY p.updated_at ASC";
+      sql += direction === 'next' ? ' ORDER BY p.updated_at DESC' : ' ORDER BY p.updated_at ASC';
 
       sql += ` LIMIT $${params.length + 1}`;
 
@@ -133,14 +122,13 @@ class PostModel {
 
       const result = await connection.query(sql, params);
 
-      const posts =
-        direction === "previous" ? result.rows.reverse() : result.rows;
+      const posts = direction === 'previous' ? result.rows.reverse() : result.rows;
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return { posts };
     } catch (error) {
-      await connection.query("ROLLBACK");
-      throw new Error(`index model: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      throw new Error(`index model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -155,19 +143,19 @@ class PostModel {
   async update(id: string, post: Post): Promise<Post> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
       if (!this.checkPostExist) {
-        throw new Error("Post not found");
+        throw new Error('Post not found');
       }
       const updatePost: QueryResult<Post> = await connection.query(
-        "UPDATE posts SET description = $1, image = $2, updated_at = $3 WHERE post_id = $4 RETURNING *",
+        'UPDATE posts SET description = $1, image = $2, updated_at = $3 WHERE post_id = $4 RETURNING *',
         [post.description, post.image, post.updated_at, id],
       );
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return updatePost.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
-      throw new Error(`update model: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      throw new Error(`update model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -181,17 +169,17 @@ class PostModel {
   async delete(id: string): Promise<{ message: string }> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
       if (!this.checkPostExist) {
-        throw new Error("Post not found");
+        throw new Error('Post not found');
       }
 
-      await connection.query("DELETE FROM posts WHERE post_id = $1", [id]);
-      await connection.query("COMMIT");
+      await connection.query('DELETE FROM posts WHERE post_id = $1', [id]);
+      await connection.query('COMMIT');
       return { message: `POST: ${id} HAS BEEN DELETED !` };
     } catch (error) {
-      await connection.query("ROLLBACK");
-      throw new Error(`delete model: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      throw new Error(`delete model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -208,11 +196,11 @@ class PostModel {
     user_id: string,
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next",
+    direction: 'next' | 'previous' = 'next',
   ) {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
       const params: (string | number)[] = [user_id];
 
       let sql = `
@@ -237,7 +225,7 @@ class PostModel {
 
           if (postCheck.rows.length > 0) {
             const timestamp = postCheck.rows[0].updated_at;
-            if (direction === "next") {
+            if (direction === 'next') {
               sql += ` AND p.updated_at < $2`;
             } else {
               sql += ` AND p.updated_at > $2`;
@@ -247,32 +235,28 @@ class PostModel {
             console.warn(`Post with ID ${cursor} not found for pagination`);
           }
         } catch (error) {
-          console.error("Error checking post for cursor:", error);
+          console.error('Error checking post for cursor:', error);
         }
       }
 
       sql +=
-        direction === "next"
-          ? " ORDER BY p.updated_at DESC, p.post_id DESC "
-          : " ORDER BY p.updated_at ASC, p.post_id ASC ";
+        direction === 'next'
+          ? ' ORDER BY p.updated_at DESC, p.post_id DESC '
+          : ' ORDER BY p.updated_at ASC, p.post_id ASC ';
 
       sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
 
-      const result: QueryResult<IFeedPost> = await connection.query(
-        sql,
-        params,
-      );
+      const result: QueryResult<IFeedPost> = await connection.query(sql, params);
 
-      const posts =
-        direction === "previous" ? result.rows.reverse() : result.rows;
+      const posts = direction === 'previous' ? result.rows.reverse() : result.rows;
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return { posts };
     } catch (error) {
-      await connection.query("ROLLBACK");
-      throw new Error(`userPosts model: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      throw new Error(`userPosts model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -290,12 +274,12 @@ class PostModel {
     user_id: string,
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next",
+    direction: 'next' | 'previous' = 'next',
   ): Promise<{ posts: IFeedPost[] }> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
-      let params: (string | number)[] = [user_id];
+      await connection.query('BEGIN');
+      const params: (string | number)[] = [user_id];
       let sql = `
 				SELECT 
 					p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name, u.last_name,
@@ -332,7 +316,7 @@ class PostModel {
 
           if (postCheck.rows.length > 0) {
             const timestamp = postCheck.rows[0].updated_at;
-            if (direction === "next") {
+            if (direction === 'next') {
               sql += ` AND p.updated_at < $2`;
             } else {
               sql += ` AND p.updated_at > $2`;
@@ -342,14 +326,14 @@ class PostModel {
             console.warn(`Post with ID ${cursor} not found for pagination`);
           }
         } catch (error) {
-          console.error("Error checking post for cursor:", error);
+          console.error('Error checking post for cursor:', error);
         }
       }
 
       sql +=
-        direction === "next"
-          ? " ORDER BY p.updated_at DESC, p.post_id DESC "
-          : " ORDER BY p.updated_at ASC, p.post_id ASC ";
+        direction === 'next'
+          ? ' ORDER BY p.updated_at DESC, p.post_id DESC '
+          : ' ORDER BY p.updated_at ASC, p.post_id ASC ';
 
       sql += ` LIMIT $${params.length + 1}`;
 
@@ -357,14 +341,13 @@ class PostModel {
 
       const result = await connection.query(sql, params);
 
-      const posts =
-        direction === "previous" ? result.rows.reverse() : result.rows;
+      const posts = direction === 'previous' ? result.rows.reverse() : result.rows;
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return { posts };
     } catch (error) {
-      await connection.query("ROLLBACK");
-      throw new Error(`feed model: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      throw new Error(`feed model: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }

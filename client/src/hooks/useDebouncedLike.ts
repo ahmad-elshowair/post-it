@@ -1,5 +1,5 @@
-import { useCallback, useRef } from "react";
-import { useSecureApi } from "./useSecureApi";
+import { useCallback, useRef } from 'react';
+import { useSecureApi } from './useSecureApi';
 
 // ───── INTERFACES ──────────────────────────────
 interface IUseDebouncedLikeOptions {
@@ -13,13 +13,12 @@ interface IUseDebouncedLikeReturn {
 }
 
 /**
- * Per-post independent debounce hook for like/unlike actions.
+ * Manage per-post independent debounce for like/unlike actions.
  *
- * Uses a Map<postId, timeoutId> to manage independent timers per post,
- * ensuring rapid clicks on one post don't interfere with another.
- *
- * The hook only manages debounce timers and API calls.
- * Optimistic UI updates are handled by the caller (Post.tsx local state).
+ * Employs a Map<postId, timeoutId> to track independent timers per post locally,
+ * preventing rapid clicks on one post from interfering with another.
+ * Handles the debounce delay before executing the API call. Throws error on hook fail via onError if provided.
+ * Relies on the caller to manage optimistic UI state updates.
  */
 
 // ───── DEBOUNCED LIKE HOOK ──────────────────────────────
@@ -28,9 +27,7 @@ export const useDebouncedLike = (
 ): IUseDebouncedLikeReturn => {
   const { debounceMs = 500, onError } = options;
   const { post: apiPost } = useSecureApi();
-  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // ───── DEBOUNCED LIKE ──────────────────────────────
   const debouncedLike = useCallback(
@@ -48,10 +45,7 @@ export const useDebouncedLike = (
         try {
           await apiPost(`/posts/like/${postId}`, {});
         } catch (error) {
-          console.error(
-            `[useDebouncedLike] API error for post ${postId}:`,
-            error,
-          );
+          console.error(`[useDebouncedLike] API error for post ${postId}:`, error);
           onError?.(postId, error);
         }
       }, debounceMs);

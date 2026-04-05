@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   FaCalendarCheck,
   FaDesktop,
@@ -6,13 +6,13 @@ import {
   FaRss,
   FaUserFriends,
   FaUsers,
-} from "react-icons/fa";
-import { Link } from "react-router-dom";
-import config from "../../configs";
-import { useSecureApi } from "../../hooks/useSecureApi";
-import { TUser } from "../../types/TUser";
-import { Friend } from "../friend/Friend";
-import "./leftBar.css";
+} from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import config from '../../configs';
+import { useSecureApi } from '../../hooks/useSecureApi';
+import { TUser } from '../../types/TUser';
+import { Friend } from '../friend/Friend';
+import './leftBar.css';
 
 const LeftBar = () => {
   const [users, setUsers] = useState<TUser[]>([]);
@@ -29,7 +29,7 @@ const LeftBar = () => {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch unknown users", error);
+        console.error('Failed to fetch unknown users', error);
       }
     };
     fetchUsers();
@@ -44,10 +44,7 @@ const LeftBar = () => {
             <span className="list-item-text">Feed</span>
           </Link>
 
-          <Link
-            to="#friends"
-            className="list-group-item list-group-item-action"
-          >
+          <Link to="#friends" className="list-group-item list-group-item-action">
             <FaUserFriends className="list-item-icon" />
             <span className="list-item-text">Friends</span>
           </Link>
@@ -70,10 +67,7 @@ const LeftBar = () => {
           <hr />
           {isLoading ? (
             <div className="d-flex justify-content-center my-3 ">
-              <div
-                className="spinner-border spinner-border-sm text-warning"
-                role="status"
-              >
+              <div className="spinner-border spinner-border-sm text-warning" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
             </div>

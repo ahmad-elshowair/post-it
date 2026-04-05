@@ -1,6 +1,6 @@
-import { AxiosRequestConfig } from "axios";
-import { ApiError } from "../api/ApiError";
-import { UserPayload } from "./TUser";
+import { AxiosRequestConfig } from 'axios';
+import { ApiError } from '../api/ApiError';
+import { UserPayload } from './TUser';
 
 export type TAuth = {
   user: UserPayload;
@@ -30,11 +30,11 @@ export type RegisterCredentials = {
   last_name: string;
 };
 export type AuthAction =
-  | { type: "START" }
-  | { type: "SUCCEEDED"; payload: AuthResponse }
-  | { type: "FAILURE"; payload: string[] }
+  | { type: 'START' }
+  | { type: 'SUCCEEDED'; payload: AuthResponse }
+  | { type: 'FAILURE'; payload: string[] }
   | {
-      type: "REFRESH_TOKEN";
+      type: 'REFRESH_TOKEN';
       payload: {
         user: UserPayload;
         access_token?: string;
@@ -43,8 +43,8 @@ export type AuthAction =
         csrf?: string;
       };
     }
-  | { type: "LOGOUT" }
-  | { type: "CHECK_AUTH_STATUS"; payload: boolean };
+  | { type: 'LOGOUT' }
+  | { type: 'CHECK_AUTH_STATUS'; payload: boolean };
 
 export type AuthState = {
   user: UserPayload | null;
@@ -68,15 +68,7 @@ export interface ISecureApiReturn {
   error: ApiError | null;
   clearError: () => void;
   get: <T = any>(url: string, options?: TRequestOptions) => Promise<T | null>;
-  post: <T = any>(
-    url: string,
-    data?: any,
-    options?: TRequestOptions,
-  ) => Promise<T | null>;
-  put: <T = any>(
-    url: string,
-    data?: any,
-    options?: TRequestOptions,
-  ) => Promise<T | null>;
+  post: <T = any>(url: string, data?: any, options?: TRequestOptions) => Promise<T | null>;
+  put: <T = any>(url: string, data?: any, options?: TRequestOptions) => Promise<T | null>;
   del: <T = any>(url: string, options?: TRequestOptions) => Promise<T | null>;
 }

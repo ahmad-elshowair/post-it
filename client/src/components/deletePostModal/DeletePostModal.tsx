@@ -1,36 +1,30 @@
-import { FC, useState } from "react";
-import { Modal } from "react-bootstrap";
-import { FaInfo } from "react-icons/fa";
-import { usePost } from "../../hooks/usePost";
-import { useSecureApi } from "../../hooks/useSecureApi";
-import { DeletePostModalProps } from "../../types/TPost";
+import { FC, useState } from 'react';
+import { Modal } from 'react-bootstrap';
+import { FaInfo } from 'react-icons/fa';
+import { usePost } from '../../hooks/usePost';
+import { useSecureApi } from '../../hooks/useSecureApi';
+import { DeletePostModalProps } from '../../types/TPost';
 
-const DeletePostModal: FC<DeletePostModalProps> = ({
-  post_id,
-  show,
-  onHide,
-}) => {
+const DeletePostModal: FC<DeletePostModalProps> = ({ post_id, show, onHide }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { removePost } = usePost();
   const { del, error: apiError } = useSecureApi();
 
   const deletePost = async () => {
     if (!post_id) {
-      console.error("Cannot delete post: Missing post ID");
+      console.error('Cannot delete post: Missing post ID');
       return;
     }
     try {
       setIsDeleting(true);
-      const response = await del<{ success: boolean }>(
-        `/posts/delete/${post_id}`
-      );
+      const response = await del<{ success: boolean }>(`/posts/delete/${post_id}`);
 
       if (response?.success) {
         removePost(post_id);
         onHide();
       }
     } catch (error) {
-      console.error("Failed to delete post", error);
+      console.error('Failed to delete post', error);
     } finally {
       setIsDeleting(false);
     }
@@ -55,11 +49,7 @@ const DeletePostModal: FC<DeletePostModalProps> = ({
           <p className="text-muted">
             Are you sure you want to delete this post? This cannot be undone!
           </p>
-          {apiError && (
-            <p className="alert alert-danger">
-              {apiError.getUserFriendlyMessage()}
-            </p>
-          )}
+          {apiError && <p className="alert alert-danger">{apiError.getUserFriendlyMessage()}</p>}
         </div>
       </Modal.Body>
       <Modal.Footer>
@@ -70,11 +60,7 @@ const DeletePostModal: FC<DeletePostModalProps> = ({
         >
           Cancel
         </button>
-        <button
-          onClick={deletePost}
-          className="btn btn-danger border-0"
-          disabled={isDeleting}
-        >
+        <button onClick={deletePost} className="btn btn-danger border-0" disabled={isDeleting}>
           {isDeleting ? (
             <>
               <span
@@ -85,7 +71,7 @@ const DeletePostModal: FC<DeletePostModalProps> = ({
               Deleting...
             </>
           ) : (
-            "Delete"
+            'Delete'
           )}
         </button>
       </Modal.Footer>

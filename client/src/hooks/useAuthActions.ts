@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import { loginUser, logoutUser, registerUser } from "../services/auth";
-import { LoginCredentials, RegisterCredentials } from "../types/TAuth";
+import { useCallback } from 'react';
+import { loginUser, logoutUser, registerUser } from '../services/auth';
+import { LoginCredentials, RegisterCredentials } from '../types/TAuth';
 
 const useAuthActions = () => {
   const login = useCallback(async (credentials: LoginCredentials) => {

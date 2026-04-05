@@ -1,12 +1,12 @@
-import { FC, FormEvent, useEffect, useState } from "react";
-import { FaLocationArrow } from "react-icons/fa";
-import { TCommentFormProps } from "../../types/TComments";
+import { FC, FormEvent, useEffect, useState } from 'react';
+import { FaLocationArrow } from 'react-icons/fa';
+import { TCommentFormProps } from '../../types/TComments';
 
 const CommentForm: FC<TCommentFormProps> = ({
   onSubmit,
   onCancel,
-  initialValue = "",
-  placeholder = "Write a comment...",
+  initialValue = '',
+  placeholder = 'Write a comment...',
 }) => {
   const [content, setContent] = useState(initialValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,17 +24,16 @@ const CommentForm: FC<TCommentFormProps> = ({
     try {
       await onSubmit(content);
       if (!initialValue) {
-        setContent("");
+        setContent('');
       }
     } catch (error) {
-      console.error("Error Submitting a comment: ", error);
+      console.error('Error Submitting a comment: ', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const isDisabled =
-    isSubmitting || !content.trim() || (initialValue && !contentChanged);
+  const isDisabled = isSubmitting || !content.trim() || (initialValue && !contentChanged);
   return (
     <form className="comment-form" onSubmit={handleSubmit}>
       <div className="position-relative">
@@ -49,9 +48,7 @@ const CommentForm: FC<TCommentFormProps> = ({
 
         <button
           type="submit"
-          className={`btn position-absolute send-button ${
-            isDisabled ? "btn-disabled" : ""
-          }`}
+          className={`btn position-absolute send-button ${isDisabled ? 'btn-disabled' : ''}`}
           disabled={isDisabled as boolean}
         >
           {isSubmitting ? (

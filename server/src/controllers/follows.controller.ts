@@ -1,57 +1,43 @@
-import { NextFunction, Response } from "express";
-import { validationResult } from "express-validator";
-import { ICustomRequest } from "../interfaces/ICustomRequest.js";
-import { IPaginatedResult } from "../interfaces/IPagination.js";
-import { TFollowers, TFollowings } from "../types/follow.js";
-import {
-  createPaginationResult,
-  getCursorPaginationOptions,
-} from "../utilities/pagination.js";
-import { sendResponse } from "../utilities/response.js";
-import { follow_model } from "./factory.js";
+import { NextFunction, Response } from 'express';
+import { validationResult } from 'express-validator';
+import { ICustomRequest } from '../interfaces/ICustomRequest.js';
+import { IPaginatedResult } from '../interfaces/IPagination.js';
+import { TFollowers, TFollowings } from '../types/follow.js';
+import { createPaginationResult, getCursorPaginationOptions } from '../utilities/pagination.js';
+import { sendResponse } from '../utilities/response.js';
+import { follow_model } from './factory.js';
 
 /**
  * Follow a user identified by user_id_followed in the request body.
  * @route POST /api/follows/follow
+ * @returns 201 on success, or 400/401 on error
  */
-const followUser = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const followUser = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return sendResponse.error(res, "VALIDATION ERROR!", 400, errors.array());
+      return sendResponse.error(res, 'VALIDATION ERROR!', 400, errors.array());
     }
 
     const user_id_following = req.user?.id;
     const user_id_followed = req.body.user_id_followed;
 
     if (!user_id_following) {
-      return sendResponse.error(
-        res,
-        "UNAUTHENTICATED!",
-        401,
-        "USER ID FOLLOWING IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID FOLLOWING IS REQUIRED!');
     }
 
     if (user_id_following === user_id_followed) {
       return sendResponse.error(
         res,
-        "YOU CANNOT FOLLOW YOURSELF!",
+        'YOU CANNOT FOLLOW YOURSELF!',
         400,
-        "YOU CANNOT FOLLOW YOURSELF!"
+        'YOU CANNOT FOLLOW YOURSELF!',
       );
     }
-    const followAUser = await follow_model.follow(
-      user_id_following,
-      user_id_followed
-    );
+    const followAUser = await follow_model.follow(user_id_following, user_id_followed);
     return sendResponse.success<{ message: string }>(res, followAUser, 201);
   } catch (error) {
-    console.error("[followController] followUser error :", error);
+    console.error('[followController] followUser error :', error);
     next(error);
   }
 };
@@ -59,45 +45,34 @@ const followUser = async (
 /**
  * Unfollow a user identified by user_id_followed in the request body.
  * @route DELETE /api/follows/unfollow
+ * @returns 201 on success, or 400/401/403 on error
  */
-const unFollowUser = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const unFollowUser = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-      return sendResponse.error(res, "VALIDATION ERROR!", 400, error.array());
+      return sendResponse.error(res, 'VALIDATION ERROR!', 400, error.array());
     }
 
     const user_id_following = req.user?.id;
     const user_id_followed = req.body.user_id_followed;
 
     if (!user_id_following) {
-      return sendResponse.error(
-        res,
-        "UNAUTHENTICATED!",
-        401,
-        "USER ID FOLLOWING IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID FOLLOWING IS REQUIRED!');
     }
 
     if (user_id_following === user_id_followed) {
       return sendResponse.error(
         res,
-        "YOU CANNOT UNFOLLOW YOURSELF!",
+        'YOU CANNOT UNFOLLOW YOURSELF!',
         403,
-        "YOU CANNOT UNFOLLOW YOURSELF!"
+        'YOU CANNOT UNFOLLOW YOURSELF!',
       );
     }
-    const unFollowAUser = await follow_model.unFollow(
-      user_id_following,
-      user_id_followed
-    );
+    const unFollowAUser = await follow_model.unFollow(user_id_following, user_id_followed);
     return sendResponse.success<{ message: string }>(res, unFollowAUser, 201);
   } catch (error) {
-    console.error("[followController] unFollowUser error :", error);
+    console.error('[followController] unFollowUser error :', error);
     next(error);
   }
 };
@@ -105,27 +80,19 @@ const unFollowUser = async (
 /**
  * Get number of followings of a user identified by user_id in the request user.
  * @route GET /api/follows/num-followings
+ * @returns 200 with the count of followings
  */
-const getNumberOfFollowings = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const getNumberOfFollowings = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const user_id = req.user?.id;
     if (!user_id) {
-      return sendResponse.error(
-        res,
-        "UNAUTHENTICATED!",
-        401,
-        "USER ID IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID IS REQUIRED!');
     }
     // get the followings from the database
     const numFollowings = await follow_model.getNumberOfFollowings(user_id);
     return sendResponse.success<number>(res, numFollowings, 200);
   } catch (error) {
-    console.error("[followController] getNumberOfFollowings error :", error);
+    console.error('[followController] getNumberOfFollowings error :', error);
     next(error);
   }
 };
@@ -133,26 +100,18 @@ const getNumberOfFollowings = async (
 /**
  * Get number of followers of a user identified by user_id in the request user.
  * @route GET /api/follows/num-followers
+ * @returns 200 with the count of followers
  */
-const getNumberOfFollowers = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const getNumberOfFollowers = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   const user_id = req.user?.id;
   try {
     if (!user_id) {
-      return sendResponse.error(
-        res,
-        "UNAUTHENTICATED!",
-        401,
-        "USER ID IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID IS REQUIRED!');
     }
     const numFollowers = await follow_model.getNumberOfFollowers(user_id);
     return sendResponse.success<number>(res, numFollowers, 200);
   } catch (error) {
-    console.error("[followController] getNumberOfFollowers error :", error);
+    console.error('[followController] getNumberOfFollowers error :', error);
     next(error);
   }
 };
@@ -160,21 +119,13 @@ const getNumberOfFollowers = async (
 /**
  * Get followings of a user identified by user_id in the request user.
  * @route GET /api/follows/followings
+ * @returns 200 with a paginated list of followings
  */
-const getFollowings = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const getFollowings = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const user_id = req.user?.id;
     if (!user_id) {
-      return sendResponse.error(
-        res,
-        "UNAUTHENTICATED!",
-        401,
-        "USER ID IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID IS REQUIRED!');
     }
 
     const paginationOptions = getCursorPaginationOptions(req);
@@ -183,22 +134,14 @@ const getFollowings = async (
       user_id,
       paginationOptions.limit,
       paginationOptions.cursor,
-      paginationOptions.direction
+      paginationOptions.direction,
     );
 
-    const result = createPaginationResult(
-      followings,
-      paginationOptions,
-      "user_id"
-    );
+    const result = createPaginationResult(followings, paginationOptions, 'user_id');
 
-    return sendResponse.success<IPaginatedResult<TFollowings>>(
-      res,
-      result,
-      200
-    );
+    return sendResponse.success<IPaginatedResult<TFollowings>>(res, result, 200);
   } catch (error) {
-    console.error("[followController] getFollowings error :", error);
+    console.error('[followController] getFollowings error :', error);
     next(error);
   }
 };
@@ -206,21 +149,13 @@ const getFollowings = async (
 /**
  * Get followers of a user identified by user_id in the request user.
  * @route GET /api/follows/followers
+ * @returns 200 with a paginated list of followers
  */
-const getFollowers = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const getFollowers = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const user_id = req.user?.id;
     if (!user_id) {
-      return sendResponse.error(
-        res,
-        "UNAUTHENTICATED!",
-        401,
-        "USER ID IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID IS REQUIRED!');
     }
 
     const paginationOptions = getCursorPaginationOptions(req);
@@ -229,17 +164,13 @@ const getFollowers = async (
       user_id,
       paginationOptions.limit,
       paginationOptions.cursor,
-      paginationOptions.direction
+      paginationOptions.direction,
     );
 
-    const result = createPaginationResult(
-      followers,
-      paginationOptions,
-      "user_id"
-    );
+    const result = createPaginationResult(followers, paginationOptions, 'user_id');
     return sendResponse.success<IPaginatedResult<TFollowers>>(res, result, 200);
   } catch (error) {
-    console.error("[followController] getFollowers error :", error);
+    console.error('[followController] getFollowers error :', error);
     next(error);
   }
 };
@@ -247,34 +178,23 @@ const getFollowers = async (
 /**
  * Check if a user is following another user identified by user_id in the request user.
  * @route GET /api/follows/is-followed/:followed_id
+ * @returns 200 with boolean indicating follow status
  */
-const isFollowed = async (
-  req: ICustomRequest,
-  res: Response,
-  next: NextFunction
-) => {
+const isFollowed = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-      return sendResponse.error(res, "VALIDATION ERROR!", 400, error.array());
+      return sendResponse.error(res, 'VALIDATION ERROR!', 400, error.array());
     }
     const following_id = req.user?.id;
     const followed_id = req.params.followed_id;
     if (!following_id) {
-      return sendResponse.error(
-        res,
-        "UNAUTHORIZED!",
-        401,
-        "USER ID FOLLOWING IS REQUIRED!"
-      );
+      return sendResponse.error(res, 'UNAUTHORIZED!', 401, 'USER ID FOLLOWING IS REQUIRED!');
     }
-    const isFollowed = await follow_model.isFollowing(
-      following_id,
-      followed_id
-    );
+    const isFollowed = await follow_model.isFollowing(following_id, followed_id);
     return sendResponse.success<boolean>(res, isFollowed.is_following, 200);
   } catch (error) {
-    console.error("[followController] isFollowed error :", error);
+    console.error('[followController] isFollowed error :', error);
     next(error);
   }
 };

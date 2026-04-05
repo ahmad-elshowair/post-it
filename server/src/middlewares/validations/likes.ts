@@ -1,9 +1,9 @@
-import { param } from "express-validator";
+import { param } from 'express-validator';
 
 export const validateLikeAction = [
-  param("post_id")
+  param('post_id')
     .notEmpty()
-    .withMessage("Post ID is required")
+    .withMessage('Post ID is required')
     .isUUID()
-    .withMessage("Post ID must be a valid UUID"),
+    .withMessage('Post ID must be a valid UUID'),
 ];

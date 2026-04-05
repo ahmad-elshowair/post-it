@@ -1,18 +1,16 @@
-import { QueryResult } from "pg";
-import { user_model } from "../controllers/factory.js";
-import db from "../database/pool.js";
-import { TRegisterCredentials, TUser } from "../types/users.js";
-import passwords from "../utilities/passwords.js";
+import { QueryResult } from 'pg';
+import { user_model } from '../controllers/factory.js';
+import db from '../database/pool.js';
+import { TRegisterCredentials, TUser } from '../types/users.js';
+import passwords from '../utilities/passwords.js';
 
 class AuthModel {
   async register(registerCredentials: TRegisterCredentials): Promise<TUser> {
     const connection = await db.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
 
-      const hashedPassword = passwords.hashPassword(
-        registerCredentials.password,
-      );
+      const hashedPassword = passwords.hashPassword(registerCredentials.password);
       const sql = `
           INSERT INTO users (
             first_name,
@@ -35,14 +33,14 @@ class AuthModel {
 
       const result: QueryResult<TUser> = await connection.query(sql, values);
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
 
       return result.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
+      await connection.query('ROLLBACK');
       console.error(`[AUTH MODEL] register error: ${(error as Error).message}`);
 
-      throw new Error(`failed to register user: ${(error as Error).message}`);
+      throw new Error(`failed to register user: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -51,10 +49,7 @@ class AuthModel {
   async login(email: string, password: string): Promise<TUser> {
     const connection = await db.connect();
     try {
-      const result = await connection.query<TUser>(
-        "SELECT * FROM users WHERE email=$1",
-        [email],
-      );
+      const result = await connection.query<TUser>('SELECT * FROM users WHERE email=$1', [email]);
       const user = result.rows[0];
       if (!user) {
         throw new Error(`user not found !`);
@@ -63,25 +58,25 @@ class AuthModel {
       // Verify the password
       const isPasswordValid = passwords.checkPassword(password, user.password);
       if (!isPasswordValid) {
-        throw new Error("Invalid credentials!");
+        throw new Error('Invalid credentials!');
       }
 
       if (user.is_online === false) {
-        await connection.query("BEGIN");
+        await connection.query('BEGIN');
         await user_model.updateOnlineStatus(user.user_id as string, true);
         const updatedUserResult = await connection.query<TUser>(
-          "SELECT * FROM users WHERE user_id=$1",
+          'SELECT * FROM users WHERE user_id=$1',
           [user.user_id],
         );
 
-        await connection.query("COMMIT");
+        await connection.query('COMMIT');
         return updatedUserResult.rows[0];
       }
       return user;
     } catch (error) {
-      await connection.query("ROLLBACK");
+      await connection.query('ROLLBACK');
       console.error(`[AUTH MODEL] login error: ${(error as Error).message}`);
-      throw new Error(`failed to login user: ${(error as Error).message}`);
+      throw new Error(`failed to login user: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }

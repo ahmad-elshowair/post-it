@@ -1,20 +1,20 @@
-import { Router } from "express";
-import { contentCreationLimiter } from "../../middlewares/rateLimiter.js";
-import commentController from "../../controllers/comments.controller.js";
-import authorize_user from "../../middlewares/auth.js";
+import { Router } from 'express';
+import { contentCreationLimiter } from '../../middlewares/rateLimiter.js';
+import commentController from '../../controllers/comments.controller.js';
+import authorize_user from '../../middlewares/auth.js';
 import {
   createCommentValidator,
   deleteCommentValidator,
   getRepliesByCommentIdValidator,
   updateCommentValidator,
-} from "../../middlewares/validations/comments.js";
+} from '../../middlewares/validations/comments.js';
 
 const router = Router();
 
 // ───── CONTENT CREATION & MODIFICATION ROUTES (RATE LIMITED) ────────────────────────
 
 router.post(
-  "/create",
+  '/create',
   authorize_user,
   contentCreationLimiter,
   createCommentValidator,
@@ -22,7 +22,7 @@ router.post(
 );
 
 router.put(
-  "/update/:comment_id",
+  '/update/:comment_id',
   authorize_user,
   contentCreationLimiter,
   updateCommentValidator,
@@ -30,7 +30,7 @@ router.put(
 );
 
 router.delete(
-  "/delete/:comment_id",
+  '/delete/:comment_id',
   authorize_user,
   contentCreationLimiter,
   deleteCommentValidator,
@@ -40,7 +40,7 @@ router.delete(
 // ───── CONTENT RETRIEVAL ROUTES ──────────────────────────────
 
 router.get(
-  "/:comment_id/replies",
+  '/:comment_id/replies',
   authorize_user,
   getRepliesByCommentIdValidator,
   commentController.getRepliesByCommentId,

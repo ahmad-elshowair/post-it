@@ -1,11 +1,11 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { BsEmojiSmile } from "react-icons/bs";
-import useAuthState from "../../hooks/useAuthState";
-import { usePost } from "../../hooks/usePost";
-import { TFeedProps } from "../../types/TPost";
-import { Post } from "../post/Post";
-import { Share } from "../share/Share";
-import "./feed.css";
+import { FC, useEffect, useRef, useState } from 'react';
+import { BsEmojiSmile } from 'react-icons/bs';
+import useAuthState from '../../hooks/useAuthState';
+import { usePost } from '../../hooks/usePost';
+import { TFeedProps } from '../../types/TPost';
+import { Post } from '../post/Post';
+import { Share } from '../share/Share';
+import './feed.css';
 
 export const Feed: FC<TFeedProps> = ({ user_id }) => {
   const { isAuthChecked, user: currentUser } = useAuthState();
@@ -43,16 +43,14 @@ export const Feed: FC<TFeedProps> = ({ user_id }) => {
       {posts.length > 0 ? (
         <article className="posts-container">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <small className="text-muted ps-2">
-              Showing {posts.length} posts
-            </small>
+            <small className="text-muted ps-2">Showing {posts.length} posts</small>
             <div className="dropdown">
               <button
                 type="button"
                 className="btn btn-sm dropdown-toggle border-0"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
-                style={{ color: "var(--main-color)" }}
+                style={{ color: 'var(--main-color)' }}
               >
                 {postsPerPage} posts per page
               </button>
@@ -60,15 +58,11 @@ export const Feed: FC<TFeedProps> = ({ user_id }) => {
                 {[2, 5, 10, 20].map((limit) => (
                   <li key={limit}>
                     <button
-                      className={`dropdown-item ${
-                        postsPerPage === limit ? "fw-bold" : ""
-                      }`}
+                      className={`dropdown-item ${postsPerPage === limit ? 'fw-bold' : ''}`}
                       onClick={() => handleLimitChange(limit)}
                       style={{
-                        color:
-                          postsPerPage === limit ? "var(--gray-color-0)" : "",
-                        backgroundColor:
-                          postsPerPage === limit ? "var(--main-color)" : "",
+                        color: postsPerPage === limit ? 'var(--gray-color-0)' : '',
+                        backgroundColor: postsPerPage === limit ? 'var(--main-color)' : '',
                       }}
                     >
                       {limit} Posts
@@ -98,7 +92,7 @@ export const Feed: FC<TFeedProps> = ({ user_id }) => {
                     loading...
                   </>
                 ) : (
-                  "Load More"
+                  'Load More'
                 )}
               </button>
             </article>
@@ -112,7 +106,7 @@ export const Feed: FC<TFeedProps> = ({ user_id }) => {
             <p className="card-text text-muted">
               {user_id && user_id !== currentUser?.user_id
                 ? "This user has't shared any posts yet!"
-                : "Your Feed is empty. Follow more users or create your first post!"}
+                : 'Your Feed is empty. Follow more users or create your first post!'}
             </p>
           </div>
         </article>

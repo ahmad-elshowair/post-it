@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
-import { AuthResponse } from "../types/TAuth";
-import { UserPayload } from "../types/TUser";
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { AuthResponse } from '../types/TAuth';
+import { UserPayload } from '../types/TUser';
 
 export interface AuthState {
   user: UserPayload | null;
@@ -16,11 +16,7 @@ export interface AuthActions {
   start: () => void;
   succeeded: (payload: AuthResponse) => void;
   failure: (errors: string[]) => void;
-  refreshToken: (payload: {
-    user: UserPayload;
-    fingerprint?: string;
-    csrf?: string;
-  }) => void;
+  refreshToken: (payload: { user: UserPayload; fingerprint?: string; csrf?: string }) => void;
   logout: () => void;
   checkAuthStatus: (authenticated: boolean) => void;
   clearErrors: () => void;

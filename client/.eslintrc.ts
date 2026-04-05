@@ -20,7 +20,7 @@ type ESLintConfig = {
 };
 
 const config: ESLintConfig = {
-  extends: ["react-app", "react-app/jest"],
+  extends: ["react-app", "react-app/jest", "prettier"],
   root: true,
   parser: "@typescript-eslint/parser",
   parserOptions: {

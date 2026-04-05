@@ -1,19 +1,16 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { useCallback, useState } from "react";
-import { ApiError } from "../api/ApiError";
-import api from "../api/axiosInstance";
-import { AuthService } from "../services/authService";
-import { TRequestOptions } from "../types/TAuth";
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import { useCallback, useState } from 'react';
+import { ApiError } from '../api/ApiError';
+import api from '../api/axiosInstance';
+import { AuthService } from '../services/authService';
+import { TRequestOptions } from '../types/TAuth';
 
 // ───── CREATE SECURE API ──────────────────────────────
 export function createSecureApi() {
   /**
-   * Makes a secure API request with automatic token synchronization
-   * @param method HTTP method
-   * @Param url API endpoint
-   * @param data Request data
-   * @param options Request options
-   * @returns Response data or null
+   * Make a secure API request with automatic token synchronization.
+   * Synchronizes all tokens through AuthService before making the request to ensure validity.
+   * Throws ApiError if the Axios request fails or returns an error.
    */
 
   const request = async <TResponse>(
@@ -50,16 +47,14 @@ export function createSecureApi() {
   };
 
   /**
-   * Makes a GET request.
-   * @param url API endpoint
-   * @param options Request options
-   * @returns Response data or null
+   * Make a GET request using the secure API.
+   * Synchronizes tokens before execution. Throws ApiError on failure.
    */
   const get = async <TResponse>(
     url: string,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("GET", url, undefined, options);
+    return request<TResponse>('GET', url, undefined, options);
   };
 
   const post = async <TResponse>(
@@ -67,7 +62,7 @@ export function createSecureApi() {
     data: any,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("POST", url, data, options);
+    return request<TResponse>('POST', url, data, options);
   };
 
   const put = async <TResponse>(
@@ -75,14 +70,14 @@ export function createSecureApi() {
     data: any,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("PUT", url, data, options);
+    return request<TResponse>('PUT', url, data, options);
   };
 
   const del = async <TResponse>(
     url: string,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("DELETE", url, undefined, options);
+    return request<TResponse>('DELETE', url, undefined, options);
   };
 
   return {
@@ -143,11 +138,8 @@ export function useSecureApi() {
   );
 
   const get = useCallback(
-    <TResponse = any>(
-      url: string,
-      options?: TRequestOptions,
-    ): Promise<TResponse | null> => {
-      return request<TResponse>("GET", url, undefined, options);
+    <TResponse = any>(url: string, options?: TRequestOptions): Promise<TResponse | null> => {
+      return request<TResponse>('GET', url, undefined, options);
     },
     [request],
   );
@@ -158,17 +150,14 @@ export function useSecureApi() {
       data?: any,
       options?: TRequestOptions,
     ): Promise<TResponse | null> => {
-      return request<TResponse>("POST", url, data, options);
+      return request<TResponse>('POST', url, data, options);
     },
     [request],
   );
 
   /**
-   * Makes a PUT request.
-   * @param url API endpoint
-   * @param data Request data
-   * @param options Request options
-   * @returns Response data or null
+   * Make a PUT request using the secure API hook.
+   * Synchronizes tokens and manages local loading and error state. Throws ApiError on failure.
    */
   const put = useCallback(
     <TResponse = any>(
@@ -176,23 +165,18 @@ export function useSecureApi() {
       data?: any,
       options?: TRequestOptions,
     ): Promise<TResponse | null> => {
-      return request<TResponse>("PUT", url, data, options);
+      return request<TResponse>('PUT', url, data, options);
     },
     [request],
   );
 
   /**
-   * Makes a DELETE request.
-   * @param url API endpoint
-   * @param options Request options
-   * @returns Response data or null
+   * Make a DELETE request using the secure API hook.
+   * Synchronizes tokens and manages local loading and error state. Throws ApiError on failure.
    */
   const del = useCallback(
-    <TResponse = any>(
-      url: string,
-      options?: TRequestOptions,
-    ): Promise<TResponse | null> => {
-      return request<TResponse>("DELETE", url, undefined, options);
+    <TResponse = any>(url: string, options?: TRequestOptions): Promise<TResponse | null> => {
+      return request<TResponse>('DELETE', url, undefined, options);
     },
     [request],
   );

@@ -1,4 +1,4 @@
-import useAuthStore from "../stores/useAuthStore";
+import useAuthStore from '../stores/useAuthStore';
 
 const useAuthState = () => {
   const user = useAuthStore((s) => s.user);

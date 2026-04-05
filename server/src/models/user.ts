@@ -1,7 +1,7 @@
-import { PoolClient, QueryResult } from "pg";
-import pool from "../database/pool.js";
-import { TFriend, TUnknownUser, TUser } from "../types/users.js";
-import { buildUpdateQuery } from "../utilities/build-update-query.js";
+import { PoolClient, QueryResult } from 'pg';
+import pool from '../database/pool.js';
+import { TFriend, TUnknownUser, TUser } from '../types/users.js';
+import { buildUpdateQuery } from '../utilities/build-update-query.js';
 
 class UserModel {
   /**
@@ -11,15 +11,15 @@ class UserModel {
   async index(): Promise<TUser[]> {
     const connection = await pool.connect();
     try {
-      const sql = "SELECT * FROM users";
+      const sql = 'SELECT * FROM users';
       const result: QueryResult<TUser> = await connection.query(sql);
       if (result.rowCount === 0) {
         return [];
       }
       return result.rows;
     } catch (error) {
-      console.error("[USER MODEL] error getting all users", error);
-      throw new Error(`Failed to get users: ${(error as Error).message}`);
+      console.error('[USER MODEL] error getting all users', error);
+      throw new Error(`Failed to get users: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -35,43 +35,39 @@ class UserModel {
   async indexWithPagination(
     limit: number = 10,
     cursor: string,
-    direction: "next" | "previous" = "next",
+    direction: 'next' | 'previous' = 'next',
   ): Promise<{ users: TUser[] }> {
     const connection = await pool.connect();
     try {
-      const params: any[] = [];
+      const params: (string | number)[] = [];
 
-      let sql = "SELECT * FROM users";
+      let sql = 'SELECT * FROM users';
 
       if (cursor) {
-        if (direction === "next") {
-          sql += " WHERE user_id > $1";
+        if (direction === 'next') {
+          sql += ' WHERE user_id > $1';
         } else {
-          sql += " WHERE user_id < $1";
+          sql += ' WHERE user_id < $1';
         }
         params.push(cursor);
       }
 
-      sql +=
-        direction === "next"
-          ? " ORDER BY user_id ASC"
-          : " ORDER BY user_id DESC";
+      sql += direction === 'next' ? ' ORDER BY user_id ASC' : ' ORDER BY user_id DESC';
 
       sql += ` LIMIT $${params.length + 1}`;
 
       params.push(limit);
       const result: QueryResult<TUser> = await connection.query(sql, params);
 
-      const users =
-        direction === "previous" ? result.rows.reverse() : result.rows;
+      const users = direction === 'previous' ? result.rows.reverse() : result.rows;
 
       return { users };
     } catch (error) {
-      console.error("[USER MODEL] indexWithPagination error", error);
+      console.error('[USER MODEL] indexWithPagination error', error);
 
-      throw new Error(
-        `Failed to get pagination users: ${(error as Error).message}`,
-      );
+      throw new Error(`Failed to get pagination users: ${(error as Error).message}`, {
+        cause: error,
+      });
     } finally {
       connection.release();
     }
@@ -86,17 +82,17 @@ class UserModel {
   async getUserById(user_id: string): Promise<TUser> {
     const connection = await pool.connect();
     try {
-      const sql = "SELECT * FROM users WHERE user_id = ($1)";
+      const sql = 'SELECT * FROM users WHERE user_id = ($1)';
       const result: QueryResult<TUser> = await connection.query(sql, [user_id]);
 
       if (result.rowCount === 0) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       return result.rows[0];
     } catch (error) {
-      console.error("[USER MODEL] getUserById error", error);
-      throw new Error(`Failed to get user by ID: ${(error as Error).message}`);
+      console.error('[USER MODEL] getUserById error', error);
+      throw new Error(`Failed to get user by ID: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -112,20 +108,18 @@ class UserModel {
     const connection = await pool.connect();
     try {
       const sql = `SELECT * FROM users WHERE user_name = $1`;
-      const result: QueryResult<TUser> = await connection.query(sql, [
-        user_name,
-      ]);
+      const result: QueryResult<TUser> = await connection.query(sql, [user_name]);
 
       if (result.rowCount === 0) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
       return result.rows[0];
     } catch (error) {
-      console.error("[USER MODEL] getUserByUsername error", error);
-      throw new Error(
-        `Failed to get user by user name: ${(error as Error).message}`,
-      );
+      console.error('[USER MODEL] getUserByUsername error', error);
+      throw new Error(`Failed to get user by user name: ${(error as Error).message}`, {
+        cause: error,
+      });
     } finally {
       connection.release();
     }
@@ -142,27 +136,24 @@ class UserModel {
     // connect to the database
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
 
       const existUser = await this.getUserById(user_id);
       if (!existUser) {
-        throw new Error("THIS USER IS NOT EXIST !");
+        throw new Error('THIS USER IS NOT EXIST !');
       }
 
       // Build the dynamic update query.
       const [updateUserQuery, values] = buildUpdateQuery(user_id, user);
-      const UpdateUser: QueryResult<TUser> = await connection.query(
-        updateUserQuery,
-        values,
-      );
+      const UpdateUser: QueryResult<TUser> = await connection.query(updateUserQuery, values);
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
 
       return UpdateUser.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
-      console.error("[USER MODEL] update error", error);
-      throw new Error(`Failed to update user: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      console.error('[USER MODEL] update error', error);
+      throw new Error(`Failed to update user: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -178,24 +169,24 @@ class UserModel {
     // connect to the database
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
 
       const existUser = await this.getUserById(user_id);
 
       if (!existUser) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
 
-      const sql = "DELETE FROM users WHERE user_id = ($1) RETURNING *";
+      const sql = 'DELETE FROM users WHERE user_id = ($1) RETURNING *';
 
       await connection.query(sql, [user_id]);
 
-      await connection.query("COMMIT");
-      return { message: "User deleted successfully" };
+      await connection.query('COMMIT');
+      return { message: 'User deleted successfully' };
     } catch (error) {
-      await connection.query("ROLLBACK");
-      console.error("[USER MODEL] delete error", error);
-      throw new Error(`Failed to delete user: ${(error as Error).message}`);
+      await connection.query('ROLLBACK');
+      console.error('[USER MODEL] delete error', error);
+      throw new Error(`Failed to delete user: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -222,16 +213,12 @@ class UserModel {
 									AND f.user_id_following = ($1)
 									WHERE u.user_id != ($1)
 									AND f.user_id_followed IS NULL`;
-      const result: QueryResult<TUnknownUser> = await connection.query(sql, [
-        user_id,
-      ]);
+      const result: QueryResult<TUnknownUser> = await connection.query(sql, [user_id]);
 
       return result.rows;
     } catch (error) {
-      console.error("[USER MODEL] getUnknowns error", error);
-      throw new Error(
-        `Failed to get unknown users ${(error as Error).message}`,
-      );
+      console.error('[USER MODEL] getUnknowns error', error);
+      throw new Error(`Failed to get unknown users ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -244,17 +231,14 @@ class UserModel {
    * @returns {Promise<TUser>}
    * @throws {Error} If the user is not found.
    */
-  async updateOnlineStatus(
-    user_id: string,
-    is_online: boolean,
-  ): Promise<TUser> {
+  async updateOnlineStatus(user_id: string, is_online: boolean): Promise<TUser> {
     const connection: PoolClient = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
 
       const existUser = await this.getUserById(user_id);
       if (!existUser) {
-        throw new Error("User not found");
+        throw new Error('User not found');
       }
       const sql = `
 		    UPDATE users
@@ -263,19 +247,16 @@ class UserModel {
 		    WHERE user_id = ($2)
 		    RETURNING *`;
 
-      const result: QueryResult<TUser> = await connection.query(sql, [
-        is_online,
-        user_id,
-      ]);
+      const result: QueryResult<TUser> = await connection.query(sql, [is_online, user_id]);
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return result.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
-      console.error("[USER MODEL] update online status error", error);
-      throw new Error(
-        `Failed to update online status due to ${(error as Error).message}`,
-      );
+      await connection.query('ROLLBACK');
+      console.error('[USER MODEL] update online status error', error);
+      throw new Error(`Failed to update online status due to ${(error as Error).message}`, {
+        cause: error,
+      });
     } finally {
       connection.release();
     }
@@ -296,11 +277,11 @@ class UserModel {
     is_online: boolean = false,
     limit: number = 10,
     cursor?: string,
-    direction: "next" | "previous" = "next",
+    direction: 'next' | 'previous' = 'next',
   ): Promise<{ users: TFriend[] }> {
     const connection: PoolClient = await pool.connect();
     try {
-      const params: any[] = [user_id];
+      const params: (string | number)[] = [user_id];
 
       let sql = `SELECT
 								u.user_id,
@@ -327,10 +308,10 @@ class UserModel {
       }
 
       if (cursor) {
-        if (direction === "next") {
-          sql += " AND u.user_id > $2";
+        if (direction === 'next') {
+          sql += ' AND u.user_id > $2';
         } else {
-          sql += " AND u.user_id < $2";
+          sql += ' AND u.user_id < $2';
         }
         params.push(cursor);
       }
@@ -343,8 +324,8 @@ class UserModel {
 
       return { users: result.rows };
     } catch (error) {
-      console.error("[USER MODEL] get friends error", error);
-      throw new Error(`Failed to get friends ${(error as Error).message}`);
+      console.error('[USER MODEL] get friends error', error);
+      throw new Error(`Failed to get friends ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
