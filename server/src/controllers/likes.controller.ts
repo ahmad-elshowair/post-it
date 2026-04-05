@@ -8,6 +8,7 @@ import { like_model } from './factory.js';
 /**
  * Handle like/unlike action for a post.
  * @route POST /api/posts/like/:post_id
+ * @returns 200 with string indicating the performed action, or 400/401 on error
  */
 const handleLike = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -37,6 +38,7 @@ const handleLike = async (req: ICustomRequest, res: Response, next: NextFunction
 /**
  * Check if a user has liked a post.
  * @route GET /api/posts/is-liked/:post_id
+ * @returns 200 with boolean indicating if liked, or 400/401 on error
  */
 const checkIfLiked = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {

@@ -10,6 +10,7 @@ import { follow_model } from './factory.js';
 /**
  * Follow a user identified by user_id_followed in the request body.
  * @route POST /api/follows/follow
+ * @returns 201 on success, or 400/401 on error
  */
 const followUser = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -44,6 +45,7 @@ const followUser = async (req: ICustomRequest, res: Response, next: NextFunction
 /**
  * Unfollow a user identified by user_id_followed in the request body.
  * @route DELETE /api/follows/unfollow
+ * @returns 201 on success, or 400/401/403 on error
  */
 const unFollowUser = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -78,6 +80,7 @@ const unFollowUser = async (req: ICustomRequest, res: Response, next: NextFuncti
 /**
  * Get number of followings of a user identified by user_id in the request user.
  * @route GET /api/follows/num-followings
+ * @returns 200 with the count of followings
  */
 const getNumberOfFollowings = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -97,6 +100,7 @@ const getNumberOfFollowings = async (req: ICustomRequest, res: Response, next: N
 /**
  * Get number of followers of a user identified by user_id in the request user.
  * @route GET /api/follows/num-followers
+ * @returns 200 with the count of followers
  */
 const getNumberOfFollowers = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   const user_id = req.user?.id;
@@ -115,6 +119,7 @@ const getNumberOfFollowers = async (req: ICustomRequest, res: Response, next: Ne
 /**
  * Get followings of a user identified by user_id in the request user.
  * @route GET /api/follows/followings
+ * @returns 200 with a paginated list of followings
  */
 const getFollowings = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -144,6 +149,7 @@ const getFollowings = async (req: ICustomRequest, res: Response, next: NextFunct
 /**
  * Get followers of a user identified by user_id in the request user.
  * @route GET /api/follows/followers
+ * @returns 200 with a paginated list of followers
  */
 const getFollowers = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -172,6 +178,7 @@ const getFollowers = async (req: ICustomRequest, res: Response, next: NextFuncti
 /**
  * Check if a user is following another user identified by user_id in the request user.
  * @route GET /api/follows/is-followed/:followed_id
+ * @returns 200 with boolean indicating follow status
  */
 const isFollowed = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {

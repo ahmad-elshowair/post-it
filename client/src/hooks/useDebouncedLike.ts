@@ -13,13 +13,12 @@ interface IUseDebouncedLikeReturn {
 }
 
 /**
- * Per-post independent debounce hook for like/unlike actions.
+ * Manage per-post independent debounce for like/unlike actions.
  *
- * Uses a Map<postId, timeoutId> to manage independent timers per post,
- * ensuring rapid clicks on one post don't interfere with another.
- *
- * The hook only manages debounce timers and API calls.
- * Optimistic UI updates are handled by the caller (Post.tsx local state).
+ * Employs a Map<postId, timeoutId> to track independent timers per post locally,
+ * preventing rapid clicks on one post from interfering with another.
+ * Handles the debounce delay before executing the API call. Throws error on hook fail via onError if provided.
+ * Relies on the caller to manage optimistic UI state updates.
  */
 
 // ───── DEBOUNCED LIKE HOOK ──────────────────────────────

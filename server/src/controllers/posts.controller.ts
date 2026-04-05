@@ -9,8 +9,9 @@ import { sendResponse } from '../utilities/response.js';
 import { post_model } from './factory.js';
 
 /**
- * CREATE NEW POST
+ * Create a new post.
  * @route POST /api/posts/create
+ * @returns 201 with the created post
  */
 const create = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -38,8 +39,9 @@ const create = async (req: ICustomRequest, res: Response, next: NextFunction) =>
 };
 
 /**
- * UPDATE POST
+ * Update an existing post.
  * @route PUT /api/posts/update/:post_id
+ * @returns 200 with the updated post, or 403/404 on error
  */
 const update = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -76,8 +78,9 @@ const update = async (req: ICustomRequest, res: Response, next: NextFunction) =>
 };
 
 /**
- * GET POST BY ID
+ * Retrieve a single post by ID.
  * @route GET /api/posts/:post_id
+ * @returns 200 with the post object, or 404 if not found
  */
 const getPostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -103,8 +106,9 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
- * GET ALL POSTS
+ * Retrieve a paginated list of all posts.
  * @route GET /api/posts/all
+ * @returns 200 with a paginated result of posts
  */
 const index = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -131,8 +135,9 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
- * DELETE POST
+ * Delete a post by ID.
  * @route DELETE /api/posts/delete/:post_id
+ * @returns 200 on successful deletion, or 403/404 on error
  */
 const deletePost = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -166,8 +171,9 @@ const deletePost = async (req: ICustomRequest, res: Response, next: NextFunction
 };
 
 /**
- * GET ALL POSTS BY USER ID
+ * Retrieve a paginated list of posts for a specific user.
  * @route GET /api/posts/user/:user_id
+ * @returns 200 with a paginated result of the user's posts
  */
 const userPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -196,8 +202,9 @@ const userPosts = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
- * GET ALL POSTS OF A USER AND HIS FOLLOWINGS
+ * Retrieve a paginated feed of posts from the user and their followings.
  * @route GET /api/posts/feed
+ * @returns 200 with a paginated result of feed posts
  */
 const feed = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {

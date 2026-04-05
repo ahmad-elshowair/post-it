@@ -8,12 +8,9 @@ import { TRequestOptions } from '../types/TAuth';
 // ───── CREATE SECURE API ──────────────────────────────
 export function createSecureApi() {
   /**
-   * Makes a secure API request with automatic token synchronization
-   * @param method HTTP method
-   * @Param url API endpoint
-   * @param data Request data
-   * @param options Request options
-   * @returns Response data or null
+   * Make a secure API request with automatic token synchronization.
+   * Synchronizes all tokens through AuthService before making the request to ensure validity.
+   * Throws ApiError if the Axios request fails or returns an error.
    */
 
   const request = async <TResponse>(
@@ -50,10 +47,8 @@ export function createSecureApi() {
   };
 
   /**
-   * Makes a GET request.
-   * @param url API endpoint
-   * @param options Request options
-   * @returns Response data or null
+   * Make a GET request using the secure API.
+   * Synchronizes tokens before execution. Throws ApiError on failure.
    */
   const get = async <TResponse>(
     url: string,
@@ -161,11 +156,8 @@ export function useSecureApi() {
   );
 
   /**
-   * Makes a PUT request.
-   * @param url API endpoint
-   * @param data Request data
-   * @param options Request options
-   * @returns Response data or null
+   * Make a PUT request using the secure API hook.
+   * Synchronizes tokens and manages local loading and error state. Throws ApiError on failure.
    */
   const put = useCallback(
     <TResponse = any>(
@@ -179,10 +171,8 @@ export function useSecureApi() {
   );
 
   /**
-   * Makes a DELETE request.
-   * @param url API endpoint
-   * @param options Request options
-   * @returns Response data or null
+   * Make a DELETE request using the secure API hook.
+   * Synchronizes tokens and manages local loading and error state. Throws ApiError on failure.
    */
   const del = useCallback(
     <TResponse = any>(url: string, options?: TRequestOptions): Promise<TResponse | null> => {

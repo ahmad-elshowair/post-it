@@ -8,9 +8,9 @@ import { sendResponse } from '../utilities/response.js';
 import { user_model } from './factory.js';
 
 /**
- * Get all users with pagination
- * @param req
- * @param res
+ * Retrieve a paginated list of all users.
+ * @route GET /api/users
+ * @returns 200 with the paginated list of users
  */
 export const getUsers = async (req: Request, res: Response, _next: NextFunction) => {
   const paginationOptions = getCursorPaginationOptions(req);
@@ -26,9 +26,9 @@ export const getUsers = async (req: Request, res: Response, _next: NextFunction)
 };
 
 /**
- * Get a user by user name
- * @param req
- * @param res
+ * Retrieve a specific user by their username.
+ * @route GET /api/users/username/:user_name
+ * @returns 200 with the requested user, or 400/404 on error
  */
 const getUserByUsername = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -46,12 +46,10 @@ const getUserByUsername = async (req: Request, res: Response, next: NextFunction
 };
 
 /**
- * Get a user by id
- * @param req
- * @param res
- * @param next
+ * Retrieve a specific user by their ID.
+ * @route GET /api/users/:user_id
+ * @returns 200 with the requested user, or 400/404 on error
  */
-// get a user by id
 const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const error = validationResult(req);
@@ -68,10 +66,9 @@ const getUserById = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 /**
- * Update user profile
- * @param req
- * @param res
- * @param next
+ * Update the profile information for a specific user.
+ * @route PUT /api/users/update/:user_id
+ * @returns 200 with the updated user profile, or 401/403 on error
  */
 const update = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -99,10 +96,9 @@ const update = async (req: ICustomRequest, res: Response, next: NextFunction) =>
 };
 
 /**
- * Delete a user
- * @param req
- * @param res
- * @param next
+ * Delete a user by their ID.
+ * @route DELETE /api/users/delete/:user_id
+ * @returns 200 on successful deletion, or 401/403 on error
  */
 const deleteUser = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
@@ -129,10 +125,9 @@ const deleteUser = async (req: ICustomRequest, res: Response, next: NextFunction
 };
 
 /**
- * Get unknown users (users not followed)
- * @param req
- * @param res
- * @param next
+ * Retrieve a list of unknown users (users not currently followed).
+ * @route GET /api/users/unknowns
+ * @returns 200 with a list of unknown users
  */
 const getUnknownUsers = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   const user_id = req.user?.id;
@@ -150,10 +145,9 @@ const getUnknownUsers = async (req: ICustomRequest, res: Response, next: NextFun
 };
 
 /**
- * Get user's friends (mutual followers)
- * @param req
- * @param res
- * @param next
+ * Retrieve a paginated list of a user's friends (mutual followers).
+ * @route GET /api/users/friends/:user_id
+ * @returns 200 with a paginated list of friends
  */
 const getFriends = async (req: Request, res: Response, next: NextFunction) => {
   try {

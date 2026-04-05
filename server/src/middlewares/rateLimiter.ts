@@ -10,7 +10,7 @@ import { ICustomRequest } from '../interfaces/ICustomRequest.js';
 // ───── RATE LIMIT HELPERS ──────────────────────────────
 
 /**
- * Helper: Send command with strict timeout to prevent hangs.
+ * Send command with strict timeout to prevent hangs.
  * If Redis is down, the command is queued but our timeout will trigger first.
  */
 const safeSendCommand = async (...args: string[]) => {
@@ -20,17 +20,22 @@ const safeSendCommand = async (...args: string[]) => {
 
   return Promise.race([
     // @ts-expect-error - ioredis and rate-limit-redis type mismatch
-    redisClient.call(...args).catch(() => {}),
+    redisClient.call(...args),
     timeoutPromise,
-  ]);
+  ]).catch((err) => {
+    console.warn(`[SECURITY_FAILOPEN] Redis store failure for rate limiter: ${err.message}`);
+    throw err;
+  });
 };
 
 /**
- * Standardized 429 Error Handler (SC-002: Structured Security Logging)
+ * Handle standardized 429 Error (SC-002: Structured Security Logging).
  */
 const limitHandler = (req: Request, res: Response) => {
-  const isAuthTier = req.path.includes('/auth');
-  const type = isAuthTier ? 'AUTH_LIMIT' : 'GLOBAL_LIMIT';
+  let type = 'GLOBAL_LIMIT';
+  if (req.path.includes('/login')) type = 'LOGIN_LIMIT';
+  else if (req.path.includes('/register')) type = 'REGISTER_LIMIT';
+  else if (req.path.includes('/refresh-token')) type = 'REFRESH_LIMIT';
 
   console.warn(
     JSON.stringify({
@@ -52,7 +57,7 @@ const limitHandler = (req: Request, res: Response) => {
 // ───── GLOBAL LIMITER ──────────────────────────────
 
 /**
- * Global Rate Limiter (Tier 1)
+ * Limit requests globally (Tier 1).
  */
 export const globalLimiter = rateLimit({
   windowMs: config.rate_limit_global_window_ms,
@@ -71,7 +76,7 @@ export const globalLimiter = rateLimit({
 // ───── LOGIN LIMITER ──────────────────────────────
 
 /**
- * Login Rate Limiter — strict brute-force protection (5 req / 15 min per IP)
+ * Limit login requests for strict brute-force protection (5 req / 15 min per IP).
  */
 export const loginLimiter = rateLimit({
   windowMs: config.rate_limit_auth_window_ms,
@@ -90,10 +95,7 @@ export const loginLimiter = rateLimit({
 // ───── REGISTER LIMITER ──────────────────────────────
 
 /**
- * registerLimiter
- * @description
- *
- * Register Rate Limiter — strict brute-force protection
+ * Limit register requests for strict brute-force protection.
  * Independent counters from login limiter.
  */
 export const registerLimiter = rateLimit({
@@ -113,7 +115,7 @@ export const registerLimiter = rateLimit({
 // ───── REFRESH LIMITER ──────────────────────────────
 
 /**
- * Refresh Token Rate Limiter (30 req / 1 min per cookie hash)
+ * Limit refresh token requests (30 req / 1 min per cookie hash).
  * Keyed by SHA-256 hash of refresh_token cookie (truncated to 16 hex chars).
  * Falls back to IP when no cookie is present.
  * Runs BEFORE auth middleware (FR-010).
@@ -142,7 +144,7 @@ export const refreshLimiter = rateLimit({
 // ───── CONTENT CREATION LIMITER ──────────────────────────────
 
 /**
- * Content Creation Rate Limiter (unchanged)
+ * Limit content creation requests.
  */
 export const contentCreationLimiter = rateLimit({
   windowMs: config.rate_limit_content_window_ms,
