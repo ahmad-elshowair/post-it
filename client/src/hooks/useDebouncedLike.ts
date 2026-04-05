@@ -1,5 +1,5 @@
-import { useCallback, useRef } from "react";
-import { useSecureApi } from "./useSecureApi";
+import { useCallback, useRef } from 'react';
+import { useSecureApi } from './useSecureApi';
 
 // ───── INTERFACES ──────────────────────────────
 interface IUseDebouncedLikeOptions {
@@ -28,9 +28,7 @@ export const useDebouncedLike = (
 ): IUseDebouncedLikeReturn => {
   const { debounceMs = 500, onError } = options;
   const { post: apiPost } = useSecureApi();
-  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
-    new Map(),
-  );
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   // ───── DEBOUNCED LIKE ──────────────────────────────
   const debouncedLike = useCallback(
@@ -48,10 +46,7 @@ export const useDebouncedLike = (
         try {
           await apiPost(`/posts/like/${postId}`, {});
         } catch (error) {
-          console.error(
-            `[useDebouncedLike] API error for post ${postId}:`,
-            error,
-          );
+          console.error(`[useDebouncedLike] API error for post ${postId}:`, error);
           onError?.(postId, error);
         }
       }, debounceMs);

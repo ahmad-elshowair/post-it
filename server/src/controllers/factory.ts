@@ -1,10 +1,10 @@
-import AuthModel from "../models/auth.js";
-import CommentModel from "../models/comments.js";
-import FollowModel from "../models/follow.js";
-import LikeModel from "../models/like.js";
-import PostModel from "../models/post.js";
-import RefreshTokenModel from "../models/refreshToken.js";
-import UserModel from "../models/user.js";
+import AuthModel from '../models/auth.js';
+import CommentModel from '../models/comments.js';
+import FollowModel from '../models/follow.js';
+import LikeModel from '../models/like.js';
+import PostModel from '../models/post.js';
+import RefreshTokenModel from '../models/refreshToken.js';
+import UserModel from '../models/user.js';
 
 const post_model = new PostModel();
 const user_model = new UserModel();

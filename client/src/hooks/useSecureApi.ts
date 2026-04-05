@@ -1,9 +1,9 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { useCallback, useState } from "react";
-import { ApiError } from "../api/ApiError";
-import api from "../api/axiosInstance";
-import { AuthService } from "../services/authService";
-import { TRequestOptions } from "../types/TAuth";
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
+import { useCallback, useState } from 'react';
+import { ApiError } from '../api/ApiError';
+import api from '../api/axiosInstance';
+import { AuthService } from '../services/authService';
+import { TRequestOptions } from '../types/TAuth';
 
 // ───── CREATE SECURE API ──────────────────────────────
 export function createSecureApi() {
@@ -59,7 +59,7 @@ export function createSecureApi() {
     url: string,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("GET", url, undefined, options);
+    return request<TResponse>('GET', url, undefined, options);
   };
 
   const post = async <TResponse>(
@@ -67,7 +67,7 @@ export function createSecureApi() {
     data: any,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("POST", url, data, options);
+    return request<TResponse>('POST', url, data, options);
   };
 
   const put = async <TResponse>(
@@ -75,14 +75,14 @@ export function createSecureApi() {
     data: any,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("PUT", url, data, options);
+    return request<TResponse>('PUT', url, data, options);
   };
 
   const del = async <TResponse>(
     url: string,
     options?: TRequestOptions,
   ): Promise<TResponse | null> => {
-    return request<TResponse>("DELETE", url, undefined, options);
+    return request<TResponse>('DELETE', url, undefined, options);
   };
 
   return {
@@ -143,11 +143,8 @@ export function useSecureApi() {
   );
 
   const get = useCallback(
-    <TResponse = any>(
-      url: string,
-      options?: TRequestOptions,
-    ): Promise<TResponse | null> => {
-      return request<TResponse>("GET", url, undefined, options);
+    <TResponse = any>(url: string, options?: TRequestOptions): Promise<TResponse | null> => {
+      return request<TResponse>('GET', url, undefined, options);
     },
     [request],
   );
@@ -158,7 +155,7 @@ export function useSecureApi() {
       data?: any,
       options?: TRequestOptions,
     ): Promise<TResponse | null> => {
-      return request<TResponse>("POST", url, data, options);
+      return request<TResponse>('POST', url, data, options);
     },
     [request],
   );
@@ -176,7 +173,7 @@ export function useSecureApi() {
       data?: any,
       options?: TRequestOptions,
     ): Promise<TResponse | null> => {
-      return request<TResponse>("PUT", url, data, options);
+      return request<TResponse>('PUT', url, data, options);
     },
     [request],
   );
@@ -188,11 +185,8 @@ export function useSecureApi() {
    * @returns Response data or null
    */
   const del = useCallback(
-    <TResponse = any>(
-      url: string,
-      options?: TRequestOptions,
-    ): Promise<TResponse | null> => {
-      return request<TResponse>("DELETE", url, undefined, options);
+    <TResponse = any>(url: string, options?: TRequestOptions): Promise<TResponse | null> => {
+      return request<TResponse>('DELETE', url, undefined, options);
     },
     [request],
   );

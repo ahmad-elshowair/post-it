@@ -1,15 +1,9 @@
-import {
-  FaBell,
-  FaComment,
-  FaHome,
-  FaSearch,
-  FaSignOutAlt,
-} from "react-icons/fa";
-import { Link } from "react-router-dom";
-import config from "../../configs";
-import useAuthState from "../../hooks/useAuthState";
-import { logoutUser } from "../../services/auth";
-import "./topbar.css";
+import { FaBell, FaComment, FaHome, FaSearch, FaSignOutAlt } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import config from '../../configs';
+import useAuthState from '../../hooks/useAuthState';
+import { logoutUser } from '../../services/auth';
+import './topbar.css';
 
 export const Topbar = () => {
   const { user } = useAuthState();
@@ -22,11 +16,7 @@ export const Topbar = () => {
     <nav className="navbar fixed-top">
       <section className="container-fluid">
         <Link className="navbar-brand" to="/">
-          <img
-            src={`${config.api_url}/images/post_it.png`}
-            alt="Post It logo"
-            height={60}
-          />
+          <img src={`${config.api_url}/images/post_it.png`} alt="Post It logo" height={60} />
         </Link>
         <form role="search" className="nav-search">
           <FaSearch className="ms-3" />
@@ -81,10 +71,7 @@ export const Topbar = () => {
             aria-labelledby="profileDropdown"
           >
             <li>
-              <Link
-                className="dropdown-item"
-                to={`/profile/${user?.user_name} `}
-              >
+              <Link className="dropdown-item" to={`/profile/${user?.user_name} `}>
                 <div className="d-flex align-content-center">
                   <img
                     height={30}

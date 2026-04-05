@@ -1,8 +1,8 @@
-import { FC } from "react";
-import { Link } from "react-router-dom";
-import config from "../../../../configs";
-import { TFriendsCardProps } from "../../../../types/TUser";
-import "./friendCard.css";
+import { FC } from 'react';
+import { Link } from 'react-router-dom';
+import config from '../../../../configs';
+import { TFriendsCardProps } from '../../../../types/TUser';
+import './friendCard.css';
 
 export const FriendCard: FC<TFriendsCardProps> = ({
   picture,
@@ -29,18 +29,16 @@ export const FriendCard: FC<TFriendsCardProps> = ({
             <span
               className="position-absolute rounded-circle bg-warning"
               style={{
-                width: "20px",
-                height: "20px",
-                top: "0",
-                left: "0",
+                width: '20px',
+                height: '20px',
+                top: '0',
+                left: '0',
               }}
             ></span>
           )}
         </div>
         <div className="friend-card__info">
-          <h5 className="friend-card__name m-0 fs-6 text-capitalize">
-            {first_name}
-          </h5>
+          <h5 className="friend-card__name m-0 fs-6 text-capitalize">{first_name}</h5>
         </div>
       </div>
     </Link>

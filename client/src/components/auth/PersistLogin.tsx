@@ -1,8 +1,8 @@
-import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
-import useAuthStore from "../../stores/useAuthStore";
-import useAuthVerification from "../../hooks/useAuthVerification";
-import { getFingerprint } from "../../services/storage";
+import { useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
+import useAuthStore from '../../stores/useAuthStore';
+import useAuthVerification from '../../hooks/useAuthVerification';
+import { getFingerprint } from '../../services/storage';
 
 export const PersistLogin = () => {
   const { verifyAuth } = useAuthVerification();
@@ -17,7 +17,7 @@ export const PersistLogin = () => {
         checkAuthStatus(false);
       } else {
         verifyAuth().catch((error) => {
-          console.error("Initial Auth Verification Failed", error);
+          console.error('Initial Auth Verification Failed', error);
         });
       }
     }

@@ -1,23 +1,23 @@
-import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
-import { Card, FloatingLabel, Form, Modal, Spinner } from "react-bootstrap";
-import { FaLocationArrow, FaPhotoVideo } from "react-icons/fa";
-import { GrClose } from "react-icons/gr";
-import configs from "../../configs";
-import useAuthState from "../../hooks/useAuthState";
-import useAuthVerification from "../../hooks/useAuthVerification";
-import { usePost } from "../../hooks/usePost";
-import { useSecureApi } from "../../hooks/useSecureApi";
-import { TModalPostProps, TPost } from "../../types/TPost";
-import "./modalPost.css";
+import { ChangeEvent, FC, FormEvent, useEffect, useState } from 'react';
+import { Card, FloatingLabel, Form, Modal, Spinner } from 'react-bootstrap';
+import { FaLocationArrow, FaPhotoVideo } from 'react-icons/fa';
+import { GrClose } from 'react-icons/gr';
+import configs from '../../configs';
+import useAuthState from '../../hooks/useAuthState';
+import useAuthVerification from '../../hooks/useAuthVerification';
+import { usePost } from '../../hooks/usePost';
+import { useSecureApi } from '../../hooks/useSecureApi';
+import { TModalPostProps, TPost } from '../../types/TPost';
+import './modalPost.css';
 
 export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
   const { user: currentUser } = useAuthState();
-  const [fileName, setFileName] = useState<string>("");
+  const [fileName, setFileName] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
-  const [description, setDescription] = useState<string>("");
+  const [description, setDescription] = useState<string>('');
   const [uploadProgress, setUploadProgress] = useState(false);
 
-  const folder = "posts";
+  const folder = 'posts';
   const { addPost } = usePost();
   const { checkAuthStatus } = useAuthVerification();
   const { post, error: apiError, isLoading } = useSecureApi();
@@ -52,25 +52,22 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
       // HANDLE FILE UPLOAD IF AVAILABLE.
       if (file) {
         const formDate = new FormData();
-        formDate.append("file", file);
-        formDate.append("folder", folder);
+        formDate.append('file', file);
+        formDate.append('folder', folder);
 
         // EXPECT THE API TO RETURN AN OBJECT.
         const uploadResponse = await post<{
           success: boolean;
           data: string;
-        }>("/upload", formDate);
+        }>('/upload', formDate);
 
         if (uploadResponse?.success) {
-          console.log("the response of upload:", uploadResponse);
+          console.log('the response of upload:', uploadResponse);
 
           const { data } = uploadResponse;
-          imageUrl = `${configs.api_url.replace("/api", "")}/${data}`;
+          imageUrl = `${configs.api_url.replace('/api', '')}/${data}`;
         } else {
-          console.error(
-            "Upload Failed: No filepath in response.",
-            uploadResponse,
-          );
+          console.error('Upload Failed: No filepath in response.', uploadResponse);
         }
       }
 
@@ -82,20 +79,17 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
         number_of_likes: 0,
       };
 
-      const response = await post<{ success: boolean; data: TPost }>(
-        "/posts/create",
-        postData,
-      );
+      const response = await post<{ success: boolean; data: TPost }>('/posts/create', postData);
 
       if (response?.success) {
-        console.log("the new post response", response.data);
+        console.log('the new post response', response.data);
 
         const { post_id, updated_at, created_at } = response.data;
 
         if (!post_id) {
-          console.error("Server returned success but no post_id");
+          console.error('Server returned success but no post_id');
         } else {
-          console.info("Created Post with ID: ", post_id);
+          console.info('Created Post with ID: ', post_id);
         }
 
         const newPost = {
@@ -108,15 +102,15 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
 
         addPost(newPost);
         // RESET FORM
-        setDescription("");
+        setDescription('');
         setFile(null);
-        setFileName("");
+        setFileName('');
 
         // CLOSE MODAL.
         handleClose();
       }
     } catch (error) {
-      console.error("Failed to create post", error);
+      console.error('Failed to create post', error);
     } finally {
       setUploadProgress(false);
     }
@@ -124,17 +118,11 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
 
   const closeImage = () => {
     setFile(null);
-    setFileName("");
+    setFileName('');
   };
 
   return (
-    <Modal
-      show={show}
-      onHide={handleClose}
-      backdrop="static"
-      keyboard={false}
-      centered
-    >
+    <Modal show={show} onHide={handleClose} backdrop="static" keyboard={false} centered>
       <Modal.Header closeButton>
         <Modal.Title>Create Post</Modal.Title>
       </Modal.Header>
@@ -145,7 +133,7 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
               as="textarea"
               className="border-0 no-focus"
               placeholder="Leave a comment here"
-              style={{ height: "100px" }}
+              style={{ height: '100px' }}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading || uploadProgress}
@@ -153,19 +141,12 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
           </FloatingLabel>
           {file && (
             <Card className="mt-3">
-              <Card.Img
-                src={URL.createObjectURL(file)}
-                className="post-image"
-              />
+              <Card.Img src={URL.createObjectURL(file)} className="post-image" />
               <GrClose onClick={closeImage} className="close-image_btn" />
             </Card>
           )}
 
-          {apiError && (
-            <p className="alert alert-danger">
-              {apiError.getUserFriendlyMessage()}
-            </p>
-          )}
+          {apiError && <p className="alert alert-danger">{apiError.getUserFriendlyMessage()}</p>}
         </Modal.Body>
         <Modal.Footer>
           {fileName && (
@@ -177,10 +158,7 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
 
           <div className="d-flex align-items-center justify-content-between w-100">
             <Form.Group className="">
-              <Form.Label
-                className="mb-0 btn btn-outline-secondary border-0"
-                htmlFor="file"
-              >
+              <Form.Label className="mb-0 btn btn-outline-secondary border-0" htmlFor="file">
                 <FaPhotoVideo className="me-1" />
                 <span className="text-muted">Add Photo</span>
               </Form.Label>
@@ -196,9 +174,7 @@ export const ModalPost: FC<TModalPostProps> = ({ show, handleClose }) => {
             <button
               className="btn-post border-0 px-4 py-1"
               type="submit"
-              disabled={
-                isLoading || uploadProgress || (!description.trim() && !file)
-              }
+              disabled={isLoading || uploadProgress || (!description.trim() && !file)}
             >
               {isLoading || uploadProgress ? (
                 <>

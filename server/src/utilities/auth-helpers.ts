@@ -1,7 +1,7 @@
-import { Request, Response } from "express";
-import config from "../configs/config.js";
-import { refresh_token_model, user_model } from "../controllers/factory.js";
-import { IUserPayload } from "../interfaces/IUserPayload.js";
+import { Request, Response } from 'express';
+import config from '../configs/config.js';
+import { refresh_token_model, user_model } from '../controllers/factory.js';
+import { IUserPayload } from '../interfaces/IUserPayload.js';
 import {
   calculateExpirationDate,
   clearAuthCookies,
@@ -10,7 +10,7 @@ import {
   hashFingerprint,
   setTokensInCookies,
   verifyRefreshToken,
-} from "./tokens.js";
+} from './tokens.js';
 
 export const getUserData = async (user_id?: string) => {
   try {
@@ -29,26 +29,23 @@ export const getUserData = async (user_id?: string) => {
       },
     };
   } catch (error) {
-    console.error("[AUTH HELPERS] Fetching user data error:", error);
+    console.error('[AUTH HELPERS] Fetching user data error:', error);
     return {
       success: false,
-      error: `[AUTH HELPERS] Failed to fetch user data ${
-        (error as Error).message
-      }`,
+      error: `[AUTH HELPERS] Failed to fetch user data ${(error as Error).message}`,
     };
   }
 };
 
 export const validateAuthToken = (req: Request) => {
-  const tokenName =
-    config.node_env === "production" ? "__Host-refresh_token" : "refresh_token";
+  const tokenName = config.node_env === 'production' ? '__Host-refresh_token' : 'refresh_token';
 
   const token = req.cookies[tokenName];
 
   if (!token) {
     return {
       valid: false,
-      reason: "Missing Refresh Token!",
+      reason: 'Missing Refresh Token!',
     };
   }
 
@@ -56,7 +53,7 @@ export const validateAuthToken = (req: Request) => {
   if (!decodedUser) {
     return {
       valid: false,
-      reason: "Invalid Refresh Token or Expired!",
+      reason: 'Invalid Refresh Token or Expired!',
     };
   }
 
@@ -66,20 +63,16 @@ export const validateAuthToken = (req: Request) => {
   };
 };
 
-export const validateFingerprint = (
-  req: Request,
-  decodedUser: IUserPayload
-) => {
+export const validateFingerprint = (req: Request, decodedUser: IUserPayload) => {
   const fingerprintName =
-    config.node_env === "production" ? "__Host-x-fingerprint" : "x-fingerprint";
+    config.node_env === 'production' ? '__Host-x-fingerprint' : 'x-fingerprint';
 
-  const fingerprint = (req.cookies[fingerprintName] ||
-    req.headers["x-fingerprint"]) as string;
+  const fingerprint = (req.cookies[fingerprintName] || req.headers['x-fingerprint']) as string;
 
   if (!fingerprint) {
     return {
       valid: false,
-      reason: "Missing Fingerprint!",
+      reason: 'Missing Fingerprint!',
     };
   }
 
@@ -88,7 +81,7 @@ export const validateFingerprint = (
     if (decodedUser.fingerprint !== hashedFingerprint) {
       return {
         valid: false,
-        reason: "Fingerprint Mismatch!",
+        reason: 'Fingerprint Mismatch!',
       };
     }
   }
@@ -99,11 +92,7 @@ export const validateFingerprint = (
   };
 };
 
-export const handleInvalidToken = (
-  res: Response,
-  reason?: string,
-  userId?: string
-) => {
+export const handleInvalidToken = (res: Response, reason?: string, userId?: string) => {
   const statusCode = userId ? 403 : 401;
   clearAuthCookies(res);
   return res.status(statusCode).json({
@@ -120,7 +109,7 @@ export const sendAuthStatusResponse = async (
     refresh_token: string;
     fingerprint: string;
     expiresAt: Date;
-  }
+  },
 ) => {
   const userData = await getUserData(user_id);
 
@@ -136,15 +125,15 @@ export const sendAuthStatusResponse = async (
     res,
     tokenRotation.access_token,
     tokenRotation.refresh_token,
-    tokenRotation.fingerprint
+    tokenRotation.fingerprint,
   );
 
   return res.status(200).json({
-    message: "Authentication successful: Tokens refreshed and rotated!",
+    message: 'Authentication successful: Tokens refreshed and rotated!',
     authenticated: true,
     user: userData.user,
     ...(config.csrf_protection_enabled && {
-      csrf: res.getHeader("X-CSRF-Token"),
+      csrf: res.getHeader('X-CSRF-Token'),
     }),
     fingerprint: tokenRotation.fingerprint,
     expiresAt: tokenRotation.expiresAt,
@@ -152,7 +141,7 @@ export const sendAuthStatusResponse = async (
 };
 
 export const handleAuthError = (res: Response, error: unknown) => {
-  console.error("[AUTH HELPERS] handleAuthError: ", error);
+  console.error('[AUTH HELPERS] handleAuthError: ', error);
 
   return res.status(500).json({
     message: `server error during authentication`,
@@ -161,10 +150,7 @@ export const handleAuthError = (res: Response, error: unknown) => {
   });
 };
 
-export const rotateTokens = async (
-  user: IUserPayload,
-  oldFingerprint: string
-) => {
+export const rotateTokens = async (user: IUserPayload, oldFingerprint: string) => {
   const newFingerprint = generateFingerprint();
   const hashedNewFingerprint = hashFingerprint(newFingerprint);
 
@@ -174,16 +160,12 @@ export const rotateTokens = async (
     fingerprint: hashedNewFingerprint,
   };
 
-  const accessToken = generateToken(
-    payload,
-    config.jwt_access_secret,
-    config.access_token_expiry
-  );
+  const accessToken = generateToken(payload, config.jwt_access_secret, config.access_token_expiry);
 
   const refreshToken = generateToken(
     payload,
     config.jwt_refresh_secret,
-    config.refresh_token_expiry
+    config.refresh_token_expiry,
   );
 
   const expiresAt = calculateExpirationDate(config.refresh_token_expiry);
@@ -192,7 +174,7 @@ export const rotateTokens = async (
     user.id!,
     hashFingerprint(oldFingerprint),
     hashedNewFingerprint,
-    expiresAt
+    expiresAt,
   );
 
   return {

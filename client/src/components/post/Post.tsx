@@ -1,18 +1,18 @@
-import { FC, useEffect, useState } from "react";
-import { AiFillLike } from "react-icons/ai";
-import { BiLike, BiSolidLike } from "react-icons/bi";
-import { FaComments, FaRegComment, FaTrash } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import config from "../../configs";
-import useAuthState from "../../hooks/useAuthState";
-import { useDebouncedLike } from "../../hooks/useDebouncedLike";
-import { useSecureApi } from "../../hooks/useSecureApi";
-import { TPost } from "../../types/TPost";
-import { TUser } from "../../types/TUser";
-import { formatRelativeTime } from "../../utils/dateUtils";
-import CommentList from "../comment/CommentList";
-import DeletePostModal from "../deletePostModal/DeletePostModal";
-import "./post.css";
+import { FC, useEffect, useState } from 'react';
+import { AiFillLike } from 'react-icons/ai';
+import { BiLike, BiSolidLike } from 'react-icons/bi';
+import { FaComments, FaRegComment, FaTrash } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import config from '../../configs';
+import useAuthState from '../../hooks/useAuthState';
+import { useDebouncedLike } from '../../hooks/useDebouncedLike';
+import { useSecureApi } from '../../hooks/useSecureApi';
+import { TPost } from '../../types/TPost';
+import { TUser } from '../../types/TUser';
+import { formatRelativeTime } from '../../utils/dateUtils';
+import CommentList from '../comment/CommentList';
+import DeletePostModal from '../deletePostModal/DeletePostModal';
+import './post.css';
 
 export const Post: FC<TPost> = ({
   user_name,
@@ -142,11 +142,7 @@ export const Post: FC<TPost> = ({
           </div>
           <div className="post-header-option-bars">
             {currentUser?.user_id === user?.user_id && (
-              <button
-                type="button"
-                className="btn"
-                onClick={() => setShowDeleteModal(true)}
-              >
+              <button type="button" className="btn" onClick={() => setShowDeleteModal(true)}>
                 <FaTrash className="post-header-option-bars-icon text-danger" />
               </button>
             )}
@@ -155,9 +151,7 @@ export const Post: FC<TPost> = ({
         <article className="post-body">
           <p className="post-body-description">{description}</p>
           <figure className="post-body-images">
-            {image && (
-              <img className="post-body-images-image" src={image} alt="post" />
-            )}
+            {image && <img className="post-body-images-image" src={image} alt="post" />}
           </figure>
         </article>
         <article className="post-statistics">
@@ -165,18 +159,14 @@ export const Post: FC<TPost> = ({
             {likeState.likes > 0 && (
               <>
                 <BiSolidLike className="likes me-2" />
-                <span className="post-statistics-number">
-                  {likeState.likes} people like it{" "}
-                </span>
+                <span className="post-statistics-number">{likeState.likes} people like it </span>
               </>
             )}
           </span>
           <span className="post-statistics-icon">
             {number_of_comments > 0 && (
               <>
-                <span className="post-statistics-number">
-                  {number_of_comments}
-                </span>
+                <span className="post-statistics-number">{number_of_comments}</span>
                 <span className="post-statistics-number"> comments</span>
                 <FaComments className="comments ms-2" />
               </>
@@ -189,7 +179,7 @@ export const Post: FC<TPost> = ({
             <button
               type="button"
               onClick={likeHandler}
-              aria-label={likeState.isLiked ? "Unlike Post" : "Like post"}
+              aria-label={likeState.isLiked ? 'Unlike Post' : 'Like post'}
             >
               {likeState.isLiked ? (
                 <section className="d-flex align-items-center gap-2 justify-content-center">
@@ -203,11 +193,7 @@ export const Post: FC<TPost> = ({
                 </section>
               )}
             </button>
-            <button
-              type="button"
-              onClick={toggleComments}
-              aria-label="Show comments"
-            >
+            <button type="button" onClick={toggleComments} aria-label="Show comments">
               <section className="d-flex align-items-center gap-2 justify-content-center">
                 <FaRegComment className="comment-icon" />
                 <span className="text-muted">Comment</span>

@@ -1,4 +1,4 @@
-import usePostStore from "../stores/usePostStore";
+import usePostStore from '../stores/usePostStore';
 
 export const usePost = () => {
   const posts = usePostStore((s) => s.posts);

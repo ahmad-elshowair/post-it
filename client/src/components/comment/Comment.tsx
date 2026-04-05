@@ -1,13 +1,13 @@
-import { FC, useState } from "react";
-import { Dropdown } from "react-bootstrap";
-import { BsPencil, BsThreeDots, BsTrash } from "react-icons/bs";
-import { Link } from "react-router-dom";
-import configs from "../../configs";
-import useAuthState from "../../hooks/useAuthState";
-import { TCommentProps } from "../../types/TComments";
-import { formatRelativeTime } from "../../utils/dateUtils";
-import CommentForm from "./CommentForm";
-import DeleteConfirmation from "./DeleteConfirmation";
+import { FC, useState } from 'react';
+import { Dropdown } from 'react-bootstrap';
+import { BsPencil, BsThreeDots, BsTrash } from 'react-icons/bs';
+import { Link } from 'react-router-dom';
+import configs from '../../configs';
+import useAuthState from '../../hooks/useAuthState';
+import { TCommentProps } from '../../types/TComments';
+import { formatRelativeTime } from '../../utils/dateUtils';
+import CommentForm from './CommentForm';
+import DeleteConfirmation from './DeleteConfirmation';
 
 const Comment: FC<TCommentProps> = ({
   comment,
@@ -23,9 +23,7 @@ const Comment: FC<TCommentProps> = ({
   const [showReplyList, setShowReplyList] = useState(showReplies);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const directReplies = replies.filter(
-    (r) => r.parent_comment_id === comment.comment_id
-  );
+  const directReplies = replies.filter((r) => r.parent_comment_id === comment.comment_id);
   const hasReplies = directReplies.length > 0;
 
   const handleSubmitReply = async (content: string) => {
@@ -106,20 +104,14 @@ const Comment: FC<TCommentProps> = ({
                 >
                   Reply
                 </button>
-                <span className="text-muted small comment-date">
-                  {" "}
-                  {formattedDate}
-                </span>
+                <span className="text-muted small comment-date"> {formattedDate}</span>
               </>
             )}
           </div>
           {!isEditing && !isReplying && user?.user_id === comment.user_id && (
             <div className="ms-auto">
               <Dropdown align="end">
-                <Dropdown.Toggle
-                  as="button"
-                  className="btn btn-sm p-o bg-transparent border-0"
-                >
+                <Dropdown.Toggle as="button" className="btn btn-sm p-o bg-transparent border-0">
                   <BsThreeDots className="text-muted fw-bold" />
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
@@ -127,10 +119,7 @@ const Comment: FC<TCommentProps> = ({
                     <BsPencil className="me-2 text-success fs-5" />
                     <span className="small text-success fw-bold">Edit</span>
                   </Dropdown.Item>
-                  <Dropdown.Item
-                    onClick={handleDeleteClick}
-                    className="text-danger"
-                  >
+                  <Dropdown.Item onClick={handleDeleteClick} className="text-danger">
                     <BsTrash className="me-2 text-danger fs-5" />
                     <span className="small text-danger fw-bold">Delete</span>
                   </Dropdown.Item>
@@ -153,12 +142,8 @@ const Comment: FC<TCommentProps> = ({
         {hasReplies && (
           <div className="comment-replies mt-2">
             {!showReplyList && (
-              <button
-                className="btn btn-sm text-warning p-0 border-0"
-                onClick={toggleReplyList}
-              >
-                View {directReplies.length}{" "}
-                {directReplies.length === 1 ? "reply" : "replies"}
+              <button className="btn btn-sm text-warning p-0 border-0" onClick={toggleReplyList}>
+                View {directReplies.length} {directReplies.length === 1 ? 'reply' : 'replies'}
               </button>
             )}
 
@@ -190,7 +175,7 @@ const Comment: FC<TCommentProps> = ({
 
       <DeleteConfirmation
         isOpen={showDeleteModal}
-        itemType={comment.parent_comment_id ? "reply" : "comment"}
+        itemType={comment.parent_comment_id ? 'reply' : 'comment'}
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
       />

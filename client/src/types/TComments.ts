@@ -12,7 +12,7 @@ export type TComment = {
   user_name?: string;
 };
 
-export type TCommentListProps = Pick<TComment, "post_id">;
+export type TCommentListProps = Pick<TComment, 'post_id'>;
 
 export type TCommentFormProps = {
   onSubmit: (content: string) => Promise<void>;
@@ -33,7 +33,7 @@ export type TCommentProps = {
 
 export type TDeleteConfirmationProps = {
   isOpen: boolean;
-  itemType: "comment" | "reply";
+  itemType: 'comment' | 'reply';
   onCancel: () => void;
   onConfirm: () => void;
 };

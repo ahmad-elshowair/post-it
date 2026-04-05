@@ -1,9 +1,9 @@
-import { AxiosError } from "axios";
-import { create } from "zustand";
-import { immer } from "zustand/middleware/immer";
-import { createSecureApi } from "../hooks/useSecureApi";
-import { getCsrf, syncAllAuthTokensFromCookies } from "../services/storage";
-import { TPagination, TPost } from "../types/TPost";
+import { AxiosError } from 'axios';
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { createSecureApi } from '../hooks/useSecureApi';
+import { getCsrf, syncAllAuthTokensFromCookies } from '../services/storage';
+import { TPagination, TPost } from '../types/TPost';
 
 interface PostState {
   posts: TPost[];
@@ -57,7 +57,7 @@ const usePostStore = create<PostState & PostActions>()(
 
       const csrf = getCsrf();
       if (!csrf) {
-        console.error("CSRF token not found");
+        console.error('CSRF token not found');
         set((state) => {
           state.isLoading = false;
         });
@@ -68,10 +68,10 @@ const usePostStore = create<PostState & PostActions>()(
         const { get } = createSecureApi();
         const params = new URLSearchParams();
 
-        if (cursor) params.append("cursor", cursor);
-        if (limit) params.append("limit", limit.toString());
+        if (cursor) params.append('cursor', cursor);
+        if (limit) params.append('limit', limit.toString());
 
-        const queryString = params.toString() ? `?${params.toString()}` : "";
+        const queryString = params.toString() ? `?${params.toString()}` : '';
 
         const endpoint = user_id
           ? `/posts/user/${user_id}${queryString}`
@@ -83,7 +83,7 @@ const usePostStore = create<PostState & PostActions>()(
         }>(endpoint);
 
         if (!response?.data) {
-          console.error("Failed to fetch posts");
+          console.error('Failed to fetch posts');
           set((state) => {
             state.isLoading = false;
           });
@@ -94,13 +94,9 @@ const usePostStore = create<PostState & PostActions>()(
 
         set((state) => {
           if (append && cursor) {
-            const existingPostIds = new Set(
-              state.posts.map((post) => post.post_id),
-            );
+            const existingPostIds = new Set(state.posts.map((post) => post.post_id));
 
-            const uniquePosts = data.filter(
-              (post: TPost) => !existingPostIds.has(post.post_id),
-            );
+            const uniquePosts = data.filter((post: TPost) => !existingPostIds.has(post.post_id));
 
             const duplicatesCount = data.length - uniquePosts.length;
             if (duplicatesCount > 0) {
@@ -118,8 +114,8 @@ const usePostStore = create<PostState & PostActions>()(
       } catch (error: unknown) {
         const axiosError = error as AxiosError;
         if (axiosError.response) {
-          console.error("Error data:", axiosError.response.data);
-          console.error("Error status:", axiosError.response.status);
+          console.error('Error data:', axiosError.response.data);
+          console.error('Error status:', axiosError.response.status);
         }
         set((state) => {
           state.isLoading = false;

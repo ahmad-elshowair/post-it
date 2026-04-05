@@ -1,5 +1,5 @@
-import { TUser } from "../types/users.js";
-import passwords from "./passwords.js";
+import { TUser } from '../types/users.js';
+import passwords from './passwords.js';
 
 /**
  * Allowed fields that can be updated via the user update endpoint.
@@ -7,16 +7,16 @@ import passwords from "./passwords.js";
  * could inject fields like `is_online`, `number_of_followers`, etc.
  */
 const ALLOWED_UPDATE_FIELDS: Set<string> = new Set([
-  "first_name",
-  "last_name",
-  "user_name",
-  "password",
-  "picture",
-  "cover",
-  "bio",
-  "marital_status",
-  "city",
-  "hometown",
+  'first_name',
+  'last_name',
+  'user_name',
+  'password',
+  'picture',
+  'cover',
+  'bio',
+  'marital_status',
+  'city',
+  'hometown',
 ]);
 
 export const buildUpdateQuery = (
@@ -33,7 +33,7 @@ export const buildUpdateQuery = (
       continue;
     }
 
-    if (key === "password") {
+    if (key === 'password') {
       fields.push(`${key} = $${index}`);
       values.push(passwords.hashPassword(value as string));
     } else {
@@ -44,12 +44,10 @@ export const buildUpdateQuery = (
   }
 
   if (fields.length === 0) {
-    throw new Error("No valid fields to update");
+    throw new Error('No valid fields to update');
   }
 
   values.push(id);
-  const query = `UPDATE users SET ${fields.join(
-    ", ",
-  )} WHERE user_id = $${index} RETURNING *`;
+  const query = `UPDATE users SET ${fields.join(', ')} WHERE user_id = $${index} RETURNING *`;
   return [query, values];
 };

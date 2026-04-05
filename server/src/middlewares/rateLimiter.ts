@@ -12,21 +12,14 @@ import { ICustomRequest } from '../interfaces/ICustomRequest.js';
  */
 const safeSendCommand = async (...args: string[]) => {
   const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Redis command timeout')), 200)
+    setTimeout(() => reject(new Error('Redis command timeout')), 200),
   );
 
-  try {
-    // Race the actual command against our 200ms timeout
-    return await Promise.race([
-      // @ts-expect-error - ioredis and rate-limit-redis type mismatch
-      redisClient.call(...args).catch(() => {}),
-      timeoutPromise
-    ]);
-  } catch (err) {
-    // All errors (connection or timeout) are caught here.
-    // passOnStoreError: true will then let the request proceed.
-    throw err;
-  }
+  return Promise.race([
+    // @ts-expect-error - ioredis and rate-limit-redis type mismatch
+    redisClient.call(...args).catch(() => {}),
+    timeoutPromise,
+  ]);
 };
 
 /**
@@ -35,25 +28,22 @@ const safeSendCommand = async (...args: string[]) => {
 const limitHandler = (req: Request, res: Response) => {
   const isAuthTier = req.path.includes('/auth');
   const type = isAuthTier ? 'AUTH_LIMIT' : 'GLOBAL_LIMIT';
-  
-  console.warn(JSON.stringify({
-    level: 'warn',
-    message: 'Rate limit exceeded',
-    type: type,
-    ip: req.ip,
-    userId: (req as any).user?.id || 'anonymous',
-    path: req.path
-  }));
-  
-  return sendResponse.error(
-    res,
-    'Too many requests, please try again later.',
-    429,
-    {
-      code: 'RATE_LIMIT_EXCEEDED',
-      retry_after: res.getHeader('Retry-After'),
-    }
+
+  console.warn(
+    JSON.stringify({
+      level: 'warn',
+      message: 'Rate limit exceeded',
+      type: type,
+      ip: req.ip,
+      userId: (req as ICustomRequest).user?.id || 'anonymous',
+      path: req.path,
+    }),
   );
+
+  return sendResponse.error(res, 'Too many requests, please try again later.', 429, {
+    code: 'RATE_LIMIT_EXCEEDED',
+    retry_after: res.getHeader('Retry-After'),
+  });
 };
 
 /**
@@ -111,8 +101,10 @@ export const contentCreationLimiter = rateLimit({
   }),
   handler: (req: Request, res: Response) => {
     const customReq = req as ICustomRequest;
-    console.warn(`[SECURITY_REJECTION] Type: CONTENT_LIMIT, IP: ${req.ip}, UserID: ${customReq.user?.id}, Path: ${req.path}, Reason: Content creation rate limit exceeded`);
-    
+    console.warn(
+      `[SECURITY_REJECTION] Type: CONTENT_LIMIT, IP: ${req.ip}, UserID: ${customReq.user?.id}, Path: ${req.path}, Reason: Content creation rate limit exceeded`,
+    );
+
     return sendResponse.error(
       res,
       'Content creation limit exceeded. Please wait before posting again.',
@@ -120,7 +112,7 @@ export const contentCreationLimiter = rateLimit({
       {
         code: 'CONTENT_LIMIT_EXCEEDED',
         retry_after: res.getHeader('Retry-After'),
-      }
+      },
     );
   },
 });

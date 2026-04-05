@@ -1,14 +1,11 @@
-import { Request, Response, Router } from "express";
-import fs from "fs";
-import multer from "multer";
-import path from "path";
-import { fileURLToPath } from "url";
-import config from "../../configs/config.js";
-import { sendResponse } from "../../utilities/response.js";
-import {
-  validateFileMime,
-  validateFolderName,
-} from "../../utilities/uploadValidation.js";
+import { Request, Response, Router } from 'express';
+import fs from 'fs';
+import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import config from '../../configs/config.js';
+import { sendResponse } from '../../utilities/response.js';
+import { validateFileMime, validateFolderName } from '../../utilities/uploadValidation.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -36,47 +33,39 @@ const upload = multer({
  * - 5MB size limit enforcement (US2-2)
  * - Path traversal protection via folder allow-list (US2-3)
  */
-uploadRouter.post("/", (req: Request, res: Response) => {
+uploadRouter.post('/', (req: Request, res: Response) => {
   // Use a custom wrapper for upload middleware to catch Multer errors (like 413)
-  upload.single("file")(req, res, async (err) => {
+  upload.single('file')(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
-      if (err.code === "LIMIT_FILE_SIZE") {
-        return sendResponse.error(res, "File exceeds 5MB size limit", 413);
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return sendResponse.error(res, 'File exceeds 5MB size limit', 413);
       }
       return sendResponse.error(res, `Upload error: ${err.message}`, 400);
     } else if (err) {
-      return sendResponse.error(
-        res,
-        "An unexpected error occurred during upload",
-        500,
-      );
+      return sendResponse.error(res, 'An unexpected error occurred during upload', 500);
     }
 
     try {
-      const { folder = "posts" } = req.body;
+      const { folder = 'posts' } = req.body;
 
       // 1. Validate Upload Presence
       if (!req.file) {
-        return sendResponse.error(res, "No file uploaded", 400);
+        return sendResponse.error(res, 'No file uploaded', 400);
       }
 
       // 2. Validate Folder (Path Safety / US2-3)
       if (!validateFolderName(folder)) {
         console.warn(
           JSON.stringify({
-            level: "warn",
-            message: "Security rejection: Invalid folder path",
-            type: "UPLOAD_VALIDATION",
+            level: 'warn',
+            message: 'Security rejection: Invalid folder path',
+            type: 'UPLOAD_VALIDATION',
             ip: req.ip,
             target: folder,
-            reason: "Path traversal attempt or prohibited folder",
+            reason: 'Path traversal attempt or prohibited folder',
           }),
         );
-        return sendResponse.error(
-          res,
-          "Invalid or prohibited target folder",
-          400,
-        );
+        return sendResponse.error(res, 'Invalid or prohibited target folder', 400);
       }
 
       // 3. Validate MIME via Magic Bytes (US2-1)
@@ -84,17 +73,17 @@ uploadRouter.post("/", (req: Request, res: Response) => {
       if (!isValidMime) {
         console.warn(
           JSON.stringify({
-            level: "warn",
-            message: "Security rejection: Invalid MIME type detected",
-            type: "UPLOAD_VALIDATION",
+            level: 'warn',
+            message: 'Security rejection: Invalid MIME type detected',
+            type: 'UPLOAD_VALIDATION',
             ip: req.ip,
             detectedMime: req.file.mimetype,
-            reason: "Magic-byte mismatch or prohibited type",
+            reason: 'Magic-byte mismatch or prohibited type',
           }),
         );
         return sendResponse.error(
           res,
-          "File content does not match its extension or is prohibited",
+          'File content does not match its extension or is prohibited',
           400,
         );
       }
@@ -106,14 +95,8 @@ uploadRouter.post("/", (req: Request, res: Response) => {
       }-${date.getFullYear()}-${date.getMilliseconds()}`;
 
       // Sanitizing original name to prevent any unexpected issues
-      const fileName = `${uniqueSuffix}-${req.file.originalname.replace(
-        /[^a-zA-Z0-9.\-]/g,
-        "_",
-      )}`;
-      const uploadPath = path.join(
-        __dirname,
-        `../../../public/images/${folder}`,
-      );
+      const fileName = `${uniqueSuffix}-${req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const uploadPath = path.join(__dirname, `../../../public/images/${folder}`);
 
       // Ensure directory exists safely
       if (!fs.existsSync(uploadPath)) {
@@ -130,12 +113,8 @@ uploadRouter.post("/", (req: Request, res: Response) => {
       );
       return sendResponse.success(res, relativeFilePath);
     } catch (error) {
-      console.error("System error during file processing:", error);
-      return sendResponse.error(
-        res,
-        "Internal server error during file processing",
-        500,
-      );
+      console.error('System error during file processing:', error);
+      return sendResponse.error(res, 'Internal server error during file processing', 500);
     }
   });
 });

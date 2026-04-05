@@ -1,13 +1,8 @@
-import { Response } from "express";
+import { Response } from 'express';
 
 export const sendResponse = {
   success: <T = unknown>(res: Response, data: T, statusCode: number = 200) => {
-    if (
-      data &&
-      typeof data === "object" &&
-      "data" in data &&
-      "pagination" in data
-    ) {
+    if (data && typeof data === 'object' && 'data' in data && 'pagination' in data) {
       const { data: items, pagination } = data as {
         data: unknown;
         pagination: unknown;
@@ -25,9 +20,9 @@ export const sendResponse = {
   },
   error: <E = unknown>(
     res: Response,
-    message = "Something Went wrong!",
+    message = 'Something Went wrong!',
     statusCode: number = 500,
-    error: E | null = null
+    error: E | null = null,
   ) => {
     return res.status(statusCode).json({
       success: false,

@@ -1,14 +1,9 @@
-import { FC, useEffect, useState } from "react";
-import {
-  FaExclamationCircle,
-  FaHome,
-  FaMapMarkerAlt,
-  FaRegGrinHearts,
-} from "react-icons/fa";
-import { useSecureApi } from "../../../hooks/useSecureApi";
-import { TFriendsCardProps, TProfileRightBarProps } from "../../../types/TUser";
-import { FriendCard } from "./friendCard/FriendCard";
-import "./profileRightBar.css";
+import { FC, useEffect, useState } from 'react';
+import { FaExclamationCircle, FaHome, FaMapMarkerAlt, FaRegGrinHearts } from 'react-icons/fa';
+import { useSecureApi } from '../../../hooks/useSecureApi';
+import { TFriendsCardProps, TProfileRightBarProps } from '../../../types/TUser';
+import { FriendCard } from './friendCard/FriendCard';
+import './profileRightBar.css';
 
 const ProfileRightBar: FC<TProfileRightBarProps> = ({
   user_id,
@@ -29,7 +24,7 @@ const ProfileRightBar: FC<TProfileRightBarProps> = ({
           setFriends(response.data);
         }
       } catch (error) {
-        console.error("Failed to fetch friends", error);
+        console.error('Failed to fetch friends', error);
       }
     };
     getFriends();
@@ -39,7 +34,7 @@ const ProfileRightBar: FC<TProfileRightBarProps> = ({
     <section className="profile-right-bar mb-3">
       <h3 className="bio-header">Bio</h3>
       <article className="right-bar-bio mb-3">
-        <p className="bio-text ps-3 m-0">{bio || "No Bio!"}</p>
+        <p className="bio-text ps-3 m-0">{bio || 'No Bio!'}</p>
       </article>
 
       <h3 className="info-header">Info</h3>
@@ -49,22 +44,20 @@ const ProfileRightBar: FC<TProfileRightBarProps> = ({
             <span className="info-key">
               <FaHome />
             </span>
-            <span className="info-value">{city || "No City!"}</span>
+            <span className="info-value">{city || 'No City!'}</span>
           </p>
 
           <p className="info-box">
             <span className="info-key">
               <FaMapMarkerAlt />
             </span>
-            <span className="info-value">{home_town || "No Hometown!"}</span>
+            <span className="info-value">{home_town || 'No Hometown!'}</span>
           </p>
           <p className="m-0 info-box">
             <span className="info-key">
               <FaRegGrinHearts />
             </span>
-            <span className="info-value">
-              {marital_status || "No Marital Status!"}
-            </span>
+            <span className="info-value">{marital_status || 'No Marital Status!'}</span>
           </p>
         </div>
       </article>
@@ -72,10 +65,7 @@ const ProfileRightBar: FC<TProfileRightBarProps> = ({
       <article className="right-bar__friends d-flex justify-content-center align-items-center">
         {isLoading ? (
           <div className="d-flex justify-content-center ">
-            <div
-              className="spinner-border spinner-border-sm text-warning"
-              role="status"
-            >
+            <div className="spinner-border spinner-border-sm text-warning" role="status">
               <span className="visually-hidden">Loading Friends...</span>
             </div>
           </div>

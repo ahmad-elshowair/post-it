@@ -1,12 +1,12 @@
-import { QueryResult } from "pg";
-import pool from "../database/pool.js";
-import { IComment } from "../types/comments.js";
+import { QueryResult } from 'pg';
+import pool from '../database/pool.js';
+import { IComment } from '../types/comments.js';
 
 class CommentModel {
   async create(comment: IComment): Promise<IComment> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
       const sql = `
             INSERT INTO comments (post_id, user_id, content, parent_comment_id)
             VALUES ($1, $2, $3, $4)
@@ -26,27 +26,21 @@ class CommentModel {
         [comment.post_id],
       );
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return insertComment.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
+      await connection.query('ROLLBACK');
       console.error(error);
-      throw new Error(
-        `create comment model error: ${(error as Error).message}`,
-      );
+      throw new Error(`create comment model error: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
   }
 
-  async update(
-    comment_id: string,
-    content: string,
-    user_id: string,
-  ): Promise<IComment> {
+  async update(comment_id: string, content: string, user_id: string): Promise<IComment> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
       const sql = `
             UPDATE comments
             SET content = $2, updated_at = CURRENT_TIMESTAMP
@@ -59,30 +53,25 @@ class CommentModel {
         [comment_id, user_id],
       );
       if (commentExist.rowCount === 0) {
-        throw new Error("Comment not found or does not belong to the user");
+        throw new Error('Comment not found or does not belong to the user');
       }
       const updateComment = await connection.query(sql, [comment_id, content]);
 
-      await connection.query("COMMIT");
+      await connection.query('COMMIT');
       return updateComment.rows[0];
     } catch (error) {
-      await connection.query("ROLLBACK");
+      await connection.query('ROLLBACK');
       console.error(error);
-      throw new Error(
-        `update comment model error: ${(error as Error).message}`,
-      );
+      throw new Error(`update comment model error: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
   }
 
-  async delete(
-    comment_id: string,
-    user_id: string,
-  ): Promise<{ message: string }> {
+  async delete(comment_id: string, user_id: string): Promise<{ message: string }> {
     const connection = await pool.connect();
     try {
-      await connection.query("BEGIN");
+      await connection.query('BEGIN');
 
       // CHECK IF THE COMMENT EXISTS OR BELONGS TO THE USER.
       const checkCommentExist = await connection.query(
@@ -90,7 +79,7 @@ class CommentModel {
         [comment_id, user_id],
       );
       if (checkCommentExist.rowCount === 0) {
-        throw new Error("Comment not found or does not belong to the user");
+        throw new Error('Comment not found or does not belong to the user');
       }
 
       const post_id = checkCommentExist.rows[0].post_id;
@@ -106,14 +95,12 @@ class CommentModel {
         `UPDATE posts SET number_of_comments = GREATEST(number_of_comments - 1, 0) WHERE post_id = $1`,
         [post_id],
       );
-      await connection.query("COMMIT");
-      return { message: "Comment deleted successfully" };
+      await connection.query('COMMIT');
+      return { message: 'Comment deleted successfully' };
     } catch (error) {
-      await connection.query("ROLLBACK");
+      await connection.query('ROLLBACK');
       console.error(error);
-      throw new Error(
-        `delete comment model error: ${(error as Error).message}`,
-      );
+      throw new Error(`delete comment model error: ${(error as Error).message}`, { cause: error });
     } finally {
       connection.release();
     }
@@ -145,16 +132,14 @@ class CommentModel {
                 c.created_at ASC
         `;
 
-      const comments: QueryResult<IComment> = await connection.query(sql, [
-        post_id,
-      ]);
+      const comments: QueryResult<IComment> = await connection.query(sql, [post_id]);
 
       return comments.rows;
     } catch (error) {
       console.error(error);
-      throw new Error(
-        `get comments by post id model error: ${(error as Error).message}`,
-      );
+      throw new Error(`get comments by post id model error: ${(error as Error).message}`, {
+        cause: error,
+      });
     } finally {
       connection.release();
     }
@@ -186,16 +171,14 @@ class CommentModel {
                 c.created_at ASC
         `;
 
-      const replies: QueryResult<IComment> = await connection.query(sql, [
-        comment_id,
-      ]);
+      const replies: QueryResult<IComment> = await connection.query(sql, [comment_id]);
 
       return replies.rows;
     } catch (error) {
       console.error(error);
-      throw new Error(
-        `get replies by comment id model error: ${(error as Error).message}`,
-      );
+      throw new Error(`get replies by comment id model error: ${(error as Error).message}`, {
+        cause: error,
+      });
     } finally {
       connection.release();
     }
