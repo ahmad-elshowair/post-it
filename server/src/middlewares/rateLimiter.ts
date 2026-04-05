@@ -126,6 +126,7 @@ export const refreshLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   passOnStoreError: true,
+  validate: { keyGeneratorIpFallback: false },
   keyGenerator: (req: Request) => {
     const cookieValue = req.cookies?.refresh_token;
     if (cookieValue) {
