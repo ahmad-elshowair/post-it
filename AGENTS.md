@@ -39,6 +39,33 @@ tests/
 - **No explicit `any`**: Avoid `any` type. Use proper types, `unknown`, or generics instead (`@typescript-eslint/no-explicit-any`)
 - **Unused parameters**: Prefix unused parameters with `_` (e.g., `_next`) (`@typescript-eslint/no-unused-vars` with `argsIgnorePattern: "^_"`)
 
+### JSDoc / Documentation Rules (Server)
+
+- **No redundant function names**: Don't repeat the function name as the first line — start directly with the description
+- **No explicit `@description` tag**: The first untagged paragraph is implicitly the description
+- **No type annotations in `@param`**: TypeScript already enforces types. Use `@param req - context` not `@param {Request} req`. Only include `@param` when adding context beyond what the type conveys
+- **Always include `@route`**: Document the HTTP method and path (e.g., `@route POST /api/auth/login`)
+- **Document return values and side effects**: Include `@returns` with status codes and note side effects (cookie setting, token revocation, etc.)
+- **Keep descriptions imperative and concise**: "Register a new user" not "This function registers a new user"
+
+**Apply to**: controllers, middleware, models, utilities
+
+**Skip**: types/interfaces, route definitions (thin wrappers), config files, database pool setup
+
+### JSDoc / Documentation Rules (Client)
+
+- **Same base rules as server**: No redundant names, no `@description`, no type annotations in `@param`, keep descriptions imperative
+- **No `@route` tag**: Client functions aren't HTTP endpoints
+- **No `@returns` with status codes**: That's server-side
+- **Document instead**: what triggers the function, what state it touches (stores, localStorage, cookies), and what errors it can throw
+- **For hooks**: document the return shape and any non-obvious behavior (debounce strategy, retry logic, timeout handling)
+- **For services**: document the flow — especially auth operations that involve token sync, CSRF handling, and error recovery
+- **For API layer**: document interceptor behavior and retry strategies
+
+**Apply to**: `api/` (axiosInstance, interceptors, ApiError), `hooks/` (useSecureApi, useDebouncedLike, useAuthVerification), `services/` (authService, auth, storage)
+
+**Skip**: components (props types suffice), pages (composition layer), stores (Zustand interface is the documentation), hooks that are pure store selectors (useAuthState, useAuthActions, usePost), configs, types
+
 ### General Rules
 - Use `const` over `let` when the variable is never reassigned (`prefer-const`)
 - Do not use unnecessary escape characters in regex/string literals (`no-useless-escape`)

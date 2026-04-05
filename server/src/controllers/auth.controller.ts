@@ -218,26 +218,30 @@ const refreshToken = async (req: Request, res: Response) => {
 
     const decodeUser = tokeValidationResult.user;
 
+    if (!decodeUser?.id) {
+      return handleInvalidToken(res, 'Invalid token payload');
+    }
+
     // 2- VALIDATE FINGERPRINT.
-    const fingerprintValidationResult = validateFingerprint(req, decodeUser!);
+    const fingerprintValidationResult = validateFingerprint(req, decodeUser);
     if (!fingerprintValidationResult.valid) {
-      return handleInvalidToken(res, fingerprintValidationResult.reason, decodeUser?.id);
+      return handleInvalidToken(res, fingerprintValidationResult.reason, decodeUser.id);
     }
 
     // 3- VERIFY TOKEN IN DATABASE.
     const isTokenValid = await refresh_token_model.verifyToken(
-      decodeUser!.id,
+      decodeUser.id,
       hashFingerprint(fingerprintValidationResult.fingerprint!),
     );
     if (!isTokenValid) {
-      return handleInvalidToken(res, 'Token has been revoked or expired!', decodeUser?.id);
+      return handleInvalidToken(res, 'Token has been revoked or expired!', decodeUser.id);
     }
 
     // 4- ROTATE TOKENS FOR ENHANCED SECURITY.
-    const tokenRotation = await rotateTokens(decodeUser!, fingerprintValidationResult.fingerprint!);
+    const tokenRotation = await rotateTokens(decodeUser, fingerprintValidationResult.fingerprint!);
 
     // 5- SEND AUTH STATUS RESPONSE WITH USER DATA.
-    return await sendAuthStatusResponse(res, decodeUser!.id, tokenRotation);
+    return await sendAuthStatusResponse(res, decodeUser.id, tokenRotation);
   } catch (error) {
     return handleAuthError(res, error);
   }
@@ -253,30 +257,34 @@ const checkAuthStatus = async (req: ICustomRequest, res: Response) => {
 
     const decodeUser = tokenValidationResult.user;
 
+    if (!decodeUser?.id) {
+      return handleInvalidToken(res, 'Invalid token payload');
+    }
+
     // 2- VALIDATE FINGERPRINT
-    const fingerprintValidationResult = validateFingerprint(req, decodeUser!);
+    const fingerprintValidationResult = validateFingerprint(req, decodeUser);
     if (!fingerprintValidationResult.valid) {
-      return handleInvalidToken(res, fingerprintValidationResult.reason, decodeUser?.id);
+      return handleInvalidToken(res, fingerprintValidationResult.reason, decodeUser.id);
     }
 
     // 3- VERIFY TOKEN IN DATABASE.
     const isTokenValid = await refresh_token_model.verifyToken(
-      decodeUser!.id,
+      decodeUser.id,
       hashFingerprint(fingerprintValidationResult.fingerprint!),
     );
     if (!isTokenValid) {
       return handleInvalidToken(
         res,
         'Token has been revoked or not found in database!',
-        decodeUser?.id,
+        decodeUser.id,
       );
     }
 
     // 4- ROTATE TOKENS FOR ENHANCED SECURITY.
-    const tokenRotation = await rotateTokens(decodeUser!, fingerprintValidationResult.fingerprint!);
+    const tokenRotation = await rotateTokens(decodeUser, fingerprintValidationResult.fingerprint!);
 
     // 5- SEND AUTH STATUS RESPONSE WITH USER DATA.
-    return await sendAuthStatusResponse(res, decodeUser!.id, tokenRotation);
+    return await sendAuthStatusResponse(res, decodeUser.id, tokenRotation);
   } catch (error) {
     return handleAuthError(res, error);
   }

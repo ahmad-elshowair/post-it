@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
+import { createHash } from 'node:crypto';
 import config from '../configs/config.js';
 import redisClient from '../database/redis.js';
 import { sendResponse } from '../utilities/response.js';
 import { ICustomRequest } from '../interfaces/ICustomRequest.js';
+
+// ───── RATE LIMIT HELPERS ──────────────────────────────
 
 /**
  * Helper: Send command with strict timeout to prevent hangs.
@@ -46,6 +49,8 @@ const limitHandler = (req: Request, res: Response) => {
   });
 };
 
+// ───── GLOBAL LIMITER ──────────────────────────────
+
 /**
  * Global Rate Limiter (Tier 1)
  */
@@ -63,10 +68,12 @@ export const globalLimiter = rateLimit({
   handler: limitHandler,
 });
 
+// ───── LOGIN LIMITER ──────────────────────────────
+
 /**
- * Auth Rate Limiter (Tier 2)
+ * Login Rate Limiter — strict brute-force protection (5 req / 15 min per IP)
  */
-export const authLimiter = rateLimit({
+export const loginLimiter = rateLimit({
   windowMs: config.rate_limit_auth_window_ms,
   max: config.rate_limit_auth_max_requests,
   standardHeaders: true,
@@ -75,13 +82,67 @@ export const authLimiter = rateLimit({
   store: new RedisStore({
     // @ts-expect-error - ioredis and rate-limit-redis type mismatch
     sendCommand: safeSendCommand,
-    prefix: 'rl:auth:',
+    prefix: 'rl:auth:login:',
   }),
   handler: limitHandler,
 });
 
+// ───── REGISTER LIMITER ──────────────────────────────
+
 /**
- * Content Creation Rate Limiter (Tier 3)
+ * registerLimiter
+ * @description
+ *
+ * Register Rate Limiter — strict brute-force protection
+ * Independent counters from login limiter.
+ */
+export const registerLimiter = rateLimit({
+  windowMs: config.rate_limit_auth_window_ms,
+  max: config.rate_limit_auth_max_requests,
+  standardHeaders: true,
+  legacyHeaders: false,
+  passOnStoreError: true,
+  store: new RedisStore({
+    // @ts-expect-error - ioredis and rate-limit-redis type mismatch
+    sendCommand: safeSendCommand,
+    prefix: 'rl:auth:register:',
+  }),
+  handler: limitHandler,
+});
+
+// ───── REFRESH LIMITER ──────────────────────────────
+
+/**
+ * Refresh Token Rate Limiter (30 req / 1 min per cookie hash)
+ * Keyed by SHA-256 hash of refresh_token cookie (truncated to 16 hex chars).
+ * Falls back to IP when no cookie is present.
+ * Runs BEFORE auth middleware (FR-010).
+ */
+export const refreshLimiter = rateLimit({
+  windowMs: config.rate_limit_refresh_window_ms,
+  max: config.rate_limit_refresh_max_requests,
+  standardHeaders: true,
+  legacyHeaders: false,
+  passOnStoreError: true,
+  keyGenerator: (req: Request) => {
+    const cookieValue = req.cookies?.refresh_token;
+    if (cookieValue) {
+      return createHash('sha256').update(cookieValue).digest('hex').slice(0, 16);
+    }
+    return req.ip || 'anonymous';
+  },
+  store: new RedisStore({
+    // @ts-expect-error - ioredis and rate-limit-redis type mismatch
+    sendCommand: safeSendCommand,
+    prefix: 'rl:refresh:',
+  }),
+  handler: limitHandler,
+});
+
+// ───── CONTENT CREATION LIMITER ──────────────────────────────
+
+/**
+ * Content Creation Rate Limiter (unchanged)
  */
 export const contentCreationLimiter = rateLimit({
   windowMs: config.rate_limit_content_window_ms,

@@ -24,8 +24,8 @@
 
 **Purpose**: Add configuration entries for the new refresh limiter tier
 
-- [ ] T001 Add `rate_limit_refresh_window_ms` and `rate_limit_refresh_max_requests` config keys to `server/src/configs/config.ts` (in the rate limiting section, after the auth group block, following the existing pattern of `Number(process.env.* || default)`)
-- [ ] T002 [P] Add `RATE_LIMIT_REFRESH_WINDOW_MS=60000` and `RATE_LIMIT_REFRESH_MAX=30` environment variables to `server/.env`
+- [x] T001 Add `rate_limit_refresh_window_ms` and `rate_limit_refresh_max_requests` config keys to `server/src/configs/config.ts` (in the rate limiting section, after the auth group block, following the existing pattern of `Number(process.env.* || default)`)
+- [x] T002 [P] Add `RATE_LIMIT_REFRESH_WINDOW_MS=60000` and `RATE_LIMIT_REFRESH_MAX=30` environment variables to `server/.env`
 
 ---
 
@@ -35,12 +35,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 In `server/src/middlewares/rateLimiter.ts`, make the following changes:
+- [x] T003 In `server/src/middlewares/rateLimiter.ts`, make the following changes:
   1. **Replace `authLimiter`** with three new exports: `loginLimiter` (windowMs from `config.rate_limit_auth_window_ms`, max from `config.rate_limit_auth_max_requests`, prefix `rl:auth:login:`, IP-keyed), `registerLimiter` (same window/max as loginLimiter, prefix `rl:auth:register:`, IP-keyed), and `refreshLimiter` (windowMs from `config.rate_limit_refresh_window_ms`, max from `config.rate_limit_refresh_max_requests`, prefix `rl:refresh:`, keyed by SHA-256 hash of `refresh_token` cookie truncated to 16 hex chars via `crypto.createHash('sha256').update(cookieValue).digest('hex').slice(0, 16)`, fallback to IP). All three use `safeSendCommand`, `passOnStoreError: true`, `standardHeaders: true`, `legacyHeaders: false`, and the existing `limitHandler` for 429 responses. Remove the old `authLimiter` export entirely.
   2. **Fix `any` type in `limitHandler`**: Replace `(req as any).user?.id` with `(req as ICustomRequest).user?.id` — Constitution Principle I forbids `any` without documented justification. The `ICustomRequest` import already exists in the file.
   3. **Add `crypto` import**: Import `createHash` from `node:crypto` at the top of the file (needed for the refresh limiter's keyGenerator).
   4. **Apply sectional comments**: Use the constitution-mandated pattern `// ───── LABEL ──────────────────────────────` to separate logical blocks in the file (e.g., `RATE LIMIT HELPERS`, `GLOBAL LIMITER`, `LOGIN LIMITER`, `REGISTER LIMITER`, `REFRESH LIMITER`, `CONTENT CREATION LIMITER`).
-- [ ] T004 Update the import in `server/src/routes/index.ts` to import `loginLimiter`, `registerLimiter`, `refreshLimiter`, and `globalLimiter` from `rateLimiter.js` (replacing the old `authLimiter` import)
+- [x] T004 Update the import in `server/src/routes/index.ts` to import `loginLimiter`, `registerLimiter`, `refreshLimiter`, and `globalLimiter` from `rateLimiter.js` (replacing the old `authLimiter` import)
 
 **Checkpoint**: Foundation ready — three new limiter instances exist and are importable, `any` type eliminated, sectional comments applied
 
@@ -56,7 +56,7 @@
 
 ### Implementation for User Story 1 + User Story 2 + User Story 3
 
-- [ ] T005 [US1] [US2] [US3] In `server/src/routes/index.ts`, replace `routes.use("/auth", authLimiter, authentication)` with the following per-route limiter application matching the middleware order specified in `contracts/rate-limit-api.md` §Middleware Application Order:
+- [x] T005 [US1] [US2] [US3] In `server/src/routes/index.ts`, replace `routes.use("/auth", authLimiter, authentication)` with the following per-route limiter application matching the middleware order specified in `contracts/rate-limit-api.md` §Middleware Application Order:
   ```typescript
   // Strict limiter on credential endpoints (brute-force protection)
   routes.use("/auth/login", loginLimiter);
@@ -86,6 +86,7 @@
 **Purpose**: Final verification and cleanup
 
 - [ ] T006 [P] Update the `limitHandler` type-detection logic in `server/src/middlewares/rateLimiter.ts` to distinguish between `LOGIN_LIMIT`, `REGISTER_LIMIT`, `REFRESH_LIMIT`, and `GLOBAL_LIMIT` based on `req.path` instead of the current broad `/auth` check, for more precise security logging (FR-009). Also add a `console.warn` in `safeSendCommand`'s catch block to log when Redis store failure triggers fail-open (FR-009).
+- [ ] T006a [P] Apply JSDoc conventions from AGENTS.md to server and client files. **Server files** (`server/src/controllers/`, `server/src/middlewares/`, `server/src/models/`, `server/src/utilities/`): for each exported/handled function remove redundant function name as first line, remove explicit `@description` tag, remove type annotations from `@param` (use `@param req - context`), add `@route METHOD /path`, add `@returns` with status codes and side effects. **Client files** (`client/src/api/` — axiosInstance, interceptors, ApiError; `client/src/hooks/` — useSecureApi, useDebouncedLike, useAuthVerification; `client/src/services/` — authService, auth, storage): same base rules but no `@route`, no status codes in `@returns`; instead document what triggers the function, what state it touches (stores, localStorage, cookies), what errors it can throw, and any non-obvious behavior (debounce strategy, retry logic, timeout handling). **Skip**: types/interfaces, route definitions, config files, components, pages, stores, pure store selector hooks, database pool setup.
 - [ ] T007 [P] Run `pnpm test && pnpm run lint` from repository root to verify no TypeScript or lint errors
 - [ ] T008 Run full manual verification per quickstart.md, plus these additional checks from the security checklist:
   - **US1**: Page refresh 10 times within 2 min — zero 429 errors (SC-001)
