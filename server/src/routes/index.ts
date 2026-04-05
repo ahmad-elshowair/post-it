@@ -17,7 +17,7 @@ const routes: Router = Router();
 routes.use('/auth/login', loginLimiter);
 routes.use('/auth/register', registerLimiter);
 
-// Dedicated refresh limiter keyed by cookie hash (FR-010: before token validation)
+// Dedicated refresh limiter keyed by cookie hash
 routes.use('/auth/refresh-token', refreshLimiter);
 
 // Global limiter for everything
