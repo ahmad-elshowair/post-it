@@ -58,6 +58,14 @@ export default {
   ), // 15 minutes
   rate_limit_auth_max_requests: Number(process.env.RATE_LIMIT_AUTH_MAX || 5), // 5 attempts per 15 minutes
 
+  // ───── TOKEN REFRESH LIMITING (SESSION RENEWALS) ──────────────────────────────
+  rate_limit_refresh_window_ms: Number(
+    process.env.RATE_LIMIT_REFRESH_WINDOW_MS || 60000,
+  ), // 1 minute
+  rate_limit_refresh_max_requests: Number(
+    process.env.RATE_LIMIT_REFRESH_MAX || 30,
+  ), // 30 requests per minute
+
   // ───── CONTENT CREATION GROUP LIMITING (POSTS, COMMENTS) ──────────────────────────────
   rate_limit_content_window_ms: Number(
     process.env.RATE_LIMIT_CONTENT_WINDOW_MS || 60000,
