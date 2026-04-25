@@ -18,10 +18,10 @@
 **Story Goal**: Add UNIQUE and CHECK constraints and apply all necessary foreign key indexes.
 **Independent Test**: Inserting a duplicate or self-follow returns a constraint violation error.
 
-- [ ] T005 [US1] Write `up.sql` — Phase 2: add UNIQUE constraints on likes and follows in `server/migrations/sqls/<timestamp>-schema-constraints-indexes-up.sql`
+- [ ] T005 [US1, US2] Write `up.sql` — Phase 2: add UNIQUE constraints on likes and follows in `server/migrations/sqls/<timestamp>-schema-constraints-indexes-up.sql`
 - [ ] T006 [US3] Write `up.sql` — Phase 2: add CHECK constraint (no self-follow) in `server/migrations/sqls/<timestamp>-schema-constraints-indexes-up.sql`
 - [ ] T007 [US4] Write `up.sql` — Phase 3: add 5 indexes (`posts.user_id`, `follows.*`, `likes.*`) in `server/migrations/sqls/<timestamp>-schema-constraints-indexes-up.sql`
-- [ ] T008 [P] [US1] Write `down.sql` — drop indexes, then constraints in reverse order in `server/migrations/sqls/<timestamp>-schema-constraints-indexes-down.sql`
+- [ ] T008 [P] Write `down.sql` — drop indexes, then constraints in reverse order in `server/migrations/sqls/<timestamp>-schema-constraints-indexes-down.sql`
 
 ## Phase 3: Verification & Polish
 
