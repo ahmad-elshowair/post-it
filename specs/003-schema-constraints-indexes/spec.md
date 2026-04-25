@@ -5,6 +5,14 @@
 **Status**: Draft  
 **Input**: User description: "Add missing database constraints and indexes to the existing PostgreSQL tables in the post-it social app."
 
+## Clarifications
+
+### Session 2026-04-25
+
+- Q: Should self-likes be prevented via a CHECK constraint (like self-follows)? → A: No. Self-likes are permitted — no CHECK constraint on the `likes` table.
+- Q: Should dedup and constraints be in one atomic transaction or phased? → A: Full atomic — dedup + constraints in a single transaction; all changes roll back on any failure.
+- Q: How should the app handle a duplicate like attempt after the UNIQUE constraint is in place? → A: Idempotent no-op — if the user already liked, the UI reflects the existing liked state. The DB constraint is the safety net; the app should not surface an error.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Unique Post Likes (Priority: P1)
@@ -69,6 +77,9 @@ As a user, I want the feed to load fast even with thousands of posts.
 - What happens when applying constraints to a table that already has duplicate records? (System must deduplicate existing data before applying UNIQUE constraints).
 - How does the system determine which duplicate record to keep during deduplication? (Should keep the oldest record based on creation timestamp).
 - Can the migration be rolled back safely if issues occur? (Down migration must drop added constraints and indexes without deleting data).
+- Are self-likes permitted? Yes — unlike self-follows, self-likes are allowed and require no CHECK constraint.
+- What happens if ADD CONSTRAINT fails after deduplication? The entire migration rolls back atomically — no partial state is possible.
+- What happens when a user who already liked a post sends another like request? The app treats it as a no-op and returns the current liked state to the UI. The UNIQUE constraint prevents duplicates at the DB level as a safety net.
 
 ## Requirements *(mandatory)*
 
@@ -103,4 +114,5 @@ As a user, I want the feed to load fast even with thousands of posts.
 
 - The database engine is PostgreSQL.
 - Existing duplicate rows in `likes` and `follows` can be safely deduplicated by keeping the oldest record and deleting subsequent duplicates.
-- The migration will be executed within a transactional block (`BEGIN; ... COMMIT;`) to ensure atomicity.
+- The migration will be executed within a single transactional block (`BEGIN; ... COMMIT;`) to ensure full atomicity — if any step fails (dedup or constraint creation), all changes roll back.
+- App-level like/follow handlers should treat constraint violations as idempotent no-ops (return current state, not an error). Implementation of this app-level handling is outside the scope of this migration spec.
