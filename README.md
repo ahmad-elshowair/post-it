@@ -53,41 +53,41 @@ A full-stack social media application built with React and Express, featuring a 
 
 ### Server
 
-| Technology | Version | Purpose |
-|---|---|---|
-| **Node.js** | 20+ | Runtime |
-| **Express** | 4.x | HTTP framework |
-| **TypeScript** | 5.x (strict) | Type safety |
-| **PostgreSQL** | 15+ | Primary database |
-| **Redis** | 7+ | Rate limit counters, session caching |
-| **pg** | 8.x | PostgreSQL driver (raw SQL, no ORM) |
-| **jsonwebtoken** | 9.x | JWT access/refresh tokens |
-| **bcryptjs** | 3.x | Password hashing (salt + pepper) |
-| **Helmet** | 7.x | HTTP security headers |
-| **express-rate-limit** | 8.x | Rate limiting |
-| **rate-limit-redis** | 4.x | Redis store for rate limits |
-| **Multer** | 1.4.x | File upload handling |
-| **express-validator** | 7.x | Request validation |
-| **db-migrate** | 0.11.x | Database migration management |
-| **ioredis** | 5.x | Redis client |
-| **morgan** | 1.x | HTTP request logging |
-| **node-cron** | 3.x | Scheduled tasks |
-| **tsx** | 4.x | TypeScript execution (dev) |
+| Technology             | Version      | Purpose                              |
+| ---------------------- | ------------ | ------------------------------------ |
+| **Node.js**            | 20+          | Runtime                              |
+| **Express**            | 4.x          | HTTP framework                       |
+| **TypeScript**         | 5.x (strict) | Type safety                          |
+| **PostgreSQL**         | 15+          | Primary database                     |
+| **Redis**              | 7+           | Rate limit counters, session caching |
+| **pg**                 | 8.x          | PostgreSQL driver (raw SQL, no ORM)  |
+| **jsonwebtoken**       | 9.x          | JWT access/refresh tokens            |
+| **bcryptjs**           | 3.x          | Password hashing (salt + pepper)     |
+| **Helmet**             | 7.x          | HTTP security headers                |
+| **express-rate-limit** | 8.x          | Rate limiting                        |
+| **rate-limit-redis**   | 4.x          | Redis store for rate limits          |
+| **Multer**             | 1.4.x        | File upload handling                 |
+| **express-validator**  | 7.x          | Request validation                   |
+| **db-migrate**         | 0.11.x       | Database migration management        |
+| **ioredis**            | 5.x          | Redis client                         |
+| **morgan**             | 1.x          | HTTP request logging                 |
+| **node-cron**          | 3.x          | Scheduled tasks                      |
+| **tsx**                | 4.x          | TypeScript execution (dev)           |
 
 ### Client
 
-| Technology | Version | Purpose |
-|---|---|---|
-| **React** | 18.x | UI framework |
-| **TypeScript** | 5.x | Type safety |
-| **Zustand** | 5.x | State management |
-| **React Router** | 6.x | Client-side routing |
-| **Axios** | 1.x | HTTP client with interceptors |
-| **React Hook Form** | 7.x | Form state management |
-| **Bootstrap** | 5.x | UI component library |
-| **MUI** | 5.x | Material UI components |
-| **React Icons** | 4.x | Icon library |
-| **Immer** | 10.x | Immutable state updates |
+| Technology          | Version | Purpose                       |
+| ------------------- | ------- | ----------------------------- |
+| **React**           | 18.x    | UI framework                  |
+| **TypeScript**      | 5.x     | Type safety                   |
+| **Zustand**         | 5.x     | State management              |
+| **React Router**    | 6.x     | Client-side routing           |
+| **Axios**           | 1.x     | HTTP client with interceptors |
+| **React Hook Form** | 7.x     | Form state management         |
+| **Bootstrap**       | 5.x     | UI component library          |
+| **MUI**             | 5.x     | Material UI components        |
+| **React Icons**     | 4.x     | Icon library                  |
+| **Immer**           | 10.x    | Immutable state updates       |
 
 ---
 
@@ -95,27 +95,27 @@ A full-stack social media application built with React and Express, featuring a 
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│                     Client (React)                    │
-│                                                       │
+│                     Client (React)                   │
+│                                                      │
 │  Pages ──▶ Components ──▶ Hooks ──▶ Services ──▶ API │
-│                               │                       │
-│                          Stores (Zustand)              │
+│                               │                      │
+│                          Stores (Zustand)            │
 └────────────────────────┬─────────────────────────────┘
                          │ HTTPS (Axios + Interceptors)
                          ▼
 ┌──────────────────────────────────────────────────────┐
-│                   Server (Express)                    │
-│                                                       │
-│  Routes ──▶ Rate Limiters ──▶ Auth Middleware          │
-│       ──▶ Validators ──▶ Controllers ──▶ Models       │
-│                                          │            │
+│                   Server (Express)                   │
+│                                                      │
+│  Routes ──▶ Rate Limiters ──▶ Auth Middleware        │
+│  ──▶ Validators ──▶ Controllers ──▶ Models           │
+│                                          │           │
 │                                   ┌──────┴──────┐    │
-│                                   │  PostgreSQL  │    │
-│                                   │    (pg)      │    │
+│                                   │  PostgreSQL │    │
+│                                   │    (pg)     │    │
 │                                   └─────────────┘    │
 │                                   ┌─────────────┐    │
-│                                   │    Redis     │    │
-│                                   │  (ioredis)   │    │
+│                                   │    Redis    │    │
+│                                   │  (ioredis)  │    │
 │                                   └─────────────┘    │
 └──────────────────────────────────────────────────────┘
 ```
@@ -184,12 +184,12 @@ post-it/
 
 ## Prerequisites
 
-| Dependency | Version | Installation |
-|---|---|---|
-| **Node.js** | ≥ 20.x | [nodejs.org](https://nodejs.org/) |
-| **pnpm** | ≥ 8.x | `npm install -g pnpm` |
-| **PostgreSQL** | ≥ 15 | [postgresql.org](https://www.postgresql.org/download/) |
-| **Redis** | ≥ 7 | [redis.io](https://redis.io/download) |
+| Dependency     | Version | Installation                                           |
+| -------------- | ------- | ------------------------------------------------------ |
+| **Node.js**    | ≥ 20.x  | [nodejs.org](https://nodejs.org/)                      |
+| **pnpm**       | ≥ 8.x   | `npm install -g pnpm`                                  |
+| **PostgreSQL** | ≥ 15    | [postgresql.org](https://www.postgresql.org/download/) |
+| **Redis**      | ≥ 7     | [redis.io](https://redis.io/download)                  |
 
 ---
 
@@ -278,7 +278,7 @@ cd client && pnpm run dev
 │ is_online      │   │   │ post_id    FK  │───┤   │ fingerprint_hash │   │
 │ created_at     │   │   │ created_at     │   │   │ expires_at       │   │
 │ updated_at     │   │   └────────────────┘   │   │ is_revoked       │   │
-└────────────────┘   │                         │   │ revoked_at       │   │
+└────────────────┘   │                        │   │ revoked_at       │   │
          ▲           │   ┌────────────────┐   │   │ created_at       │   │
          │           │   │    follows     │   │   └──────────────────┘   │
          │           │   ├────────────────┤   │                          │
@@ -290,11 +290,11 @@ cd client && pnpm run dev
 
 ### Migrations
 
-| # | Migration | Tables |
-|---|---|---|
-| 1 | `20240902133431-init` | `users`, `posts`, `follows`, `likes` |
-| 2 | `20250309105041-refresh-tokens` | `refresh_tokens` (with indexes) |
-| 3 | `20250430113309-comments` | `comments` (with threaded replies via `parent_comment_id`) |
+| #   | Migration                       | Tables                                                     |
+| --- | ------------------------------- | ---------------------------------------------------------- |
+| 1   | `20240902133431-init`           | `users`, `posts`, `follows`, `likes`                       |
+| 2   | `20250309105041-refresh-tokens` | `refresh_tokens` (with indexes)                            |
+| 3   | `20250430113309-comments`       | `comments` (with threaded replies via `parent_comment_id`) |
 
 ---
 
@@ -304,58 +304,58 @@ All endpoints are prefixed with `/api`.
 
 ### Authentication (`/api/auth`)
 
-| Method | Endpoint | Description | Rate Limit |
-|---|---|---|---|
-| `POST` | `/auth/register` | Register a new user | 5 req / 15 min |
-| `POST` | `/auth/login` | Login with email & password | 5 req / 15 min |
-| `POST` | `/auth/logout` | Logout (revoke refresh token) | Global |
-| `POST` | `/auth/refresh-token` | Rotate access + refresh tokens | 30 req / 1 min |
-| `GET` | `/auth/is-authenticated` | Verify current session | Global |
+| Method | Endpoint                 | Description                    | Rate Limit     |
+| ------ | ------------------------ | ------------------------------ | -------------- |
+| `POST` | `/auth/register`         | Register a new user            | 5 req / 15 min |
+| `POST` | `/auth/login`            | Login with email & password    | 5 req / 15 min |
+| `POST` | `/auth/logout`           | Logout (revoke refresh token)  | Global         |
+| `POST` | `/auth/refresh-token`    | Rotate access + refresh tokens | 30 req / 1 min |
+| `GET`  | `/auth/is-authenticated` | Verify current session         | Global         |
 
 ### Users (`/api/users`)
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `GET` | `/users/:id` | Get user by ID | ✅ |
-| `GET` | `/users/profile/:username` | Get user by username | ✅ |
-| `PUT` | `/users/:id` | Update user profile | ✅ |
-| `DELETE` | `/users/:id` | Delete user account | ✅ |
+| Method   | Endpoint                   | Description          | Auth |
+| -------- | -------------------------- | -------------------- | ---- |
+| `GET`    | `/users/:id`               | Get user by ID       | ✅   |
+| `GET`    | `/users/profile/:username` | Get user by username | ✅   |
+| `PUT`    | `/users/:id`               | Update user profile  | ✅   |
+| `DELETE` | `/users/:id`               | Delete user account  | ✅   |
 
 ### Posts (`/api/posts`)
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/posts` | Create a new post | ✅ |
-| `GET` | `/posts/feed` | Get personalized feed | ✅ |
-| `GET` | `/posts/:id` | Get a single post | ✅ |
-| `GET` | `/posts/user/:userId` | Get posts by user | ✅ |
-| `PUT` | `/posts/:id` | Update a post | ✅ |
-| `DELETE` | `/posts/:id` | Delete a post | ✅ |
-| `POST` | `/posts/:id/like` | Toggle like on a post | ✅ |
+| Method   | Endpoint              | Description           | Auth |
+| -------- | --------------------- | --------------------- | ---- |
+| `POST`   | `/posts`              | Create a new post     | ✅   |
+| `GET`    | `/posts/feed`         | Get personalized feed | ✅   |
+| `GET`    | `/posts/:id`          | Get a single post     | ✅   |
+| `GET`    | `/posts/user/:userId` | Get posts by user     | ✅   |
+| `PUT`    | `/posts/:id`          | Update a post         | ✅   |
+| `DELETE` | `/posts/:id`          | Delete a post         | ✅   |
+| `POST`   | `/posts/:id/like`     | Toggle like on a post | ✅   |
 
 ### Comments (`/api/comments`)
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/comments` | Create a comment (or reply) | ✅ |
-| `GET` | `/comments/post/:postId` | Get comments for a post | ✅ |
-| `PUT` | `/comments/:id` | Update a comment | ✅ |
-| `DELETE` | `/comments/:id` | Delete a comment | ✅ |
+| Method   | Endpoint                 | Description                 | Auth |
+| -------- | ------------------------ | --------------------------- | ---- |
+| `POST`   | `/comments`              | Create a comment (or reply) | ✅   |
+| `GET`    | `/comments/post/:postId` | Get comments for a post     | ✅   |
+| `PUT`    | `/comments/:id`          | Update a comment            | ✅   |
+| `DELETE` | `/comments/:id`          | Delete a comment            | ✅   |
 
 ### Follows (`/api/follows`)
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/follows/:userId` | Follow a user | ✅ |
-| `DELETE` | `/follows/:userId` | Unfollow a user | ✅ |
-| `GET` | `/follows/followers/:userId` | Get user's followers | ✅ |
-| `GET` | `/follows/following/:userId` | Get user's following list | ✅ |
+| Method   | Endpoint                     | Description               | Auth |
+| -------- | ---------------------------- | ------------------------- | ---- |
+| `POST`   | `/follows/:userId`           | Follow a user             | ✅   |
+| `DELETE` | `/follows/:userId`           | Unfollow a user           | ✅   |
+| `GET`    | `/follows/followers/:userId` | Get user's followers      | ✅   |
+| `GET`    | `/follows/following/:userId` | Get user's following list | ✅   |
 
 ### Uploads (`/api/upload`)
 
-| Method | Endpoint | Description | Auth |
-|---|---|---|---|
-| `POST` | `/upload/:folder` | Upload image to folder (posts, profiles, covers) | ✅ |
+| Method | Endpoint          | Description                                      | Auth |
+| ------ | ----------------- | ------------------------------------------------ | ---- |
+| `POST` | `/upload/:folder` | Upload image to folder (posts, profiles, covers) | ✅   |
 
 ---
 
@@ -377,26 +377,26 @@ Login
 
 ### Security Layers
 
-| Layer | Implementation | Details |
-|---|---|---|
-| **Password Hashing** | bcryptjs with salt + pepper | Configurable salt rounds, server-side pepper |
-| **Access Tokens** | JWT (15 min expiry) | Stored in `__Host-` prefixed HttpOnly cookie |
-| **Refresh Tokens** | JWT (7 day expiry) + DB record | Stored in DB with fingerprint binding, auto-rotated |
-| **CSRF Protection** | Double-submit cookie | Constant-time comparison via `crypto.timingSafeEqual` |
-| **Fingerprinting** | SHA-256 of browser fingerprint | Embedded in token, verified on each request |
-| **Token Rotation** | On every refresh | Old token revoked, new token issued |
-| **Token Cleanup** | node-cron scheduled task | Periodic deletion of expired/revoked tokens |
-| **CSP Headers** | Helmet with env-aware directives | Strict production policy, relaxed dev policy |
-| **CORS** | Whitelist-based | Strict origin checking in production |
+| Layer                | Implementation                   | Details                                               |
+| -------------------- | -------------------------------- | ----------------------------------------------------- |
+| **Password Hashing** | bcryptjs with salt + pepper      | Configurable salt rounds, server-side pepper          |
+| **Access Tokens**    | JWT (15 min expiry)              | Stored in `__Host-` prefixed HttpOnly cookie          |
+| **Refresh Tokens**   | JWT (7 day expiry) + DB record   | Stored in DB with fingerprint binding, auto-rotated   |
+| **CSRF Protection**  | Double-submit cookie             | Constant-time comparison via `crypto.timingSafeEqual` |
+| **Fingerprinting**   | SHA-256 of browser fingerprint   | Embedded in token, verified on each request           |
+| **Token Rotation**   | On every refresh                 | Old token revoked, new token issued                   |
+| **Token Cleanup**    | node-cron scheduled task         | Periodic deletion of expired/revoked tokens           |
+| **CSP Headers**      | Helmet with env-aware directives | Strict production policy, relaxed dev policy          |
+| **CORS**             | Whitelist-based                  | Strict origin checking in production                  |
 
 ### Cookie Configuration
 
-| Cookie | Prefix | HttpOnly | Secure | SameSite |
-|---|---|---|---|---|
-| Access Token | `__Host-` (prod) | ✅ | ✅ (prod) | Strict |
-| Refresh Token | — | ✅ | ✅ (prod) | Strict |
-| CSRF Token | `__Secure-` (prod) | ✅ | ✅ (prod) | Strict |
-| Fingerprint | `__Host-` (prod) | ✅ | ✅ (prod) | Strict |
+| Cookie        | Prefix             | HttpOnly | Secure    | SameSite |
+| ------------- | ------------------ | -------- | --------- | -------- |
+| Access Token  | `__Host-` (prod)   | ✅       | ✅ (prod) | Strict   |
+| Refresh Token | —                  | ✅       | ✅ (prod) | Strict   |
+| CSRF Token    | `__Secure-` (prod) | ✅       | ✅ (prod) | Strict   |
+| Fingerprint   | `__Host-` (prod)   | ✅       | ✅ (prod) | Strict   |
 
 ---
 
@@ -404,23 +404,23 @@ Login
 
 All rate limiters use Redis as the backing store via `rate-limit-redis`. If Redis is unavailable, limiters **fail open** to prevent blocking legitimate traffic.
 
-| Tier | Scope | Window | Max Requests | Key Strategy |
-|---|---|---|---|---|
-| **Global** | All routes | 1 min | 150 | IP address |
-| **Auth (Login)** | `/auth/login` | 15 min | 5 | IP address |
-| **Auth (Register)** | `/auth/register` | 15 min | 5 | IP address |
-| **Refresh** | `/auth/refresh-token` | 1 min | 30 | SHA-256(cookie) or IP fallback |
-| **Content** | Post/Comment creation | 1 min | 25 | User ID or IP fallback |
+| Tier                | Scope                 | Window | Max Requests | Key Strategy                   |
+| ------------------- | --------------------- | ------ | ------------ | ------------------------------ |
+| **Global**          | All routes            | 1 min  | 150          | IP address                     |
+| **Auth (Login)**    | `/auth/login`         | 15 min | 5            | IP address                     |
+| **Auth (Register)** | `/auth/register`      | 15 min | 5            | IP address                     |
+| **Refresh**         | `/auth/refresh-token` | 1 min  | 30           | SHA-256(cookie) or IP fallback |
+| **Content**         | Post/Comment creation | 1 min  | 25           | User ID or IP fallback         |
 
 Rate limit responses follow a standardized format:
 
 ```json
 {
-  "message": "Too many requests, please try again later.",
-  "error": {
-    "code": "RATE_LIMIT_EXCEEDED",
-    "retry_after": 60
-  }
+	"message": "Too many requests, please try again later.",
+	"error": {
+		"code": "RATE_LIMIT_EXCEEDED",
+		"retry_after": 60
+	}
 }
 ```
 
@@ -442,11 +442,11 @@ Rate limit responses follow a standardized format:
 
 ```json
 {
-  "semi": true,
-  "singleQuote": true,
-  "tabWidth": 2,
-  "trailingComma": "all",
-  "printWidth": 100
+	"semi": true,
+	"singleQuote": true,
+	"tabWidth": 2,
+	"trailingComma": "all",
+	"printWidth": 100
 }
 ```
 
@@ -485,50 +485,50 @@ pnpm run prettier:check
 
 ### Server (`server/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | Server port | `5000` |
-| `NODE_ENV` | Environment (`development` / `production`) | — |
-| `PG_HOST` | PostgreSQL host | `localhost` |
-| `PG_PORT` | PostgreSQL port | `5432` |
-| `PG_USER` | PostgreSQL user | — |
-| `PG_PASSWORD` | PostgreSQL password | — |
-| `PG_DATABASE` | PostgreSQL database name | — |
-| `JWT_ACCESS_SECRET` | Secret for signing access tokens | — |
-| `JWT_REFRESH_SECRET` | Secret for signing refresh tokens | — |
-| `SALT_ROUNDS` | bcrypt salt rounds | `12` |
-| `PEPPER` | Server-side pepper for password hashing | — |
-| `CLIENT_URL_DEV` | Client URL for development CORS | `http://localhost:3000` |
-| `CLIENT_URL_PROD` | Client URL for production CORS | — |
-| `ACCESS_TOKEN_EXPIRY` | Access token lifetime | `15m` |
-| `REFRESH_TOKEN_EXPIRY` | Refresh token lifetime | `7d` |
-| `CSRF_PROTECTION_ENABLED` | Enable CSRF validation | `true` |
-| `COOKIE_SECURE` | Force secure cookies | `false` (auto in prod) |
-| `COOKIE_SAME_SITE` | SameSite cookie policy | `strict` |
-| `TOKEN_ISSUER` | JWT issuer claim | `chat-it-api` |
-| `TOKEN_AUDIENCE` | JWT audience claim | `chat-it-client` |
-| `REDIS_URL` | Redis connection URL | `redis://localhost:6379` |
-| `RATE_LIMIT_GLOBAL_WINDOW_MS` | Global rate limit window | `60000` |
-| `RATE_LIMIT_GLOBAL_MAX` | Global max requests | `150` |
-| `RATE_LIMIT_AUTH_WINDOW_MS` | Auth rate limit window | `900000` |
-| `RATE_LIMIT_AUTH_MAX` | Auth max attempts | `5` |
-| `RATE_LIMIT_REFRESH_WINDOW_MS` | Refresh rate limit window | `60000` |
-| `RATE_LIMIT_REFRESH_MAX` | Refresh max attempts | `30` |
-| `RATE_LIMIT_CONTENT_WINDOW_MS` | Content creation window | `60000` |
-| `RATE_LIMIT_CONTENT_MAX` | Content max requests | `25` |
-| `UPLOAD_MAX_SIZE_BYTES` | Max upload file size | `5242880` (5 MB) |
-| `ENABLE_TOKEN_ROTATION` | Enable refresh token rotation | `true` |
-| `ENABLE_FINGERPRINTING` | Enable browser fingerprinting | `true` |
+| Variable                       | Description                                | Default                  |
+| ------------------------------ | ------------------------------------------ | ------------------------ |
+| `PORT`                         | Server port                                | `5000`                   |
+| `NODE_ENV`                     | Environment (`development` / `production`) | —                        |
+| `PG_HOST`                      | PostgreSQL host                            | `localhost`              |
+| `PG_PORT`                      | PostgreSQL port                            | `5432`                   |
+| `PG_USER`                      | PostgreSQL user                            | —                        |
+| `PG_PASSWORD`                  | PostgreSQL password                        | —                        |
+| `PG_DATABASE`                  | PostgreSQL database name                   | —                        |
+| `JWT_ACCESS_SECRET`            | Secret for signing access tokens           | —                        |
+| `JWT_REFRESH_SECRET`           | Secret for signing refresh tokens          | —                        |
+| `SALT_ROUNDS`                  | bcrypt salt rounds                         | `12`                     |
+| `PEPPER`                       | Server-side pepper for password hashing    | —                        |
+| `CLIENT_URL_DEV`               | Client URL for development CORS            | `http://localhost:3000`  |
+| `CLIENT_URL_PROD`              | Client URL for production CORS             | —                        |
+| `ACCESS_TOKEN_EXPIRY`          | Access token lifetime                      | `15m`                    |
+| `REFRESH_TOKEN_EXPIRY`         | Refresh token lifetime                     | `7d`                     |
+| `CSRF_PROTECTION_ENABLED`      | Enable CSRF validation                     | `true`                   |
+| `COOKIE_SECURE`                | Force secure cookies                       | `false` (auto in prod)   |
+| `COOKIE_SAME_SITE`             | SameSite cookie policy                     | `strict`                 |
+| `TOKEN_ISSUER`                 | JWT issuer claim                           | `chat-it-api`            |
+| `TOKEN_AUDIENCE`               | JWT audience claim                         | `chat-it-client`         |
+| `REDIS_URL`                    | Redis connection URL                       | `redis://localhost:6379` |
+| `RATE_LIMIT_GLOBAL_WINDOW_MS`  | Global rate limit window                   | `60000`                  |
+| `RATE_LIMIT_GLOBAL_MAX`        | Global max requests                        | `150`                    |
+| `RATE_LIMIT_AUTH_WINDOW_MS`    | Auth rate limit window                     | `900000`                 |
+| `RATE_LIMIT_AUTH_MAX`          | Auth max attempts                          | `5`                      |
+| `RATE_LIMIT_REFRESH_WINDOW_MS` | Refresh rate limit window                  | `60000`                  |
+| `RATE_LIMIT_REFRESH_MAX`       | Refresh max attempts                       | `30`                     |
+| `RATE_LIMIT_CONTENT_WINDOW_MS` | Content creation window                    | `60000`                  |
+| `RATE_LIMIT_CONTENT_MAX`       | Content max requests                       | `25`                     |
+| `UPLOAD_MAX_SIZE_BYTES`        | Max upload file size                       | `5242880` (5 MB)         |
+| `ENABLE_TOKEN_ROTATION`        | Enable refresh token rotation              | `true`                   |
+| `ENABLE_FINGERPRINTING`        | Enable browser fingerprinting              | `true`                   |
 
 ### Client (`client/.env`)
 
-| Variable | Description | Default |
-|---|---|---|
-| `REACT_APP_API_URL` | Server API base URL | `http://localhost:5000/api` |
-| `REACT_APP_CLIENT_URL` | Client base URL | `http://localhost:3000` |
-| `NODE_ENV` | Environment | — |
-| `ACCESS_TOKEN_EXPIRY` | Token expiry for client sync | `15m` |
-| `REFRESH_TOKEN_EXPIRY` | Refresh expiry for client sync | `7d` |
+| Variable               | Description                    | Default                     |
+| ---------------------- | ------------------------------ | --------------------------- |
+| `REACT_APP_API_URL`    | Server API base URL            | `http://localhost:5000/api` |
+| `REACT_APP_CLIENT_URL` | Client base URL                | `http://localhost:3000`     |
+| `NODE_ENV`             | Environment                    | —                           |
+| `ACCESS_TOKEN_EXPIRY`  | Token expiry for client sync   | `15m`                       |
+| `REFRESH_TOKEN_EXPIRY` | Refresh expiry for client sync | `7d`                        |
 
 ---
 
@@ -536,27 +536,27 @@ pnpm run prettier:check
 
 ### Server (`cd server`)
 
-| Script | Command | Description |
-|---|---|---|
-| `pnpm run dev` | `tsx watch src/index.ts` | Start dev server with hot reload |
-| `pnpm run migrate:up` | `db-migrate up` | Apply pending migrations |
-| `pnpm run migrate:down` | `db-migrate down` | Roll back last migration |
-| `pnpm run lint` | `eslint "src/**/*.ts"` | Check for lint errors |
-| `pnpm run lint:fix` | `eslint --fix "src/**/*.ts"` | Auto-fix lint errors |
-| `pnpm run prettier` | `prettier --write "src/**/*.ts"` | Format code |
-| `pnpm run prettier:check` | `prettier --check "src/**/*.ts"` | Check formatting |
+| Script                    | Command                          | Description                      |
+| ------------------------- | -------------------------------- | -------------------------------- |
+| `pnpm run dev`            | `tsx watch src/index.ts`         | Start dev server with hot reload |
+| `pnpm run migrate:up`     | `db-migrate up`                  | Apply pending migrations         |
+| `pnpm run migrate:down`   | `db-migrate down`                | Roll back last migration         |
+| `pnpm run lint`           | `eslint "src/**/*.ts"`           | Check for lint errors            |
+| `pnpm run lint:fix`       | `eslint --fix "src/**/*.ts"`     | Auto-fix lint errors             |
+| `pnpm run prettier`       | `prettier --write "src/**/*.ts"` | Format code                      |
+| `pnpm run prettier:check` | `prettier --check "src/**/*.ts"` | Check formatting                 |
 
 ### Client (`cd client`)
 
-| Script | Command | Description |
-|---|---|---|
-| `pnpm run dev` | `react-scripts start` | Start dev server (port 3000) |
-| `pnpm run build` | `react-scripts build` | Production build |
-| `pnpm run test` | `react-scripts test` | Run tests |
-| `pnpm run lint` | `eslint "src/**/*.{js,jsx,ts,tsx}"` | Check for lint errors |
-| `pnpm run lint:fix` | `eslint --fix "src/**/*.{js,jsx,ts,tsx}"` | Auto-fix lint errors |
-| `pnpm run prettier` | `prettier --write "src/**/*.{js,jsx,ts,tsx}"` | Format code |
-| `pnpm run prettier:check` | `prettier --check "src/**/*.{js,jsx,ts,tsx}"` | Check formatting |
+| Script                    | Command                                       | Description                  |
+| ------------------------- | --------------------------------------------- | ---------------------------- |
+| `pnpm run dev`            | `react-scripts start`                         | Start dev server (port 3000) |
+| `pnpm run build`          | `react-scripts build`                         | Production build             |
+| `pnpm run test`           | `react-scripts test`                          | Run tests                    |
+| `pnpm run lint`           | `eslint "src/**/*.{js,jsx,ts,tsx}"`           | Check for lint errors        |
+| `pnpm run lint:fix`       | `eslint --fix "src/**/*.{js,jsx,ts,tsx}"`     | Auto-fix lint errors         |
+| `pnpm run prettier`       | `prettier --write "src/**/*.{js,jsx,ts,tsx}"` | Format code                  |
+| `pnpm run prettier:check` | `prettier --check "src/**/*.{js,jsx,ts,tsx}"` | Check formatting             |
 
 ---
 
@@ -572,6 +572,7 @@ npx db-migrate create <migration-name> --sql-file
 ```
 
 This generates:
+
 - `migrations/<timestamp>-<name>.js` — Migration runner
 - `migrations/sqls/<timestamp>-<name>-up.sql` — Schema changes
 - `migrations/sqls/<timestamp>-<name>-down.sql` — Rollback script
@@ -603,17 +604,17 @@ pnpm run migrate:down
 
 The following database upgrades are planned and documented in [`docs/spec-kit-database-upgrade/`](./docs/spec-kit-database-upgrade/README.md):
 
-| Priority | Spec | Feature | Status |
-|---|---|---|---|
-| P0 | 001 | Schema Constraints & Indexes | 📋 Planned |
-| P2 | 008 | User Roles & Permissions (RBAC) | 📋 Planned |
-| P2 | 004 | Reports & Moderation | 📋 Planned |
-| P3 | 009 | Full-Text Search | 📋 Planned |
-| P3 | 005 | Hashtags & Tags | 📋 Planned |
-| P2 | 002 | Bookmarks & Saves | 📋 Planned |
-| P3 | 006 | Shares & Reposts | 📋 Planned |
-| P2 | 003 | Notifications | 📋 Planned |
-| P3 | 007 | Messages & DMs | 📋 Planned |
+| Priority | Spec | Feature                         | Status     |
+| -------- | ---- | ------------------------------- | ---------- |
+| P0       | 001  | Schema Constraints & Indexes    | 📋 Planned |
+| P2       | 008  | User Roles & Permissions (RBAC) | 📋 Planned |
+| P2       | 004  | Reports & Moderation            | 📋 Planned |
+| P3       | 009  | Full-Text Search                | 📋 Planned |
+| P3       | 005  | Hashtags & Tags                 | 📋 Planned |
+| P2       | 002  | Bookmarks & Saves               | 📋 Planned |
+| P3       | 006  | Shares & Reposts                | 📋 Planned |
+| P2       | 003  | Notifications                   | 📋 Planned |
+| P3       | 007  | Messages & DMs                  | 📋 Planned |
 
 ---
 
