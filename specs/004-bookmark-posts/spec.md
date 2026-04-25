@@ -65,6 +65,14 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - What happens if the bookmarks feed is accessed while the user's session has expired? The user should be redirected to log in.
 - What happens with very large bookmark collections (hundreds or thousands)? Pagination should handle this smoothly without performance degradation.
 
+## Clarifications
+
+### Session 2026-04-25
+
+- Q: Should there be bookmark collections/folders, or a flat list? → A: Flat list — no folders or collections in this version
+- Q: Should there be a limit on how many posts a user can bookmark? → A: No limit initially
+- Q: Should the bookmark toggle return the full post data, or just the bookmark record? → A: Return the bookmark record with post_id reference only
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -81,10 +89,11 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - **FR-010**: System MUST require authentication for all bookmark operations (add, remove, view feed)
 - **FR-011**: System MUST return a clear error when a user attempts to bookmark a post that does not exist
 - **FR-012**: System MUST return an empty collection with appropriate metadata when a user has no bookmarks
+- **FR-013**: The bookmark toggle operation MUST return only the bookmark record (bookmark ID, post ID, user ID, timestamp) without embedding the full post data
 
 ### Key Entities
 
-- **Bookmark**: Represents a user's saved reference to a post. Each bookmark links one user to one post with a timestamp of when it was saved. A user can have many bookmarks, and a post can have many bookmarks (from different users), but the combination of user and post must be unique. Bookmarks are automatically removed when either the referenced user or post is deleted.
+- **Bookmark**: Represents a user's saved reference to a post. Each bookmark links one user to one post with a timestamp of when it was saved. Bookmarks are stored in a single flat list per user (no folders or collections). A user can have many bookmarks with no upper limit, and a post can have many bookmarks (from different users), but the combination of user and post must be unique. Bookmarks are automatically removed when either the referenced user or post is deleted.
 - **Post**: An existing entity in the system. The bookmark feature adds a relationship between users and posts without modifying the post itself.
 
 ## Success Criteria *(mandatory)*
@@ -102,8 +111,9 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 
 - Users are already authenticated through the existing authentication system; this feature does not introduce new auth mechanisms
 - The existing post entity and feed infrastructure are available for extending with bookmark functionality
+- Bookmarks are stored as a single flat list per user — no folders, collections, or organizational grouping in this version
 - Bookmark collections are personal and private by default — there is no social sharing or public bookmark profile in scope
-- The maximum number of bookmarks a user can accumulate is not capped in this version
+- The maximum number of bookmarks a user can accumulate is not capped in this version (no per-user limit)
 - Bookmark counts or statistics (e.g., total number of saved posts) are not displayed on user profiles to maintain privacy
 - The existing pagination pattern used in the main feed will be reused for the bookmarks feed
 - Notifications are not sent when a post is bookmarked (bookmarks are private actions)
