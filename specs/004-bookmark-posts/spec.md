@@ -59,11 +59,15 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 ### Edge Cases
 
 - What happens when a user tries to bookmark a post that has been deleted? The bookmark action should fail gracefully with a clear message that the post no longer exists.
-- What happens when a user tries to bookmark a post they have already bookmarked? The system should prevent duplicates and treat it as a no-op or toggle to unbookmark.
+- What happens when a user tries to bookmark a post they have already bookmarked? The toggle removes the existing bookmark (idempotent toggle semantics).
 - What happens when the same post is bookmarked and then its author deletes it? All bookmarks for that post should be automatically removed.
 - What happens when a user account is deleted? All of that user's bookmarks should be automatically removed.
 - What happens if the bookmarks feed is accessed while the user's session has expired? The user should be redirected to log in.
 - What happens with very large bookmark collections (hundreds or thousands)? Pagination should handle this smoothly without performance degradation.
+- What happens if a user tries to unbookmark a post they never bookmarked? Return a not-found error.
+- What happens if a post is soft-deleted while bookmarked? Treat as non-existent — remove bookmarks and reject new bookmark attempts.
+- What happens if a user attempts to access another user's bookmarks? Return an authorization error.
+- What happens with concurrent toggle requests on the same post? Database-level uniqueness constraint prevents duplicates; the existence check resolves the toggle direction.
 
 ## Clarifications
 
@@ -72,6 +76,23 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - Q: Should there be bookmark collections/folders, or a flat list? → A: Flat list — no folders or collections in this version
 - Q: Should there be a limit on how many posts a user can bookmark? → A: No limit initially
 - Q: Should the bookmark toggle return the full post data, or just the bookmark record? → A: Return the bookmark record with post_id reference only
+
+### Session 2026-04-25 (Checklist Gap Resolution)
+
+- Q: Toggle endpoint design — single toggle or separate add/remove? → A: Single toggle endpoint; tap on unbookmarked post adds bookmark, tap on bookmarked post removes it
+- Q: What does unbookmark return? → A: Confirmation response with removed bookmark ID (no record body since it no longer exists)
+- Q: Default and max page size for bookmarks feed? → A: Default 20, max 50 per page
+- Q: Pagination metadata fields? → A: Match existing feed — include has_more flag and next_cursor
+- Q: is_bookmarked on post responses — which endpoints, what default? → A: All post-bearing endpoints; false for unauthenticated users
+- Q: Batch lookup for is_bookmarked? → A: Must be resolved via batch lookup, not per-post queries
+- Q: Can users bookmark their own posts? → A: Yes — "any existing post" includes own posts
+- Q: Unbookmark a post never bookmarked? → A: Return not-found error
+- Q: Soft delete interaction? → A: If soft deletes exist, treat soft-deleted posts as non-existent for bookmark purposes — same behavior as hard delete
+- Q: Blocked users interaction? → A: Out of scope — blocking feature does not exist yet; revisit when implemented
+- Q: Rate limit tier for bookmarks? → A: Bookmark toggle = content creation tier; bookmarks feed = global baseline tier
+- Q: Race condition — post deleted during bookmark toggle? → A: Database-level uniqueness constraint and post existence check guarantee consistency; return appropriate error if post vanishes mid-operation
+- Q: Cascade delete side effects? → A: None — bookmarks are private, no counters or notifications triggered on removal
+- Q: Bookmark counts exposed anywhere? → A: No — explicitly excluded from all public-facing endpoints, post entities, and user profiles
 
 ## Requirements *(mandatory)*
 
@@ -90,6 +111,19 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - **FR-011**: System MUST return a clear error when a user attempts to bookmark a post that does not exist
 - **FR-012**: System MUST return an empty collection with appropriate metadata when a user has no bookmarks
 - **FR-013**: The bookmark toggle operation MUST return only the bookmark record (bookmark ID, post ID, user ID, timestamp) without embedding the full post data
+- **FR-014**: The bookmark toggle MUST be a single endpoint that creates a bookmark if absent or removes it if present (add on unbookmarked, remove on bookmarked)
+- **FR-015**: On successful bookmark removal, the system MUST return a confirmation containing the removed bookmark ID
+- **FR-016**: The bookmarks feed MUST return a default of 20 results per page with a maximum allowable page size of 50
+- **FR-017**: Paginated bookmark feed responses MUST include a has_more boolean and a next_cursor value for fetching the subsequent page
+- **FR-018**: The pagination cursor format MUST be consistent with the existing feed pagination pattern
+- **FR-019**: All post-bearing responses (feed, profile, search, bookmarks feed) MUST include an is_bookmarked boolean indicating whether the requesting user has bookmarked that post
+- **FR-020**: The is_bookmarked field MUST default to false for unauthenticated users
+- **FR-021**: The is_bookmarked field MUST be determined via batch lookup across all posts in a response to avoid per-post query overhead
+- **FR-022**: Bookmark counts MUST NOT be exposed on any post entity, user profile, or public-facing endpoint
+- **FR-023**: Users attempting to unbookmark a post they have not bookmarked MUST receive a not-found error
+- **FR-024**: If a post is soft-deleted, it MUST be treated as non-existent for all bookmark operations (same behavior as hard delete)
+- **FR-025**: Authenticated users attempting to access or manipulate bookmarks belonging to another user MUST receive an authorization error
+- **FR-026**: No side effects (notifications, counters, cache events) MUST be triggered when bookmarks are created or removed
 
 ### Key Entities
 
@@ -117,3 +151,7 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - Bookmark counts or statistics (e.g., total number of saved posts) are not displayed on user profiles to maintain privacy
 - The existing pagination pattern used in the main feed will be reused for the bookmarks feed
 - Notifications are not sent when a post is bookmarked (bookmarks are private actions)
+- Bookmark toggle and feed endpoints will enforce rate limits aligned with existing tiers (toggle = content creation tier, feed = global baseline tier)
+- The blocking feature does not exist yet; bookmark behavior in the presence of blocked users is out of scope and will be revisited when blocking is implemented
+- Database-level constraints (unique on user_id + post_id, cascade deletes) guarantee data integrity regardless of application-layer bugs
+- All new bookmark endpoints will follow the existing standardized response envelope
