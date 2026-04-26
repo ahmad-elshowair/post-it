@@ -1,18 +1,21 @@
 import { Router } from 'express';
-import bookmarkController from '../../controllers/bookmarkController.js';
+import bookmarksController from '../../controllers/bookmarks.controller.js';
 import authorize_user from '../../middlewares/auth.js';
 import { contentCreationLimiter } from '../../middlewares/rateLimiter.js';
+import { paginationValidator } from '../../middlewares/validations/pagination.js';
 import { validateBookmarkAction } from '../../middlewares/validations/bookmarks.js';
 
 // ───── BOOKMARK ROUTES ──────────────────────────────
 const bookmarkRoute: Router = Router();
+
+bookmarkRoute.get('/', authorize_user, paginationValidator, bookmarksController.getBookmarks);
 
 bookmarkRoute.post(
   '/:post_id',
   authorize_user,
   contentCreationLimiter,
   validateBookmarkAction,
-  bookmarkController.toggle,
+  bookmarksController.toggle,
 );
 
 export default bookmarkRoute;

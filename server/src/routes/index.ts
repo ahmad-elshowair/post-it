@@ -6,7 +6,7 @@ import {
   refreshLimiter,
 } from '../middlewares/rateLimiter.js';
 import authentication from './apis/auth.routes.js';
-import bookmarks from './apis/bookmarkRoutes.js';
+import bookmarks from './apis/bookmarks.routes.js';
 import comments from './apis/comments.routes.js';
 import follows from './apis/follow.routes.js';
 import posts from './apis/posts.routes.js';
