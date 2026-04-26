@@ -83,7 +83,35 @@ const getBookmarks = async (req: ICustomRequest, res: Response, next: NextFuncti
   }
 };
 
+/**
+ * Check if the authenticated user has bookmarked a specific post.
+ * @route GET /api/bookmarks/is-bookmarked/:post_id
+ * @returns 200 with boolean indicating bookmark status
+ */
+const checkBookmark = async (req: ICustomRequest, res: Response, next: NextFunction) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return sendResponse.error(res, 'VALIDATION ERROR!', 400, errors.array());
+    }
+
+    const user_id = req.user?.id;
+    if (!user_id) {
+      return sendResponse.error(res, 'UNAUTHENTICATED!', 401, 'USER ID IS REQUIRED!');
+    }
+
+    const post_id = req.params.post_id;
+
+    const result = await bookmark_model.isBookmarked(user_id, post_id);
+    return sendResponse.success<{ isBookmarked: boolean }>(res, result, 200);
+  } catch (error) {
+    console.error('[bookmarksController] checkBookmark error :', error);
+    next(error);
+  }
+};
+
 export default {
   toggle,
   getBookmarks,
+  checkBookmark,
 };

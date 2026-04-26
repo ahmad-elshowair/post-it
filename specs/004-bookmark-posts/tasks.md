@@ -86,8 +86,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Add `checkBookmark` arrow function to `server/src/controllers/bookmarkController.ts` — validate params, extract `req.user?.id`, call `bookmark_model.isBookmarked()`, return `sendResponse.success<{ isBookmarked: boolean }>()` (follow `likes.controller.ts` `checkIfLiked` pattern)
-- [ ] T016 [US3] Add check route to `server/src/routes/apis/bookmarkRoutes.ts` — `GET('/is-bookmarked/:post_id', authorize_user, validateBookmarkAction, bookmarkController.checkBookmark)` (follows `/is-liked/:post_id` naming convention from `server/src/routes/apis/posts.routes.ts`)
+- [X] T015 [US3] Add `checkBookmark` arrow function to `server/src/controllers/bookmarkController.ts` — validate params, extract `req.user?.id`, call `bookmark_model.isBookmarked()`, return `sendResponse.success<{ isBookmarked: boolean }>()` (follow `likes.controller.ts` `checkIfLiked` pattern)
+- [X] T016 [US3] Add check route to `server/src/routes/apis/bookmarkRoutes.ts` — `GET('/is-bookmarked/:post_id', authorize_user, validateBookmarkAction, bookmarkController.checkBookmark)` (follows `/is-liked/:post_id` naming convention from `server/src/routes/apis/posts.routes.ts`)
 
 **Checkpoint**: All three endpoints functional. Full bookmark lifecycle works: toggle on → check (true) → toggle off → check (false). Feed shows `is_bookmarked` indicator correctly.
 

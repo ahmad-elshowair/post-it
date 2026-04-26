@@ -10,6 +10,13 @@ const bookmarkRoute: Router = Router();
 
 bookmarkRoute.get('/', authorize_user, paginationValidator, bookmarksController.getBookmarks);
 
+bookmarkRoute.get(
+  '/is-bookmarked/:post_id',
+  authorize_user,
+  validateBookmarkAction,
+  bookmarksController.checkBookmark,
+);
+
 bookmarkRoute.post(
   '/:post_id',
   authorize_user,
