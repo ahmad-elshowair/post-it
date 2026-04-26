@@ -9,62 +9,62 @@
 
 ## Privacy Requirements
 
-- [ ] CHK001 - Are the exact privacy boundaries specified — i.e., is it stated that bookmark indicators are only shown to the bookmarking user, not to post authors or other viewers? [Clarity, Spec §FR-008, §FR-009]
-- [ ] CHK002 - Is there an explicit requirement preventing bookmark counts from being exposed on post entities or user profiles? [Gap, Spec §Assumptions mentions it but no FR enforces it]
-- [ ] CHK003 - Are requirements defined for what happens if an authenticated user attempts to view or manipulate another user's bookmarks directly (e.g., by manipulating request parameters)? [Gap]
-- [ ] CHK004 - Is the requirement that bookmarks are excluded from all public-facing APIs and aggregate counts specified as a functional requirement, not just an assumption? [Completeness, Spec §Assumptions]
+- [x] CHK001 - Are the exact privacy boundaries specified — i.e., is it stated that bookmark indicators are only shown to the bookmarking user, not to post authors or other viewers? [Clarity, Spec §FR-008, §FR-009] — Resolved: FR-008 states indicator shows "whether the requesting user has bookmarked it"; FR-009 explicitly mandates privacy; FR-019 scopes `is_bookmarked` to the requesting user only.
+- [x] CHK002 - Is there an explicit requirement preventing bookmark counts from being exposed on post entities or user profiles? [Gap, Spec §Assumptions mentions it but no FR enforces it] — Resolved: FR-022 now explicitly states "Bookmark counts MUST NOT be exposed on any post entity, user profile, or public-facing endpoint."
+- [x] CHK003 - Are requirements defined for what happens if an authenticated user attempts to view or manipulate another user's bookmarks directly (e.g., by manipulating request parameters)? [Gap] — Resolved: FR-025 states "Authenticated users attempting to access or manipulate bookmarks belonging to another user MUST receive an authorization error."
+- [x] CHK004 - Is the requirement that bookmarks are excluded from all public-facing APIs and aggregate counts specified as a functional requirement, not just an assumption? [Completeness, Spec §Assumptions] — Resolved: FR-022 is the functional requirement; Assumption reinforces it.
 
 ## Toggle Behavior & Response Shape
 
-- [ ] CHK005 - Is it clearly specified whether the bookmark action is a single toggle endpoint (add → remove on repeat) or two separate endpoints (add + remove)? [Clarity, Spec §Edge Cases says "toggle" but §FR-001 and §FR-002 list them separately]
-- [ ] CHK006 - Are the return payloads for both add and remove actions individually specified? FR-013 covers add but no requirement specifies what an unbookmark/remove response returns. [Gap, Spec §FR-013]
-- [ ] CHK007 - Is the exact shape of the bookmark record returned on toggle fully defined (field names, nullability, timestamp format)? [Clarity, Spec §FR-013 lists fields informally]
-- [ ] CHK008 - Is the expected behavior when toggling a bookmark on a post the user has already bookmarked defined — does it return the existing record, a new record, or a no-content response? [Gap, Spec §Edge Cases says "no-op or toggle" but does not specify response]
-- [ ] CHK009 - Is the idempotency requirement for duplicate bookmark creation specified with an explicit expected outcome (e.g., 200 with existing record vs. 409 conflict vs. silent ignore)? [Clarity, Spec §FR-003 says "prevent" but does not specify response semantics]
+- [x] CHK005 - Is it clearly specified whether the bookmark action is a single toggle endpoint (add → remove on repeat) or two separate endpoints (add + remove)? [Clarity, Spec §Edge Cases says "toggle" but §FR-001 and §FR-002 list them separately] — Resolved: FR-014 explicitly defines a single toggle endpoint.
+- [x] CHK006 - Are the return payloads for both add and remove actions individually specified? FR-013 covers add but no requirement specifies what an unbookmark/remove response returns. [Gap, Spec §FR-013] — Resolved: FR-013 (bookmark record on add) and FR-015 (confirmation with removed bookmark ID on remove) both specified.
+- [x] CHK007 - Is the exact shape of the bookmark record returned on toggle fully defined (field names, nullability, timestamp format)? [Clarity, Spec §FR-013 lists fields informally] — Resolved: FR-013 defines fields: bookmark ID, post ID, user ID, timestamp. API contracts (contracts/api.md) specify exact JSON shape.
+- [x] CHK008 - Is the expected behavior when toggling a bookmark on a post the user has already bookmarked defined — does it return the existing record, a new record, or a no-content response? [Gap, Spec §Edge Cases says "no-op or toggle" but does not specify response] — Resolved: Edge case clarified as "toggle removes the existing bookmark (idempotent toggle semantics)"; FR-014 + FR-015 define response shapes for both states.
+- [x] CHK009 - Is the idempotency requirement for duplicate bookmark creation specified with an explicit expected outcome (e.g., 200 with existing record vs. 409 conflict vs. silent ignore)? [Clarity, Spec §FR-003 says "prevent" but does not specify response semantics] — Resolved: FR-003 prevents duplicates via toggle semantics — repeat tap removes (FR-014), so no conflict scenario exists. UNIQUE constraint at DB level is the safety net.
 
 ## Pagination Requirements
 
-- [ ] CHK010 - Is a default page size (limit) specified for the bookmarks feed? [Gap, Spec §FR-005 says "cursor-based" but no default limit]
-- [ ] CHK011 - Is a maximum allowable page size defined to prevent abuse (e.g., client requesting limit=100000)? [Gap]
-- [ ] CHK012 - Are the cursor field name and cursor encoding/format specified so that clients know how to construct pagination requests? [Gap, Spec §FR-005]
-- [ ] CHK013 - Is the sort order for ties (same timestamp) specified, or is ordering guaranteed to be unique via the cursor? [Clarity, Spec §FR-004]
-- [ ] CHK014 - Are the pagination metadata fields specified (e.g., has_more, next_cursor, results count) in the feed response? [Gap]
-- [ ] CHK015 - Is the requirement for no `SELECT COUNT(*)` alongside cursor-paginated queries explicitly stated in the spec, or only in the constitution? [Consistency, Constitution §VIII vs Spec §FR-005]
+- [x] CHK010 - Is a default page size (limit) specified for the bookmarks feed? [Gap, Spec §FR-005 says "cursor-based" but no default limit] — Resolved: FR-016 specifies default 20 results per page.
+- [x] CHK011 - Is a maximum allowable page size defined to prevent abuse (e.g., client requesting limit=100000)? [Gap] — Resolved: FR-016 specifies max 50 per page.
+- [x] CHK012 - Are the cursor field name and cursor encoding/format specified so that clients know how to construct pagination requests? [Gap, Spec §FR-005] — Resolved: FR-017 defines has_more and next_cursor; FR-018 mandates consistency with existing feed pagination pattern. Cursor is bookmark_id (UUID string).
+- [x] CHK013 - Is the sort order for ties (same timestamp) specified, or is ordering guaranteed to be unique via the cursor? [Clarity, Spec §FR-004] — Resolved: Covered by `idx_bookmarks_user_created` index on `(user_id, created_at DESC)` and `createPaginationResult` using `bookmark_id` as cursor — stable sort guaranteed.
+- [x] CHK014 - Are the pagination metadata fields specified (e.g., has_more, next_cursor, results count) in the feed response? [Gap] — Resolved: FR-017 specifies has_more boolean and next_cursor.
+- [x] CHK015 - Is the requirement for no `SELECT COUNT(*)` alongside cursor-paginated queries explicitly stated in the spec, or only in the constitution? [Consistency, Constitution §VIII vs Spec §FR-005] — Resolved: Constitution §VIII mandates this; plan.md Constitution Check table confirms compliance; T017 in tasks.md explicitly verifies no SELECT COUNT(*).
 
 ## Feed Integration (is_bookmarked Indicator)
 
-- [ ] CHK016 - Is the requirement for an `is_bookmarked` field on post responses formally specified as a functional requirement, or only implied by FR-008 ("visual bookmark indicator")? [Gap, Spec §FR-008 uses UX language but no data contract requirement]
-- [ ] CHK017 - Are requirements specified for how `is_bookmarked` is determined in feed endpoints that return multiple posts (e.g., batch lookup vs. per-post query)? [Gap — N+1 risk]
-- [ ] CHK018 - Is it specified whether `is_bookmarked` appears on all post-bearing endpoints (feed, profile, search, bookmarks feed) or only specific ones? [Completeness]
-- [ ] CHK019 - Is the default value of `is_bookmarked` for unauthenticated users specified? [Clarity, Spec §FR-010 requires auth for operations but FR-008 does not address unauthenticated feed viewing]
+- [x] CHK016 - Is the requirement for an `is_bookmarked` field on post responses formally specified as a functional requirement, or only implied by FR-008 ("visual bookmark indicator")? [Gap, Spec §FR-008 uses UX language but no data contract requirement] — Resolved: FR-019 formally requires `is_bookmarked` boolean on all post-bearing responses.
+- [x] CHK017 - Are requirements specified for how `is_bookmarked` is determined in feed endpoints that return multiple posts (e.g., batch lookup vs. per-post query)? [Gap — N+1 risk] — Resolved: FR-021 mandates batch lookup via JOIN, not per-post queries.
+- [x] CHK018 - Is it specified whether `is_bookmarked` appears on all post-bearing endpoints (feed, profile, search, bookmarks feed) or only specific ones? [Completeness] — Resolved: FR-019 explicitly lists "feed, profile, search, bookmarks feed."
+- [x] CHK019 - Is the default value of `is_bookmarked` for unauthenticated users specified? [Clarity, Spec §FR-010 requires auth for operations but FR-008 does not address unauthenticated feed viewing] — Resolved: FR-020 specifies default to false for unauthenticated users (forward-looking for public endpoints).
 
 ## Cascade Delete Behavior
 
-- [ ] CHK020 - Are cascade deletes specified as database-level constraints (not application-level logic) to guarantee referential integrity even if a bug bypasses the application layer? [Clarity, Constitution §IV, Spec §FR-006, §FR-007]
-- [ ] CHK021 - Is the expected behavior when a post is soft-deleted (if soft deletes exist in the system) vs. hard-deleted defined for bookmarks? [Gap]
-- [ ] CHK022 - Is it specified whether bookmark removal via cascade triggers any side effects (e.g., notifications, counters, cache invalidation)? [Gap]
+- [x] CHK020 - Are cascade deletes specified as database-level constraints (not application-level logic) to guarantee referential integrity even if a bug bypasses the application layer? [Clarity, Constitution §IV, Spec §FR-006, §FR-007] — Resolved: FR-006 and FR-007 specify automatic removal; Assumption confirms "Database-level constraints (unique on user_id + post_id, cascade deletes) guarantee data integrity"; data-model.md defines ON DELETE CASCADE on both FKs.
+- [x] CHK021 - Is the expected behavior when a post is soft-deleted (if soft deletes exist in the system) vs. hard-deleted defined for bookmarks? [Gap] — Resolved: FR-024 specifies "If a post is soft-deleted, it MUST be treated as non-existent for all bookmark operations (same behavior as hard delete)." research.md confirms no soft-delete mechanism currently exists.
+- [x] CHK022 - Is it specified whether bookmark removal via cascade triggers any side effects (e.g., notifications, counters, cache invalidation)? [Gap] — Resolved: FR-026 explicitly states "No side effects (notifications, counters, cache events) MUST be triggered when bookmarks are created or removed." Clarification confirms "None — bookmarks are private, no counters or notifications triggered on removal."
 
 ## Error Scenarios
 
-- [ ] CHK023 - Is the requirement for bookmarking one's own post addressed — explicitly allowed or explicitly prohibited? [Gap, Spec §FR-001 says "any existing post" which is ambiguous regarding own posts]
-- [ ] CHK024 - Is the error response format for a non-existent post specified (status code, error code, message structure)? [Clarity, Spec §FR-011 says "clear error" but no format defined]
-- [ ] CHK025 - Are error scenarios defined for race conditions (e.g., user bookmarks a post that another user deletes simultaneously)? [Gap]
-- [ ] CHK026 - Is the behavior specified when a user attempts to unbookmark a post they never bookmarked? [Gap]
-- [ ] CHK027 - Is the behavior specified when a user attempts to bookmark a post belonging to a blocked user or a user who blocked them? [Gap]
+- [x] CHK023 - Is the requirement for bookmarking one's own post addressed — explicitly allowed or explicitly prohibited? [Gap, Spec §FR-001 says "any existing post" which is ambiguous regarding own posts] — Resolved: Clarification session confirms "Yes — 'any existing post' includes own posts."
+- [x] CHK024 - Is the error response format for a non-existent post specified (status code, error code, message structure)? [Clarity, Spec §FR-011 says "clear error" but no format defined] — Resolved: FR-011 requires a clear error; contracts/api.md specifies 404 status; existing standardized response envelope (Constitution §V) provides the error format.
+- [x] CHK025 - Are error scenarios defined for race conditions (e.g., user bookmarks a post that another user deletes simultaneously)? [Gap] — Resolved: Edge case specifies "Database-level uniqueness constraint and post existence check guarantee consistency; return appropriate error if post vanishes mid-operation."
+- [x] CHK026 - Is the behavior specified when a user attempts to unbookmark a post they never bookmarked? [Gap] — Resolved: FR-023 specifies "Users attempting to unbookmark a post they have not bookmarked MUST receive a not-found error."
+- [x] CHK027 - Is the behavior specified when a user attempts to bookmark a post belonging to a blocked user or a user who blocked them? [Gap] — Resolved: Clarification confirms "Out of scope — blocking feature does not exist yet; revisit when implemented." Documented in Assumptions.
 
 ## Rate Limiting (Constitution §VI Alignment)
 
-- [ ] CHK028 - Is the rate limit tier for bookmark toggle endpoints specified — are they classified as "content creation" (25/min) or a separate tier? [Gap, Constitution §VI vs Spec]
-- [ ] CHK029 - Is the rate limit tier for the bookmarks feed endpoint (read operation) specified — does it fall under the global baseline (150/min)? [Gap, Constitution §VI]
-- [ ] CHK030 - Is it specified that rate-limit configuration for bookmark endpoints must be sourced from environment variables, per Constitution §VI? [Consistency, Constitution §VI]
+- [x] CHK028 - Is the rate limit tier for bookmark toggle endpoints specified — are they classified as "content creation" (25/min) or a separate tier? [Gap, Constitution §VI vs Spec] — Resolved: Clarification confirms "Bookmark toggle = content creation tier" (25 req/min). plan.md and tasks.md apply `contentCreationLimiter`.
+- [x] CHK029 - Is the rate limit tier for the bookmarks feed endpoint (read operation) specified — does it fall under the global baseline (150/min)? [Gap, Constitution §VI] — Resolved: Clarification confirms "bookmarks feed = global baseline tier" (150 req/min). tasks.md applies `paginationValidator` (global limiter).
+- [x] CHK030 - Is it specified that rate-limit configuration for bookmark endpoints must be sourced from environment variables, per Constitution §VI? [Consistency, Constitution §VI] — Resolved: Constitution §VI mandates env-sourced config; existing `server/src/configs/config.ts` and `rateLimiter.ts` already implement this pattern. Bookmarks reuse the same infrastructure.
 
 ## Constitution Compliance
 
-- [ ] CHK031 - Does the spec require database migrations (Constitution §IV) for the bookmarks table, or is that deferred to planning? [Completeness, Constitution §IV]
-- [ ] CHK032 - Is the requirement for a standardized response envelope (Constitution §V) on bookmark endpoints explicitly stated or assumed? [Consistency, Constitution §V]
-- [ ] CHK033 - Is frontend debounce/throttle required for the bookmark toggle button per Constitution §VIII (minimum 500ms)? [Gap, Constitution §VIII]
-- [ ] CHK034 - Are parameterized queries for bookmark operations mentioned or guaranteed by the existing architecture per Constitution §II? [Consistency, Constitution §II]
-- [ ] CHK035 - Is the requirement that bookmark API routes follow RESTful domain-based organization (Constitution §V) reflected in the spec? [Completeness, Constitution §V]
+- [x] CHK031 - Does the spec require database migrations (Constitution §IV) for the bookmarks table, or is that deferred to planning? [Completeness, Constitution §IV] — Resolved: plan.md specifies db-migrate; tasks.md Phase 1 (T001-T003) creates the migration; data-model.md provides exact DDL.
+- [x] CHK032 - Is the requirement for a standardized response envelope (Constitution §V) on bookmark endpoints explicitly stated or assumed? [Consistency, Constitution §V] — Resolved: Assumption explicitly states "All new bookmark endpoints will follow the existing standardized response envelope." contracts/api.md documents the envelope format.
+- [x] CHK033 - Is frontend debounce/throttle required for the bookmark toggle button per Constitution §VIII (minimum 500ms)? [Gap, Constitution §VIII] — Resolved: Assumption explicitly tracks "Frontend 500ms debounce on bookmark toggle (Constitution §VIII) is tracked as a follow-up to be implemented when the bookmark UI is built." plan.md Constitution Check table acknowledges this.
+- [x] CHK034 - Are parameterized queries for bookmark operations mentioned or guaranteed by the existing architecture per Constitution §II? [Consistency, Constitution §II] — Resolved: Constitution §II mandates parameterized queries via `pg` client. All existing models use parameterized `$N` placeholders. tasks.md T005 specifies the same pattern for BookmarkModel.
+- [x] CHK035 - Is the requirement that bookmark API routes follow RESTful domain-based organization (Constitution §V) reflected in the spec? [Completeness, Constitution §V] — Resolved: Routes organized under `/api/bookmarks` domain (plan.md, tasks.md T009-T010). Constitution §V compliance confirmed in plan.md Constitution Check table.
 
 ## Notes
 

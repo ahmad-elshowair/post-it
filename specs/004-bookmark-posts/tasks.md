@@ -17,9 +17,9 @@
 
 **Purpose**: Create the `bookmarks` table, constraints, and indexes via db-migrate.
 
-- [ ] T001 Create migration skeleton: run `cd server && npx db-migrate create bookmarks --sql-file`
-- [ ] T002 Write `server/migrations/sqls/<timestamp>-bookmarks-up.sql` — create bookmarks table with `bookmark_id (UUID PK)`, `user_id (FK→users ON DELETE CASCADE)`, `post_id (FK→posts ON DELETE CASCADE)`, `created_at (TIMESTAMPTZ DEFAULT NOW())`, `UNIQUE(user_id, post_id)`, and performance indexes (`idx_bookmarks_user_id`, `idx_bookmarks_post_id`, `idx_bookmarks_user_created`). See `data-model.md` for exact DDL.
-- [ ] T003 Write `server/migrations/sqls/<timestamp>-bookmarks-down.sql` — `DROP TABLE IF EXISTS bookmarks;`
+- [x] T001 Create migration skeleton: run `cd server && npx db-migrate create bookmarks --sql-file`
+- [x] T002 Write `server/migrations/sqls/20260426082213-bookmarks-up.sql` — create bookmarks table with `bookmark_id (UUID PK)`, `user_id (FK→users ON DELETE CASCADE)`, `post_id (FK→posts ON DELETE CASCADE)`, `created_at (TIMESTAMPTZ DEFAULT NOW())`, `UNIQUE(user_id, post_id)`, and performance indexes (`idx_bookmarks_user_id`, `idx_bookmarks_post_id`, `idx_bookmarks_user_created`). See `data-model.md` for exact DDL.
+- [x] T003 Write `server/migrations/sqls/20260426082213-bookmarks-down.sql` — `DROP TABLE IF EXISTS bookmarks;`
 
 ---
 
