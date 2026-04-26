@@ -32,7 +32,7 @@ Add a private bookmark/save system for posts. Users can toggle bookmarks on any 
 | V. Predictable RESTful API Design | ✅ Pass | Domain-based route (`/api/bookmarks`); standardized response envelope via `sendResponse` |
 | VI. Tiered Rate Limiting | ✅ Pass | Toggle = `contentCreationLimiter` (25/min); Feed/Check = `globalLimiter` (150/min) |
 | VII. File Upload Validation & Content Security | ⬜ N/A | No file uploads involved |
-| VIII. Frontend Efficiency & Performance | ✅ Pass | Cursor-based pagination, no SELECT COUNT(*), `is_bookmarked` via batch LEFT JOIN |
+| VIII. Frontend Efficiency & Performance | ✅ Pass | Cursor-based pagination, no SELECT COUNT(*), `is_bookmarked` via batch LEFT JOIN, frontend debounce tracked as follow-up |
 | Quality: Sectional Comments | ✅ Pass | Will apply `// ───── LABEL ──────────────────────────────` pattern |
 | Quality: Linting | ✅ Pass | Will run `pnpm run lint` and `pnpm run prettier:check` |
 

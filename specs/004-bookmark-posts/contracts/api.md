@@ -7,7 +7,7 @@ All endpoints are authenticated (`authorize_user` middleware). Base path: `/api/
 
 ---
 
-## POST /api/bookmarks/:postId
+## POST /api/bookmarks/:post_id
 
 Toggle bookmark on/off for a post. Creates bookmark if absent, removes if present.
 
@@ -17,7 +17,7 @@ Toggle bookmark on/off for a post. Creates bookmark if absent, removes if presen
 
 | Field | Location | Type | Required | Description |
 |-------|----------|------|----------|-------------|
-| `postId` | param | `UUID` | yes | Post to bookmark/unbookmark |
+| `post_id` | param | `UUID` | yes | Post to bookmark/unbookmark |
 
 **Response (bookmark created)** — 200:
 
@@ -100,7 +100,7 @@ List the authenticated user's bookmarked posts, paginated, newest first.
 
 ---
 
-## GET /api/bookmarks/check/:postId
+## GET /api/bookmarks/is-bookmarked/:post_id
 
 Check if the authenticated user has bookmarked a specific post.
 
@@ -110,7 +110,7 @@ Check if the authenticated user has bookmarked a specific post.
 
 | Field | Location | Type | Required | Description |
 |-------|----------|------|----------|-------------|
-| `postId` | param | `UUID` | yes | Post to check |
+| `post_id` | param | `UUID` | yes | Post to check |
 
 **Response** — 200:
 

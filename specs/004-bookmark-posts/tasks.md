@@ -30,9 +30,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
 - [ ] T004 [P] Create `server/src/types/bookmark.ts` — define `TBookmark` type with `bookmark_id?`, `user_id`, `post_id`, `created_at?` fields (mirror `server/src/types/like.ts` pattern)
-- [ ] T005 Create `server/src/models/bookmark.ts` — `BookmarkModel` class with three methods:
+- [ ] T005 Create `server/src/models/bookmark.ts` — `BookmarkModel` class with `private validateRequiredFields()` helper (mirror `server/src/models/like.ts`) and three methods. All methods use `pool.connect()` → `BEGIN/COMMIT/ROLLBACK` → `release()` in `finally`, and preserve error chains with `throw new Error('...', { cause: error })` per AGENTS.md:
   - `toggle(userId: string, postId: string)` → `{ bookmark_id: string; action: "bookmarked" | "unbookmarked" }` — single transaction: LEFT JOIN posts+bookmarks to check existence and current state, INSERT bookmark or DELETE existing, return result (mirror `server/src/models/like.ts` `like()` pattern but without counter updates)
-  - `getUserBookmarks(userId: string, limit: number, cursor?: string, direction?: 'next' | 'previous')` → `TBookmark[]` — cursor-based pagination by `created_at DESC` (mirror `getLikesByPostId` pattern)
+  - `getUserBookmarks(userId: string, limit: number, cursor?: string, direction?: 'next' | 'previous')` → `TBookmark[]` — cursor-based pagination by `created_at DESC`. Cursor resolution: when `cursor` is provided, pre-fetch `created_at` via `SELECT created_at FROM bookmarks WHERE bookmark_id = $1`, then use the timestamp in the WHERE clause (mirror `PostModel.feed()` pre-fetch pattern). Use `createPaginationResult(data, options, 'bookmark_id')` for pagination metadata.
   - `isBookmarked(userId: string, postId: string)` → `{ isBookmarked: boolean }` — `SELECT 1 FROM bookmarks WHERE user_id = $1 AND post_id = $2` (mirror `checkIfLiked` pattern)
 - [ ] T006 Add `bookmark_model = new BookmarkModel()` to `server/src/controllers/factory.ts` and export it
 
@@ -42,19 +42,19 @@
 
 ## Phase 3: User Story 1 — Bookmark a Post (Priority: P1) 🎯 MVP
 
-**Goal**: Authenticated users can toggle a bookmark on/off for any existing post via `POST /api/bookmarks/:postId`.
+**Goal**: Authenticated users can toggle a bookmark on/off for any existing post via `POST /api/bookmarks/:post_id`.
 
 **Independent Test**: Bookmark a post via curl/Postman, verify 200 response with bookmark record, call again and verify unbookmark response with removed bookmark_id.
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Create `server/src/middlewares/validations/bookmarks.ts` — export `validateBookmarkAction` array using `param('post_id').notEmpty().isUUID()` (follow `server/src/middlewares/validations/likes.ts` and `common.ts` `validateUUID` pattern)
+- [ ] T007 [P] [US1] Create `server/src/middlewares/validations/bookmarks.ts` — export `validateBookmarkAction` array using `param('post_id').notEmpty().isUUID()` (follow `server/src/middlewares/validations/likes.ts` pattern). For feed pagination, reuse existing `paginationValidator` from `server/src/middlewares/validations/pagination.js`; limit is clamped to max 50 in controller (T012, FR-016)
 - [ ] T008 [P] [US1] Create `server/src/controllers/bookmarkController.ts` — export default object with `toggle` arrow function: validate params, extract `req.user?.id`, call `bookmark_model.toggle()`, return `sendResponse.success()` for bookmarked or `sendResponse.success()` with `{ bookmark_id, action: "unbookmarked" }` for unbookmarked; catch post-not-found → 404 (follow `server/src/controllers/likes.controller.ts` pattern)
 - [ ] T009 [US1] Create `server/src/routes/apis/bookmarkRoutes.ts` — `Router()` with `POST('/:post_id', authorize_user, contentCreationLimiter, validateBookmarkAction, bookmarkController.toggle)` (follow `server/src/routes/apis/posts.routes.ts` pattern, import from `../../middlewares/auth.js`, `../../middlewares/rateLimiter.js`, `../../middlewares/validations/bookmarks.js`, `../../controllers/bookmarkController.js`)
 - [ ] T010 [US1] Register bookmark routes in `server/src/routes/index.ts` — import `bookmarkRoutes` from `./apis/bookmarkRoutes.js`, mount with `routes.use('/bookmarks', bookmarkRoutes)` (alongside existing `/posts`, `/users`, etc.)
 - [ ] T011 [US1] Add `is_bookmarked?: boolean` field to `server/src/interfaces/IPost.ts` `IFeedPost` interface
 
-**Checkpoint**: `POST /api/bookmarks/:postId` works end-to-end. Can toggle bookmarks on/off. Returns proper response shape. Auth, rate limiting, and validation middleware applied.
+**Checkpoint**: `POST /api/bookmarks/:post_id` works end-to-end. Can toggle bookmarks on/off. Returns proper response shape. Auth, rate limiting, and validation middleware applied.
 
 ---
 
@@ -66,9 +66,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T012 [US2] Add `getBookmarks` arrow function to `server/src/controllers/bookmarkController.ts` — use `getCursorPaginationOptions(req)` for pagination params, call `bookmark_model.getUserBookmarks()`, wrap with `createPaginationResult(data, options, 'bookmark_id')`, return via `sendResponse.success()` (follow `server/src/controllers/posts.controller.ts` feed pattern)
+- [ ] T012 [US2] Add `getBookmarks` arrow function to `server/src/controllers/bookmarkController.ts` — use `getCursorPaginationOptions(req)` for pagination params, clamp limit to max 50 (`Math.min(options.originalLimit, 50)`, FR-016), call `bookmark_model.getUserBookmarks()`, wrap with `createPaginationResult(data, options, 'bookmark_id')`, return via `sendResponse.success()` (follow `server/src/controllers/posts.controller.ts` feed pattern)
 - [ ] T013 [US2] Add feed route to `server/src/routes/apis/bookmarkRoutes.ts` — `GET('/', authorize_user, paginationValidator, bookmarkController.getBookmarks)`
-- [ ] T014 [US2] Add `is_bookmarked` LEFT JOIN to `server/src/models/post.ts` feed queries — in `feed()`, `index()`, `userPosts()`, and `getPostById()` methods, add `LEFT JOIN bookmarks b ON b.post_id = p.post_id AND b.user_id = $userId` and `CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked` to SELECT (follow existing `is_liked` LEFT JOIN pattern in the same file). The `$userId` param index will shift — adjust all subsequent `$N` parameter references.
+- [ ] T014 [US2] Add `is_bookmarked` and backfill missing `is_liked` LEFT JOINs to `server/src/models/post.ts` — update `feed()`, `index()`, `userPosts()`, and `fetchPostById()` methods:
+  - Add `userId: string` parameter to `index()`, `userPosts()`, and `fetchPostById()` method signatures (currently only `feed()` accepts it). Update all callers in `server/src/controllers/posts.controller.ts` to pass `req.user?.id`.
+  - In each method, add `LEFT JOIN bookmarks b ON b.post_id = p.post_id AND b.user_id = $N` and `CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked` to SELECT (follow existing `is_liked` LEFT JOIN pattern in `feed()`).
+  - Backfill missing `is_liked` LEFT JOIN in `index()`, `userPosts()`, and `fetchPostById()` (currently only present in `feed()`) to ensure API consistency across all post-bearing endpoints (FR-019).
+  - Adjust all `$N` parameter references after adding new parameters.
 
 **Checkpoint**: `GET /api/bookmarks` returns paginated bookmarks. Post feed responses include `is_bookmarked` boolean. Pagination metadata (`hasMore`, `nextCursor`) works correctly.
 
@@ -78,12 +82,12 @@
 
 **Goal**: Users can unbookmark posts and check bookmark status. Removing via toggle is already implemented (US1). This phase adds the check endpoint and validates the full remove flow.
 
-**Independent Test**: Bookmark a post, verify via `GET /api/bookmarks/check/:postId` returns `{ isBookmarked: true }`, toggle it off, verify check returns `{ isBookmarked: false }`.
+**Independent Test**: Bookmark a post, verify via `GET /api/bookmarks/is-bookmarked/:post_id` returns `{ isBookmarked: true }`, toggle it off, verify check returns `{ isBookmarked: false }`.
 
 ### Implementation for User Story 3
 
 - [ ] T015 [US3] Add `checkBookmark` arrow function to `server/src/controllers/bookmarkController.ts` — validate params, extract `req.user?.id`, call `bookmark_model.isBookmarked()`, return `sendResponse.success<{ isBookmarked: boolean }>()` (follow `likes.controller.ts` `checkIfLiked` pattern)
-- [ ] T016 [US3] Add check route to `server/src/routes/apis/bookmarkRoutes.ts` — `GET('/check/:post_id', authorize_user, validateBookmarkAction, bookmarkController.checkBookmark)`
+- [ ] T016 [US3] Add check route to `server/src/routes/apis/bookmarkRoutes.ts` — `GET('/is-bookmarked/:post_id', authorize_user, validateBookmarkAction, bookmarkController.checkBookmark)` (follows `/is-liked/:post_id` naming convention from `server/src/routes/apis/posts.routes.ts`)
 
 **Checkpoint**: All three endpoints functional. Full bookmark lifecycle works: toggle on → check (true) → toggle off → check (false). Feed shows `is_bookmarked` indicator correctly.
 
@@ -93,7 +97,7 @@
 
 **Purpose**: Final validation, lint, schema verification.
 
-- [ ] T017 Run migration against database: `cd server && npx db-migrate up` — verify `bookmarks` table created with correct constraints and indexes
+- [ ] T017 Run migration against database: `cd server && npx db-migrate up` — verify `bookmarks` table created with correct constraints and indexes. Confirm: (1) no `SELECT COUNT(*)` in any bookmark query (Constitution §VIII), (2) CASCADE deletes work for both post and user deletion (FR-006, FR-007), (3) soft-deleted posts are treated as non-existent for bookmarks (FR-024 — verified by CASCADE on hard delete)
 - [ ] T018 Run `pnpm run lint` in both `client/` and `server/` — fix any lint errors
 - [ ] T019 Run `pnpm run prettier:check` in both `client/` and `server/` — fix any formatting issues
 - [ ] T020 Verify all checklist items from `specs/004-bookmark-posts/checklists/backend.md` are satisfied by the implementation
@@ -147,7 +151,7 @@ T011: "Add is_bookmarked to IPost.ts" (independent, can run anytime)
 1. Complete Phase 1: Migration
 2. Complete Phase 2: Types + Model + Factory
 3. Complete Phase 3: Toggle endpoint (US1)
-4. **STOP and VALIDATE**: `POST /api/bookmarks/:postId` works end-to-end
+4. **STOP and VALIDATE**: `POST /api/bookmarks/:post_id` works end-to-end
 5. Deploy/demo if ready
 
 ### Incremental Delivery

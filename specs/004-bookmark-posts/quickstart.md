@@ -13,7 +13,7 @@
 | `server/src/interfaces/IBookmark.ts` | `IFeedBookmark` interface for feed query results |
 | `server/src/models/bookmark.ts` | `BookmarkModel` class with toggle, feed, check methods |
 | `server/src/controllers/bookmarkController.ts` | Arrow functions: toggle, feed, check |
-| `server/src/middlewares/validations/bookmarks.ts` | `validateBookmarkAction`, `bookmarkPaginationValidator` |
+| `server/src/middlewares/validations/bookmarks.ts` | `validateBookmarkAction` (reuses existing `paginationValidator` from pagination.ts for feed) |
 | `server/src/routes/apis/bookmarkRoutes.ts` | Router with 3 routes |
 
 ## Files to Modify

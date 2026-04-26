@@ -111,13 +111,13 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - **FR-011**: System MUST return a clear error when a user attempts to bookmark a post that does not exist
 - **FR-012**: System MUST return an empty collection with appropriate metadata when a user has no bookmarks
 - **FR-013**: The bookmark toggle operation MUST return only the bookmark record (bookmark ID, post ID, user ID, timestamp) without embedding the full post data
-- **FR-014**: The bookmark toggle MUST be a single endpoint that creates a bookmark if absent or removes it if present (add on unbookmarked, remove on bookmarked)
+- **FR-014**: The bookmark toggle MUST be a single endpoint that creates a bookmark if absent or removes it if present (add on unbookmarked, remove on bookmarked). Response shape differs by action: bookmarked returns the full bookmark record (FR-013), unbookmarked returns a confirmation with the removed bookmark ID (FR-015)
 - **FR-015**: On successful bookmark removal, the system MUST return a confirmation containing the removed bookmark ID
 - **FR-016**: The bookmarks feed MUST return a default of 20 results per page with a maximum allowable page size of 50
 - **FR-017**: Paginated bookmark feed responses MUST include a has_more boolean and a next_cursor value for fetching the subsequent page
 - **FR-018**: The pagination cursor format MUST be consistent with the existing feed pagination pattern
 - **FR-019**: All post-bearing responses (feed, profile, search, bookmarks feed) MUST include an is_bookmarked boolean indicating whether the requesting user has bookmarked that post
-- **FR-020**: The is_bookmarked field MUST default to false for unauthenticated users
+- **FR-020**: The is_bookmarked field MUST default to false for unauthenticated users (forward-looking: applies when public post endpoints are introduced; all current post endpoints require authentication)
 - **FR-021**: The is_bookmarked field MUST be determined via batch lookup across all posts in a response to avoid per-post query overhead
 - **FR-022**: Bookmark counts MUST NOT be exposed on any post entity, user profile, or public-facing endpoint
 - **FR-023**: Users attempting to unbookmark a post they have not bookmarked MUST receive a not-found error
@@ -136,7 +136,7 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 
 - **SC-001**: Users can bookmark or unbookmark a post within 1 second of tapping the bookmark icon
 - **SC-002**: The bookmarks feed loads the first page of results within 2 seconds
-- **SC-003**: Users can scroll through thousands of bookmarked posts without the feed becoming sluggish or unresponsive
+- **SC-003**: Each bookmarks feed page must load in under 2 seconds regardless of the total number of bookmarks a user has accumulated
 - **SC-004**: 100% of bookmarks are private — no user can discover or access another user's bookmarks through any interface
 - **SC-005**: 90% of users who bookmark at least one post return to view their bookmarks feed within 7 days
 - **SC-006**: Bookmarking a post the user has already bookmarked does not create a duplicate entry
@@ -155,3 +155,4 @@ A user no longer needs a saved post and wants to remove it from their bookmarks.
 - The blocking feature does not exist yet; bookmark behavior in the presence of blocked users is out of scope and will be revisited when blocking is implemented
 - Database-level constraints (unique on user_id + post_id, cascade deletes) guarantee data integrity regardless of application-layer bugs
 - All new bookmark endpoints will follow the existing standardized response envelope
+- Frontend 500ms debounce on bookmark toggle (Constitution §VIII) is tracked as a follow-up to be implemented when the bookmark UI is built
