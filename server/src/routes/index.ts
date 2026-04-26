@@ -6,6 +6,7 @@ import {
   refreshLimiter,
 } from '../middlewares/rateLimiter.js';
 import authentication from './apis/auth.routes.js';
+import bookmarks from './apis/bookmarks.routes.js';
 import comments from './apis/comments.routes.js';
 import follows from './apis/follow.routes.js';
 import posts from './apis/posts.routes.js';
@@ -27,6 +28,7 @@ routes.use(globalLimiter);
 routes.use('/auth', authentication);
 routes.use('/users', users);
 routes.use('/posts', posts);
+routes.use('/bookmarks', bookmarks);
 routes.use('/comments', comments);
 routes.use('/follows', follows);
 routes.use('/upload', uploadRouter);

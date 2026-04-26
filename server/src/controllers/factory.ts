@@ -1,4 +1,5 @@
 import AuthModel from '../models/auth.js';
+import BookmarkModel from '../models/bookmark.js';
 import CommentModel from '../models/comments.js';
 import FollowModel from '../models/follow.js';
 import LikeModel from '../models/like.js';
@@ -13,9 +14,11 @@ const like_model = new LikeModel();
 const follow_model = new FollowModel();
 const auth_model = new AuthModel();
 const refresh_token_model = new RefreshTokenModel();
+const bookmark_model = new BookmarkModel();
 
 export {
   auth_model,
+  bookmark_model,
   comment_model,
   follow_model,
   like_model,

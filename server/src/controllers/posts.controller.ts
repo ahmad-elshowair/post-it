@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { ICustomRequest } from '../interfaces/ICustomRequest.js';
 import { IPaginatedResult } from '../interfaces/IPagination.js';
@@ -82,17 +82,18 @@ const update = async (req: ICustomRequest, res: Response, next: NextFunction) =>
  * @route GET /api/posts/:post_id
  * @returns 200 with the post object, or 404 if not found
  */
-const getPostById = async (req: Request, res: Response, next: NextFunction) => {
+const getPostById = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return sendResponse.error(res, 'VALIDATION ERROR', 400, errors.array());
     }
     const post_id = req.params.post_id;
+    const userId = req.user?.id;
 
     try {
-      const post = await post_model.fetchPostById(post_id);
-      return sendResponse.success<Post>(res, post);
+      const post = await post_model.fetchPostById(post_id, userId);
+      return sendResponse.success<IFeedPost>(res, post);
     } catch (error) {
       if ((error as Error).message.includes('not found')) {
         return sendResponse.error(res, 'POST NOT FOUND', 404);
@@ -110,16 +111,18 @@ const getPostById = async (req: Request, res: Response, next: NextFunction) => {
  * @route GET /api/posts/all
  * @returns 200 with a paginated result of posts
  */
-const index = async (req: Request, res: Response, next: NextFunction) => {
+const index = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return sendResponse.error(res, 'VALIDATION ERROR', 400, errors.array());
     }
 
+    const userId = req.user?.id;
     const paginationOptions = getCursorPaginationOptions(req);
 
     const { posts } = await post_model.index(
+      userId,
       paginationOptions.limit,
       paginationOptions.cursor,
       paginationOptions.direction,
@@ -127,7 +130,7 @@ const index = async (req: Request, res: Response, next: NextFunction) => {
 
     const result = createPaginationResult(posts, paginationOptions, 'post_id');
 
-    return sendResponse.success<IPaginatedResult<Post>>(res, result);
+    return sendResponse.success<IPaginatedResult<IFeedPost>>(res, result);
   } catch (error) {
     console.error('[postController] index error:', error);
     next(error);
@@ -175,7 +178,7 @@ const deletePost = async (req: ICustomRequest, res: Response, next: NextFunction
  * @route GET /api/posts/user/:user_id
  * @returns 200 with a paginated result of the user's posts
  */
-const userPosts = async (req: Request, res: Response, next: NextFunction) => {
+const userPosts = async (req: ICustomRequest, res: Response, next: NextFunction) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -183,6 +186,7 @@ const userPosts = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const user_id = req.params.user_id;
+    const userId = req.user?.id;
     const paginationOptions = getCursorPaginationOptions(req);
 
     const { posts } = await post_model.userPosts(
@@ -190,6 +194,7 @@ const userPosts = async (req: Request, res: Response, next: NextFunction) => {
       paginationOptions.limit,
       paginationOptions.cursor,
       paginationOptions.direction,
+      userId,
     );
 
     const result = createPaginationResult(posts, paginationOptions, 'post_id');

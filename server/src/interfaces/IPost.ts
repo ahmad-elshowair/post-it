@@ -11,4 +11,5 @@ export interface IFeedPost {
   first_name?: string;
   last_name?: string;
   is_liked?: boolean;
+  is_bookmarked?: boolean;
 }

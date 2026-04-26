@@ -52,13 +52,36 @@ class PostModel {
    * @param post_id post id
    * @returns post
    */
-  async fetchPostById(post_id: string): Promise<Post> {
+  async fetchPostById(post_id: string, userId?: string): Promise<IFeedPost> {
     const connection = await pool.connect();
     try {
-      const post: QueryResult<Post> = await connection.query(
-        'SELECT * FROM posts WHERE post_id = $1',
-        [post_id],
-      );
+      let extraSelects = '';
+      let likeJoin = '';
+      let bookmarkJoin = '';
+      const params: string[] = [post_id];
+
+      if (userId) {
+        params.push(userId);
+        likeJoin = `LEFT JOIN likes l ON l.post_id = p.post_id AND l.user_id = $2`;
+        bookmarkJoin = `LEFT JOIN bookmarks b ON b.post_id = p.post_id AND b.user_id = $2`;
+        extraSelects = `,
+      CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked,
+      CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked`;
+      }
+
+      const sql = `
+        SELECT
+          p.post_id, p.description, p.updated_at, p.image, p.number_of_likes,
+          p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name,
+          u.last_name${extraSelects}
+        FROM posts p
+        JOIN users u ON p.user_id = u.user_id
+        ${likeJoin}
+        ${bookmarkJoin}
+        WHERE p.post_id = $1
+      `;
+
+      const post: QueryResult<IFeedPost> = await connection.query(sql, params);
       if (post.rowCount === 0) {
         throw new Error('Post not found');
       }
@@ -75,14 +98,33 @@ class PostModel {
    * @returns posts
    */
   async index(
+    userId?: string,
     limit: number = 10,
     cursor?: string,
     direction: 'next' | 'previous' = 'next',
-  ): Promise<{ posts: Post[] }> {
+  ): Promise<{ posts: IFeedPost[] }> {
     const connection = await pool.connect();
     try {
       await connection.query('BEGIN');
       const params: (string | number)[] = [];
+      let paramIdx = 1;
+
+      let userIdParam = '';
+      let likeJoin = '';
+      let bookmarkJoin = '';
+      let extraSelects = '';
+
+      if (userId) {
+        params.push(userId);
+        userIdParam = `$${paramIdx}`;
+        paramIdx++;
+        likeJoin = `LEFT JOIN likes l ON l.post_id = p.post_id AND l.user_id = ${userIdParam}`;
+        bookmarkJoin = `LEFT JOIN bookmarks b ON b.post_id = p.post_id AND b.user_id = ${userIdParam}`;
+        extraSelects = `,
+      CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked,
+      CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked`;
+      }
+
       let sql = `
 		SELECT 
 			p.post_id,
@@ -96,31 +138,34 @@ class PostModel {
       p.updated_at,
       u.picture,
       u.first_name,
-      u.last_name
+      u.last_name${extraSelects}
 		FROM 
 			posts p
 		JOIN 
 			users u 
 		ON 
 			p.user_id = u.user_id
+    ${likeJoin}
+    ${bookmarkJoin}
 	`;
 
       if (cursor) {
         if (direction === 'next') {
-          sql += ' AND p.updated_at < (SELECT updated_at FROM posts WHERE post_id = $1)';
+          sql += ` AND p.updated_at < (SELECT updated_at FROM posts WHERE post_id = $${paramIdx})`;
         } else {
-          sql += ' AND p.updated_at > (SELECT updated_at FROM posts WHERE post_id = $1)';
+          sql += ` AND p.updated_at > (SELECT updated_at FROM posts WHERE post_id = $${paramIdx})`;
         }
         params.push(cursor);
+        paramIdx++;
       }
 
       sql += direction === 'next' ? ' ORDER BY p.updated_at DESC' : ' ORDER BY p.updated_at ASC';
 
-      sql += ` LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${paramIdx}`;
 
       params.push(limit);
 
-      const result = await connection.query(sql, params);
+      const result: QueryResult<IFeedPost> = await connection.query(sql, params);
 
       const posts = direction === 'previous' ? result.rows.reverse() : result.rows;
 
@@ -197,21 +242,39 @@ class PostModel {
     limit: number = 10,
     cursor?: string,
     direction: 'next' | 'previous' = 'next',
+    userId?: string,
   ) {
     const connection = await pool.connect();
     try {
       await connection.query('BEGIN');
       const params: (string | number)[] = [user_id];
+      let paramIdx = 2;
+
+      let likeJoin = '';
+      let bookmarkJoin = '';
+      let extraSelects = '';
+
+      if (userId) {
+        params.push(userId);
+        likeJoin = `LEFT JOIN likes l ON l.post_id = p.post_id AND l.user_id = $${paramIdx}`;
+        bookmarkJoin = `LEFT JOIN bookmarks b ON b.post_id = p.post_id AND b.user_id = $${paramIdx}`;
+        extraSelects = `,
+          CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked,
+          CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked`;
+        paramIdx++;
+      }
 
       let sql = `
         SELECT 
-          p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name, u.last_name
+          p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name, u.last_name${extraSelects}
         FROM
           posts AS p
         JOIN 
           users AS u	
         ON
           u.user_id= p.user_id
+        ${likeJoin}
+        ${bookmarkJoin}
         WHERE 
           p.user_id = $1
 	    `;
@@ -225,12 +288,13 @@ class PostModel {
 
           if (postCheck.rows.length > 0) {
             const timestamp = postCheck.rows[0].updated_at;
-            if (direction === 'next') {
-              sql += ` AND p.updated_at < $2`;
-            } else {
-              sql += ` AND p.updated_at > $2`;
-            }
             params.push(timestamp);
+            if (direction === 'next') {
+              sql += ` AND p.updated_at < $${paramIdx}`;
+            } else {
+              sql += ` AND p.updated_at > $${paramIdx}`;
+            }
+            paramIdx++;
           } else {
             console.warn(`Post with ID ${cursor} not found for pagination`);
           }
@@ -244,7 +308,7 @@ class PostModel {
           ? ' ORDER BY p.updated_at DESC, p.post_id DESC '
           : ' ORDER BY p.updated_at ASC, p.post_id ASC ';
 
-      sql += ` LIMIT $${params.length + 1}`;
+      sql += ` LIMIT $${paramIdx}`;
 
       params.push(limit);
 
@@ -283,7 +347,8 @@ class PostModel {
       let sql = `
 				SELECT 
 					p.post_id, p.description, p.updated_at, p.image, p.number_of_likes, p.number_of_comments, u.user_id, u.user_name, u.picture, u.first_name, u.last_name,
-					CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked
+					CASE WHEN l.user_id IS NOT NULL THEN true ELSE false END AS is_liked,
+					CASE WHEN b.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked
 				FROM 
 					posts p
 				JOIN 
@@ -294,6 +359,10 @@ class PostModel {
 					likes l
 				ON
 					l.post_id = p.post_id AND l.user_id = $1
+				LEFT JOIN
+					bookmarks b
+				ON
+					b.post_id = p.post_id AND b.user_id = $1
 				WHERE 
 					u.user_id = $1
    			OR 
