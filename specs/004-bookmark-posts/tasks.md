@@ -29,12 +29,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Create `server/src/types/bookmark.ts` — define `TBookmark` type with `bookmark_id?`, `user_id`, `post_id`, `created_at?` fields (mirror `server/src/types/like.ts` pattern)
-- [ ] T005 Create `server/src/models/bookmark.ts` — `BookmarkModel` class with `private validateRequiredFields()` helper (mirror `server/src/models/like.ts`) and three methods. All methods use `pool.connect()` → `BEGIN/COMMIT/ROLLBACK` → `release()` in `finally`, and preserve error chains with `throw new Error('...', { cause: error })` per AGENTS.md:
+- [x] T004 [P] Create `server/src/types/bookmark.ts` — define `TBookmark` type with `bookmark_id?`, `user_id`, `post_id`, `created_at?` fields (mirror `server/src/types/like.ts` pattern)
+- [x] T005 Create `server/src/models/bookmark.ts` — `BookmarkModel` class with `private validateRequiredFields()` helper (mirror `server/src/models/like.ts`) and three methods. All methods use `pool.connect()` → `BEGIN/COMMIT/ROLLBACK` → `release()` in `finally`, and preserve error chains with `throw new Error('...', { cause: error })` per AGENTS.md:
   - `toggle(userId: string, postId: string)` → `{ bookmark_id: string; action: "bookmarked" | "unbookmarked" }` — single transaction: LEFT JOIN posts+bookmarks to check existence and current state, INSERT bookmark or DELETE existing, return result (mirror `server/src/models/like.ts` `like()` pattern but without counter updates)
   - `getUserBookmarks(userId: string, limit: number, cursor?: string, direction?: 'next' | 'previous')` → `TBookmark[]` — cursor-based pagination by `created_at DESC`. Cursor resolution: when `cursor` is provided, pre-fetch `created_at` via `SELECT created_at FROM bookmarks WHERE bookmark_id = $1`, then use the timestamp in the WHERE clause (mirror `PostModel.feed()` pre-fetch pattern). Use `createPaginationResult(data, options, 'bookmark_id')` for pagination metadata.
   - `isBookmarked(userId: string, postId: string)` → `{ isBookmarked: boolean }` — `SELECT 1 FROM bookmarks WHERE user_id = $1 AND post_id = $2` (mirror `checkIfLiked` pattern)
-- [ ] T006 Add `bookmark_model = new BookmarkModel()` to `server/src/controllers/factory.ts` and export it
+- [x] T006 Add `bookmark_model = new BookmarkModel()` to `server/src/controllers/factory.ts` and export it
 
 **Checkpoint**: Database table exists, type is defined, model methods are callable. User story implementation can begin.
 
