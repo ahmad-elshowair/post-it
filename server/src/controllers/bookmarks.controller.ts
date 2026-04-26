@@ -1,6 +1,8 @@
 import { NextFunction, Response } from 'express';
 import { validationResult } from 'express-validator';
 import { ICustomRequest } from '../interfaces/ICustomRequest.js';
+import { IPaginatedResult } from '../interfaces/IPagination.js';
+import { TBookmark } from '../types/bookmark.js';
 import { createPaginationResult, getCursorPaginationOptions } from '../utilities/pagination.js';
 import { sendResponse } from '../utilities/response.js';
 import { bookmark_model } from './factory.js';
@@ -74,7 +76,7 @@ const getBookmarks = async (req: ICustomRequest, res: Response, next: NextFuncti
 
     const result = createPaginationResult(bookmarks, options, 'bookmark_id');
 
-    return sendResponse.success(res, result, 200);
+    return sendResponse.success<IPaginatedResult<TBookmark>>(res, result, 200);
   } catch (error) {
     console.error('[bookmarksController] getBookmarks error :', error);
     next(error);

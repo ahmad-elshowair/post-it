@@ -27,7 +27,7 @@ class BookmarkModel {
   async toggle(
     userId: string,
     postId: string,
-  ): Promise<{ bookmark_id: string; action: 'bookmarked' | 'unbookmarked' }> {
+  ): Promise<{ bookmark_id: string; action: 'bookmarked' } | { bookmark_id: string; action: 'unbookmarked' }> {
     this.validateRequiredFields({ user_id: userId, post_id: postId }, ['user_id', 'post_id']);
 
     const connection: PoolClient = await pool.connect();
