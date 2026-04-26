@@ -28,7 +28,14 @@ class BookmarkModel {
     userId: string,
     postId: string,
   ): Promise<
-    { bookmark_id: string; action: 'bookmarked' } | { bookmark_id: string; action: 'unbookmarked' }
+    | {
+        bookmark_id: string;
+        post_id: string;
+        user_id: string;
+        created_at: Date;
+        action: 'bookmarked';
+      }
+    | { bookmark_id: string; action: 'unbookmarked' }
   > {
     this.validateRequiredFields({ user_id: userId, post_id: postId }, ['user_id', 'post_id']);
 
@@ -70,11 +77,18 @@ class BookmarkModel {
         const insertSql = `
           INSERT INTO bookmarks (user_id, post_id)
           VALUES ($1, $2)
-          RETURNING bookmark_id
+          RETURNING bookmark_id, post_id, user_id, created_at
         `;
         const inserted: QueryResult = await connection.query(insertSql, [userId, postId]);
         await connection.query('COMMIT');
-        return { bookmark_id: inserted.rows[0].bookmark_id, action: 'bookmarked' };
+        const row = inserted.rows[0];
+        return {
+          bookmark_id: row.bookmark_id,
+          post_id: row.post_id,
+          user_id: row.user_id,
+          created_at: row.created_at,
+          action: 'bookmarked',
+        };
       }
     } catch (error) {
       await connection.query('ROLLBACK');
@@ -103,6 +117,7 @@ class BookmarkModel {
 
     const connection: PoolClient = await pool.connect();
     try {
+      await connection.query('BEGIN');
       const params: (string | number)[] = [userId];
 
       let sql = `
@@ -146,8 +161,10 @@ class BookmarkModel {
 
       const result: QueryResult<TBookmark> = await connection.query(sql, params);
 
+      await connection.query('COMMIT');
       return direction === 'previous' ? result.rows.reverse() : result.rows;
     } catch (error) {
+      await connection.query('ROLLBACK');
       console.error('[BOOKMARK MODEL] getUserBookmarks error', error);
       throw new Error(`Failed to get user bookmarks: ${(error as Error).message}`, {
         cause: error,

@@ -97,10 +97,10 @@
 
 **Purpose**: Final validation, lint, schema verification.
 
-- [ ] T017 Run migration against database: `cd server && npx db-migrate up` — verify `bookmarks` table created with correct constraints and indexes. Confirm: (1) no `SELECT COUNT(*)` in any bookmark query (Constitution §VIII), (2) CASCADE deletes work for both post and user deletion (FR-006, FR-007), (3) soft-deleted posts are treated as non-existent for bookmarks (FR-024 — verified by CASCADE on hard delete)
-- [ ] T018 Run `pnpm run lint` in both `client/` and `server/` — fix any lint errors
-- [ ] T019 Run `pnpm run prettier:check` in both `client/` and `server/` — fix any formatting issues
-- [ ] T020 Verify all checklist items from `specs/004-bookmark-posts/checklists/backend.md` are satisfied by the implementation
+- [X] T017 Run migration against database: `cd server && npx db-migrate up` — verify `bookmarks` table created with correct constraints and indexes. Confirm: (1) no `SELECT COUNT(*)` in any bookmark query (Constitution §VIII), (2) CASCADE deletes work for both post and user deletion (FR-006, FR-007), (3) soft-deleted posts are treated as non-existent for bookmarks (FR-024 — verified by CASCADE on hard delete)
+- [X] T018 Run `pnpm run lint` in both `client/` and `server/` — fix any lint errors
+- [X] T019 Run `pnpm run prettier:check` in both `client/` and `server/` — fix any formatting issues
+- [X] T020 Verify all checklist items from `specs/004-bookmark-posts/checklists/backend.md` are satisfied by the implementation
 
 ---
 
