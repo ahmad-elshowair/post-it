@@ -5,6 +5,13 @@
 **Status**: Draft
 **Input**: User description: "Replace the boolean is_admin field with a granular RBAC (Role-Based Access Control) system. Roles define what a user can do (user, moderator, admin, super_admin). Permissions are fine-grained capabilities assigned to roles."
 
+## Clarifications
+
+### Session 2026-04-27
+- Q: How should the "banned" role behave when a user has other existing roles? → A: Deny-first semantics (presence of "banned" role explicitly overrides and denies all other permissions).
+- Q: How should permissions be cached to balance performance and immediate consistency? → A: Redis Caching (Cache permissions in Redis with TTL; invalidate cache upon role/permission changes).
+- Q: Does the "banned" role block login attempts and active sessions? → A: Yes. The authentication layer must reject new login attempts and invalidate active sessions immediately when the role is assigned.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Permission-Gated Route Protection (Priority: P1)
@@ -35,7 +42,7 @@ As a super admin, I want to assign and revoke roles for any user through dedicat
 
 **Acceptance Scenarios**:
 
-1. **Given** a super admin is authenticated, **When** they assign the "admin" role to a regular user, **Then** that user gains all permissions associated with the "admin" role and the change is logged in the audit trail
+1. **Given** a super admin is authenticated, **When** they assign the "admin" role to a regular user, **Then** that user gains all permissions associated with the "admin" role
 2. **Given** a super admin is authenticated, **When** they revoke the "admin" role from a user who has only that role, **Then** the user retains only the default "user" role permissions
 3. **Given** a super admin attempts to revoke their own "super_admin" role, **When** it is their only super_admin assignment, **Then** the system prevents the operation to avoid lockout
 4. **Given** an admin (not super admin) attempts to assign roles, **When** they call the role assignment endpoint, **Then** the request is denied (403 Forbidden)
@@ -92,23 +99,6 @@ As an admin, I want full content management capabilities including handling repo
 
 ---
 
-### User Story 6 - Audit Log of Role Changes (Priority: P3)
-
-As a super admin, I want to view a chronological audit trail of all role and permission changes so that I can review who made what change, when, and to whom. This provides accountability and supports incident investigation.
-
-**Why this priority**: Essential for security compliance and incident response, but not blocking for the core RBAC system to function.
-
-**Independent Test**: Can be fully tested by performing several role assignment/revocation operations and then verifying the audit log entries match the operations performed, including actor, target user, action, and timestamp.
-
-**Acceptance Scenarios**:
-
-1. **Given** a super admin assigns a role to a user, **When** they view the audit log, **Then** they see an entry with the actor's identity, the target user, the role assigned, and the timestamp
-2. **Given** a super admin creates a custom role, **When** they view the audit log, **Then** they see an entry documenting the role creation with its permission set
-3. **Given** a super admin views the audit log, **When** they apply filters (by actor, target user, action type, date range), **Then** only matching entries are returned
-4. **Given** audit log entries exist, **When** any user (non-super-admin) attempts to access the audit log, **Then** the request is denied (403 Forbidden)
-
----
-
 ### User Story 7 - Regular User Platform Access (Priority: P1)
 
 As a regular user, I want to use the platform normally — create posts, comment, like, follow, bookmark — without any disruption from the RBAC system. The "user" role grants me all standard permissions, and I should notice no difference from the current experience.
@@ -127,10 +117,10 @@ As a regular user, I want to use the platform normally — create posts, comment
 
 ### Edge Cases
 
-- What happens when a user has both "user" and "banned" roles? The "banned" role's deny semantics take precedence — the user is blocked from performing actions even though "user" grants them. [NEEDS CLARIFICATION: Should the "banned" role use deny-first semantics (explicit deny overrides any grant), or should banning simply remove all other roles?]
-- What happens when a super admin revokes a role that is currently being used by the affected user in an active session? The user's next request fails the permission check since permissions are resolved fresh from the database on each request, not cached in the session token.
+- What happens when a user has both "user" and "banned" roles? The "banned" role uses deny-first semantics — its presence explicitly overrides any granted permissions from other roles, instantly denying the user access without destructively removing their original roles.
+- What happens when a super admin revokes a role that is currently being used by the affected user in an active session? The user's next request fails the permission check because the revocation immediately invalidates the user's Redis permissions cache, forcing a fresh database resolution.
 - What happens when a custom role is deleted while users still have it assigned? The role-user associations are cascade-deleted, and affected users lose those permissions immediately.
-- How does the system handle concurrent role modifications by two super admins? Last-write-wins semantics apply; the audit log records both changes independently.
+- How does the system handle concurrent role modifications by two super admins? Last-write-wins semantics apply.
 - What happens if the seed data for predefined roles/permissions is missing after migration? The migration is transactional — if seeding fails, the entire migration rolls back.
 
 ## Requirements *(mandatory)*
@@ -159,11 +149,11 @@ As a regular user, I want to use the platform normally — create posts, comment
 - **FR-015**: Super admins MUST be able to update the permissions of custom roles. Changes MUST take effect immediately for all users with that role.
 - **FR-016**: Super admins MUST be able to delete custom roles. System-defined roles MUST NOT be deletable.
 - **FR-017**: When a custom role is deleted, all user assignments to that role MUST be removed.
-- **FR-018**: Every role assignment, revocation, creation, update, or deletion MUST be recorded in an audit log with: the actor, the target (user or role), the action performed, the previous and new values, and the timestamp.
-- **FR-019**: Only super admins MUST be able to view the audit log, with support for filtering by actor, target, action type, and date range.
 - **FR-020**: Newly registered users MUST automatically receive the "user" role upon account creation.
-- **FR-021**: The permission checking mechanism MUST resolve permissions from the database on each request rather than caching them in the session token, ensuring immediate effect of role changes.
+- **FR-021**: The permission checking mechanism MUST resolve permissions from a Redis cache to optimize performance, with a TTL. Any role or permission changes MUST immediately invalidate the affected cache entries, ensuring immediate effect of role changes without checking the database on every request.
 - **FR-022**: The system MUST return distinct error responses for authentication failure (401) versus authorization failure (403).
+- **FR-023**: The `/login` endpoint MUST check for the `banned` role before issuing a token. If the user has the `banned` role, the system MUST reject the login attempt (401/403) and refuse to issue a session token.
+- **FR-024**: When a super admin assigns the `banned` role to an existing user, the system MUST immediately terminate that user's active session (e.g., by revoking their refresh tokens or blacklisting their active JWT).
 
 ### Key Entities
 
@@ -171,7 +161,7 @@ As a regular user, I want to use the platform normally — create posts, comment
 - **Permission**: Represents a single fine-grained capability in `resource.action` format (e.g., `posts.delete.any`). Has a resource identifier (e.g., `posts`), an action type (e.g., `delete.any`), and a description. Relates to many roles.
 - **Role-Permission Assignment**: A junction linking one role to one permission. Enables the many-to-many relationship.
 - **User-Role Assignment**: A junction linking one user to one role with a timestamp. Enables the many-to-many relationship and tracks when a role was assigned.
-- **Audit Log Entry**: An immutable record of a role or permission change. Captures who performed the action, what was changed, the previous and new state, and when it occurred.
+
 
 ## Success Criteria *(mandatory)*
 
@@ -180,7 +170,7 @@ As a regular user, I want to use the platform normally — create posts, comment
 - **SC-001**: All existing users retain full platform functionality after migration with zero disruption to their experience.
 - **SC-002**: A super admin can assign a role to a user and the user's permissions update within their next request (no re-login required).
 - **SC-003**: The permission middleware correctly denies 100% of unauthorized access attempts while allowing 100% of authorized ones, as verified by test coverage of all predefined role-permission combinations.
-- **SC-004**: The audit log captures every role or permission modification with complete details (actor, target, action, previous/new values, timestamp) with zero data loss.
+
 - **SC-005**: Role management operations (create, read, update, delete custom roles) complete within 2 seconds under normal load.
 - **SC-006**: All predefined roles and permissions are seeded during migration, and existing `is_admin=true` users are correctly mapped to the "admin" role with 100% accuracy.
 
@@ -189,8 +179,7 @@ As a regular user, I want to use the platform normally — create posts, comment
 - The existing authentication middleware (`authorizeUser`) continues to handle identity verification; RBAC middleware layers on top of it for authorization.
 - Permissions follow the `resource.action` naming convention (e.g., `posts.delete.own`). Future resources follow the same pattern.
 - The "banned" role is assigned separately and is not automatically assigned; banning a user is an explicit action by an admin or super admin.
-- Audit log entries are retained indefinitely unless a separate data retention policy is introduced later.
-- The permission check is performed per request by querying the database, trading a small performance cost for immediate consistency of role changes.
+
 - Existing routes that do not currently require admin access will continue to work without permission checks unless explicitly gated in future work.
 - Custom roles are limited to combining existing permissions; creating entirely new permissions (beyond the predefined set) is out of scope for this feature and requires a database migration.
 - The RBAC migration runs as a single database migration file following the existing `db-migrate` convention.
