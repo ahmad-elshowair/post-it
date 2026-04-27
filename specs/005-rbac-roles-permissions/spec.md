@@ -154,7 +154,7 @@ As a regular user, I want to use the platform normally — create posts, comment
 - **FR-022**: The system MUST return distinct error responses for authentication failure (401) versus authorization failure (403).
 - **FR-023**: The `/login` endpoint MUST check for the `banned` role before issuing a token. If the user has the `banned` role, the system MUST reject the login attempt (401/403) and refuse to issue a session token.
 - **FR-024**: When a super admin assigns the `banned` role to an existing user, the system MUST immediately terminate that user's active session (e.g., by revoking their refresh tokens or blacklisting their active JWT).
-- **FR-025**: Any operation that mutates multiple tables (e.g., creating a new custom role and concurrently assigning its permissions to `role_permissions`, or assigning a role and invalidating the Redis cache) MUST be wrapped in a strict database transaction (`BEGIN` / `COMMIT`). If any step fails, the entire operation MUST `ROLLBACK` to prevent orphaned records.
+- **FR-025**: Any operation that mutates multiple tables (e.g., creating a new custom role and concurrently assigning its permissions to `role_permissions`, or assigning a role and invalidating the Redis cache) MUST be wrapped in a strict database transaction (`BEGIN` / `COMMIT`). If any step fails, the catch block MUST explicitly execute a `ROLLBACK` to prevent orphaned records.
 
 ### Key Entities
 
