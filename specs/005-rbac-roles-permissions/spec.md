@@ -154,6 +154,7 @@ As a regular user, I want to use the platform normally — create posts, comment
 - **FR-022**: The system MUST return distinct error responses for authentication failure (401) versus authorization failure (403).
 - **FR-023**: The `/login` endpoint MUST check for the `banned` role before issuing a token. If the user has the `banned` role, the system MUST reject the login attempt (401/403) and refuse to issue a session token.
 - **FR-024**: When a super admin assigns the `banned` role to an existing user, the system MUST immediately terminate that user's active session (e.g., by revoking their refresh tokens or blacklisting their active JWT).
+- **FR-025**: Any operation that mutates multiple tables (e.g., creating a new custom role and concurrently assigning its permissions to `role_permissions`, or assigning a role and invalidating the Redis cache) MUST be wrapped in a strict database transaction (`BEGIN` / `COMMIT`). If any step fails, the entire operation MUST `ROLLBACK` to prevent orphaned records.
 
 ### Key Entities
 
@@ -182,4 +183,4 @@ As a regular user, I want to use the platform normally — create posts, comment
 
 - Existing routes that do not currently require admin access will continue to work without permission checks unless explicitly gated in future work.
 - Custom roles are limited to combining existing permissions; creating entirely new permissions (beyond the predefined set) is out of scope for this feature and requires a database migration.
-- The RBAC migration runs as a single database migration file following the existing `db-migrate` convention.
+- The RBAC database migration is split into two sequential files to comply with the Article VII max-3-tables constraint: Migration 1 creates the core dictionary (`roles`, `permissions`, `role_permissions`), and Migration 2 creates the user junction (`user_roles`) alongside the data migration for existing admins.
