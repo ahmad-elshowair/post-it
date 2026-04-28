@@ -29,7 +29,7 @@ Replace the boolean `is_admin` field with a granular, Redis-cached Role-Based Ac
 
 - **I. Full-Stack TypeScript Strictness**: Enforced. Strict types for `TRole`, `TPermission`, `TUserRole` will be defined. No `any`.
 - **II. Security & Authentication Priority**: Enforced. Parameterized queries via `pg`. Immediate session invalidation explicitly implemented for the `banned` role.
-- **IV. Relational Data Integrity**: Enforced. Schema changes via `db-migrate`. Multi-table mutations wrapped in `BEGIN/COMMIT` transactions (FR-025).
+- **IV. Relational Data Integrity**: Enforced. Schema changes via `db-migrate`. Multi-table mutations wrapped in `BEGIN/COMMIT` transactions (FR-023) with strict `{ cause: error }` rethrowing mandated in catch blocks.
 - **V. Predictable RESTful API Design**: Enforced. Logical route structure (`/api/roles`) and standardized error responses (401 vs 403).
 
 ## Project Structure

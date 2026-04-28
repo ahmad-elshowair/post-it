@@ -9,8 +9,8 @@
 
 ### Session 2026-04-27
 - Q: How should the "banned" role behave when a user has other existing roles? → A: Deny-first semantics (presence of "banned" role explicitly overrides and denies all other permissions).
-- Q: How should permissions be cached to balance performance and immediate consistency? → A: Redis Caching (Cache permissions in Redis with TTL; invalidate cache upon role/permission changes).
-- Q: Does the "banned" role block login attempts and active sessions? → A: Yes. The authentication layer must reject new login attempts and invalidate active sessions immediately when the role is assigned.
+- Q: How should permissions be cached to balance performance and immediate consistency? → A: Redis Caching (Cache permissions in Redis with TTL (e.g., 300s); invalidate cache upon role/permission changes).
+- Q: Does the "banned" role block login attempts and active sessions? → A: Yes. The authentication layer must reject new login attempts (returning 403 Forbidden) and invalidate active sessions immediately when the role is assigned.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -34,7 +34,7 @@ As a developer, I want every protected route to check fine-grained permissions s
 
 ### User Story 2 - Role Assignment & Revocation by Super Admin (Priority: P1)
 
-As a super admin, I want to assign and revoke roles for any user through dedicated management endpoints so that I can control who has elevated capabilities. I need to see a user's current roles, add new roles, and remove roles, with every change recorded in an audit log.
+As a super admin, I want to assign and revoke roles for any user through dedicated management endpoints so that I can control who has elevated capabilities. I need to see a user's current roles, add new roles, and remove roles.
 
 **Why this priority**: This is the primary administrative interface that makes RBAC operational. Without it, roles exist in the database but cannot be managed. Combined with P1 middleware, this forms a complete minimum viable RBAC system.
 
@@ -149,12 +149,13 @@ As a regular user, I want to use the platform normally — create posts, comment
 - **FR-015**: Super admins MUST be able to update the permissions of custom roles. Changes MUST take effect immediately for all users with that role.
 - **FR-016**: Super admins MUST be able to delete custom roles. System-defined roles MUST NOT be deletable.
 - **FR-017**: When a custom role is deleted, all user assignments to that role MUST be removed.
-- **FR-020**: Newly registered users MUST automatically receive the "user" role upon account creation.
-- **FR-021**: The permission checking mechanism MUST resolve permissions from a Redis cache to optimize performance, with a TTL. Any role or permission changes MUST immediately invalidate the affected cache entries, ensuring immediate effect of role changes without checking the database on every request.
-- **FR-022**: The system MUST return distinct error responses for authentication failure (401) versus authorization failure (403).
-- **FR-023**: The `/login` endpoint MUST check for the `banned` role before issuing a token. If the user has the `banned` role, the system MUST reject the login attempt (401/403) and refuse to issue a session token.
-- **FR-024**: When a super admin assigns the `banned` role to an existing user, the system MUST immediately terminate that user's active session (e.g., by revoking their refresh tokens or blacklisting their active JWT).
-- **FR-025**: Any operation that mutates multiple tables (e.g., creating a new custom role and concurrently assigning its permissions to `role_permissions`, or assigning a role and invalidating the Redis cache) MUST be wrapped in a strict database transaction (`BEGIN` / `COMMIT`). If any step fails, the catch block MUST explicitly execute a `ROLLBACK` to prevent orphaned records.
+- **FR-018**: Newly registered users MUST automatically receive the "user" role upon account creation.
+- **FR-019**: The permission checking mechanism MUST resolve permissions from a Redis cache to optimize performance, with a TTL (e.g., 300s). Any role or permission changes MUST immediately invalidate the affected cache entries, ensuring immediate effect of role changes without checking the database on every request.
+- **FR-020**: The system MUST return distinct error responses for authentication failure (401) versus authorization failure (403).
+- **FR-021**: The `/login` endpoint MUST check for the `banned` role before issuing a token. If the user has the `banned` role, the system MUST reject the login attempt (403 Forbidden) and refuse to issue a session token.
+- **FR-022**: When a super admin assigns the `banned` role to an existing user, the system MUST immediately terminate that user's active session (e.g., by revoking their refresh tokens or blacklisting their active JWT).
+- **FR-023**: Any operation that mutates multiple tables (e.g., creating a new custom role and concurrently assigning its permissions to `role_permissions`, or assigning a role and invalidating the Redis cache) MUST be wrapped in a strict database transaction (`BEGIN` / `COMMIT`). If any step fails, the catch block MUST explicitly execute a `ROLLBACK` and rethrow using `throw new Error('context', { cause: error })` to preserve the original stack trace (per AGENTS.md `preserve-caught-error` rule).
+- **FR-024**: If any assigned role is 'banned', the effective permission set MUST be empty regardless of other role assignments (deny-first semantics).
 
 ### Key Entities
 
@@ -168,12 +169,11 @@ As a regular user, I want to use the platform normally — create posts, comment
 
 ### Measurable Outcomes
 
-- **SC-001**: All existing users retain full platform functionality after migration with zero disruption to their experience.
+- **SC-001**: All existing users retain full platform functionality after migration with zero disruption (users can still login, post, and comment normally).
 - **SC-002**: A super admin can assign a role to a user and the user's permissions update within their next request (no re-login required).
-- **SC-003**: The permission middleware correctly denies 100% of unauthorized access attempts while allowing 100% of authorized ones, as verified by test coverage of all predefined role-permission combinations.
-
-- **SC-005**: Role management operations (create, read, update, delete custom roles) complete within 2 seconds under normal load.
-- **SC-006**: All predefined roles and permissions are seeded during migration, and existing `is_admin=true` users are correctly mapped to the "admin" role with 100% accuracy.
+- **SC-003**: The permission middleware correctly denies 100% of unauthorized access attempts while allowing 100% of authorized ones (to be verified manually until test framework is robust).
+- **SC-004**: Role management operations (create, read, update, delete custom roles) complete within 2 seconds under normal load (e.g., 100 concurrent requests).
+- **SC-005**: All predefined roles and permissions are seeded during migration, and existing `is_admin=true` users are correctly mapped to the "admin" role with 100% accuracy.
 
 ## Assumptions
 

@@ -38,7 +38,7 @@ description: "Task list for RBAC Roles & Permissions"
 **⚠️ CRITICAL**: No API route work can begin until this phase is complete.
 
 - [ ] T003 Create `server/src/types/role.ts` defining `TRole`, `TPermission`, `TUserRole`
-- [ ] T004 Create `server/src/models/role.ts` (implement 12+ methods using `pg` transactions; ensure `ROLLBACK` is explicitly called in catch blocks)
+- [ ] T004 Create `server/src/models/role.ts` (CRUD roles, assign, revoke, hasPermission, etc. Use pg transactions with strict '{ cause: error }' rethrowing in catch blocks per AGENTS.md)
 - [ ] T005 [P] Create `server/src/services/permissionCache.ts` (`ioredis` wrapper for caching)
 - [ ] T006 Create `server/src/middlewares/auth/requirePermission.ts` (reads from Redis cache)
 
@@ -54,16 +54,16 @@ description: "Task list for RBAC Roles & Permissions"
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Create `server/src/controllers/roles.controller.ts` (implement 8 role management endpoints)
+- [ ] T007 [P] [US1] Create `server/src/controllers/roles.controller.ts` (list, list perms, create, update, delete, assign, revoke)
 - [ ] T008 [P] [US1] Create `server/src/routes/apis/roles.routes.ts` (route definitions guarded by `super_admin`)
-- [ ] T009 [P] [US1] Modify `server/src/types/users.ts` to add `roles[]` and `permissions[]` to the user payload
-- [ ] T010 [US1] Modify `server/src/controllers/auth.controller.ts` — update login to block 'banned' role and trigger `revokeAllUserTokens`
-- [ ] T011 [US1] Modify all admin-guarded routes across the codebase to replace `is_admin` checks with `requirePermission()`
+- [ ] T009 [P] [US1] Modify `server/src/controllers/auth.controller.ts` — update registration to auto-assign 'user' role. Add `roles[]` and `permissions[]` to `server/src/types/users.ts`
+- [ ] T010 [US1] Modify `server/src/controllers/auth.controller.ts` — update login to block 'banned' role (403) and explicitly wrap session revocation in a transaction where possible
+- [ ] T011 [US1] Modify guarded routes — add `requirePermission()` to routes needing role gating (Note: cross-ref T002 retaining is_admin column)
 - [ ] T012 [US1] Register `roles.routes` in `server/src/routes/index.ts` (import + mount under `/api/roles`)
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Write tests for `server/src/models/role.ts`
+- [ ] T013 [P] [US1] Write tests for `server/src/models/role.ts` (Cover all User Stories scenarios)
 - [ ] T014 [P] [US1] Write tests for `server/src/middlewares/auth/requirePermission.ts`
 - [ ] T015 [P] [US1] Write tests for `server/src/controllers/roles.controller.ts`
 
@@ -75,7 +75,7 @@ description: "Task list for RBAC Roles & Permissions"
 
 **Purpose**: Verify the end-to-end functionality and code quality.
 
-- [ ] T016 Run migrations and manually verify seed data and schema integrity (`npx db-migrate up`)
+- [ ] T016 Run migrations, run verification queries (count users before/after, confirm 'user' and 'admin' roles assigned correctly)
 - [ ] T017 Run `pnpm run lint`, `pnpm run prettier:check`, and `pnpm test` to ensure CI/CD compliance
 
 ---
