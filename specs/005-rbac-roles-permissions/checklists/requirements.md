@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,4 +31,4 @@
 
 ## Notes
 
-- 1 [NEEDS CLARIFICATION] marker remains in Edge Cases regarding "banned" role deny semantics. Needs user input before planning.
+- All clarification markers resolved during the 2026-04-27 session (deny-first semantics, Redis TTL, banned role behavior).

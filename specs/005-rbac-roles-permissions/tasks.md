@@ -26,8 +26,8 @@ description: "Task list for RBAC Roles & Permissions"
 
 **Purpose**: Database migrations creation to support the 4 new RBAC tables.
 
-- [ ] T001 Create Migration 1: `server/migrations/*-core-rbac-dictionary.sql` (up/down for `roles`, `permissions`, `role_permissions`)
-- [ ] T002 Create Migration 2: `server/migrations/*-rbac-user-assignments.sql` (up/down for `user_roles` + seed data + `is_admin` data conversion)
+- [x] T001 Create Migration 1: `server/migrations/*-core-rbac-dictionary.sql` (up/down for `roles`, `permissions`, `role_permissions`)
+- [x] T002 Create Migration 2: `server/migrations/*-rbac-user-assignments.sql` (up/down for `user_roles` + seed data + `is_admin` data conversion)
 
 ---
 
