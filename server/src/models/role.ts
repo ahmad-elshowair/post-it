@@ -18,22 +18,23 @@ class RoleModel {
         return [];
       }
 
-      const permsResult: QueryResult<{ role_id: string; name: string }> = await connection.query(
-        `SELECT rp.role_id, p.name
+      const permsResult: QueryResult<{ role_id: string } & TPermission> = await connection.query(
+        `SELECT rp.role_id, p.permission_id, p.name, p.description, p.resource, p.action, p.created_at
          FROM role_permissions rp
          JOIN permissions p ON rp.permission_id = p.permission_id`,
       );
 
-      const permsByRole = new Map<string, string[]>();
+      const permsByRole = new Map<string, TPermission[]>();
       for (const row of permsResult.rows) {
-        const list = permsByRole.get(row.role_id) ?? [];
-        list.push(row.name);
-        permsByRole.set(row.role_id, list);
+        const { role_id, ...perm } = row;
+        const list = permsByRole.get(role_id) ?? [];
+        list.push(perm);
+        permsByRole.set(role_id, list);
       }
 
       return rolesResult.rows.map((role) => ({
         ...role,
-        permissions: [],
+        permissions: permsByRole.get(role.role_id) ?? [],
       }));
     } catch (error) {
       throw new Error(`Failed to list roles: ${(error as Error).message}`, { cause: error });
