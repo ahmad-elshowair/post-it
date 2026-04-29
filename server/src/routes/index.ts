@@ -10,6 +10,7 @@ import bookmarks from './apis/bookmarks.routes.js';
 import comments from './apis/comments.routes.js';
 import follows from './apis/follow.routes.js';
 import posts from './apis/posts.routes.js';
+import roles from './apis/roles.routes.js';
 import uploadRouter from './apis/upload.routes.js';
 import users from './apis/users.routes.js';
 const routes: Router = Router();
@@ -31,6 +32,7 @@ routes.use('/posts', posts);
 routes.use('/bookmarks', bookmarks);
 routes.use('/comments', comments);
 routes.use('/follows', follows);
+routes.use('/roles', roles);
 routes.use('/upload', uploadRouter);
 
 export default routes;

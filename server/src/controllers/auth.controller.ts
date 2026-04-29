@@ -164,6 +164,9 @@ const login = async (req: Request, res: Response, _next: NextFunction) => {
     let statusCode = 500;
     if (error instanceof Error) {
       errorMessage = error.message || errorMessage;
+      if (errorMessage === 'BANNED') {
+        return sendResponse.error(res, 'Account is suspended', 403);
+      }
     }
 
     if (typeof error === 'object' && error !== null && 'status' in error) {
