@@ -37,10 +37,10 @@ description: "Task list for RBAC Roles & Permissions"
 
 **⚠️ CRITICAL**: No API route work can begin until this phase is complete.
 
-- [ ] T003 Create `server/src/types/role.ts` defining `TRole`, `TPermission`, `TUserRole`
-- [ ] T004 Create `server/src/models/role.ts` (CRUD roles, assign, revoke, hasPermission, etc. Use pg transactions with strict '{ cause: error }' rethrowing in catch blocks per AGENTS.md)
-- [ ] T005 [P] Create `server/src/services/permissionCache.ts` (`ioredis` wrapper for caching)
-- [ ] T006 Create `server/src/middlewares/auth/requirePermission.ts` (reads from Redis cache)
+- [x] T003 Create `server/src/types/role.ts` defining `TRole`, `TPermission`, `TUserRole`
+- [x] T004 Create `server/src/models/role.ts` (CRUD roles, assign, revoke, hasPermission, etc. Use pg transactions with strict '{ cause: error }' rethrowing in catch blocks per AGENTS.md)
+- [x] T005 [P] Create `server/src/services/permissionCache.ts` (`ioredis` wrapper for caching)
+- [x] T006 Create `server/src/middlewares/auth/requirePermission.ts` (reads from Redis cache)
 
 **Checkpoint**: Foundation ready - API implementation can now begin.
 
