@@ -73,8 +73,8 @@ description: "Task list for RBAC Roles & Permissions"
 
 **Purpose**: Verify the end-to-end functionality and code quality.
 
-- [ ] T016 Run migrations, run verification queries (count users before/after, confirm 'user' and 'admin' roles assigned correctly)
-- [ ] T017 Run `pnpm run lint`, `pnpm run prettier:check`, and `pnpm test` to ensure CI/CD compliance
+- [x] T016 Run migrations, run verification queries (count users before/after, confirm 'user' and 'admin' roles assigned correctly)
+- [x] T017 Run `pnpm run lint`, `pnpm run prettier:check`, and `pnpm test` to ensure CI/CD compliance
 
 ---
 
