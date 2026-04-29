@@ -63,9 +63,7 @@ description: "Task list for RBAC Roles & Permissions"
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Write tests for `server/src/models/role.ts` (Cover all User Stories scenarios)
-- [ ] T014 [P] [US1] Write tests for `server/src/middlewares/auth/requirePermission.ts`
-- [ ] T015 [P] [US1] Write tests for `server/src/controllers/roles.controller.ts`
+> **Deferred** — Testing infrastructure to be established in a dedicated speckit. Quality relies on manual verification per constitution v1.2.0.
 
 **Checkpoint**: At this point, the RBAC feature should be fully functional and testable independently.
 
