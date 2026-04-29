@@ -54,12 +54,12 @@ description: "Task list for RBAC Roles & Permissions"
 
 ### Implementation for User Story 1
 
-- [ ] T007 [P] [US1] Create `server/src/controllers/roles.controller.ts` (list, list perms, create, update, delete, assign, revoke)
-- [ ] T008 [P] [US1] Create `server/src/routes/apis/roles.routes.ts` (route definitions guarded by `super_admin`)
-- [ ] T009 [P] [US1] Modify `server/src/controllers/auth.controller.ts` — update registration to auto-assign 'user' role. Add `roles[]` and `permissions[]` to `server/src/types/users.ts`
-- [ ] T010 [US1] Modify `server/src/controllers/auth.controller.ts` — update login to block 'banned' role (403) and explicitly wrap session revocation in a transaction where possible
-- [ ] T011 [US1] Modify guarded routes — add `requirePermission()` to routes needing role gating (Note: cross-ref T002 retaining is_admin column)
-- [ ] T012 [US1] Register `roles.routes` in `server/src/routes/index.ts` (import + mount under `/api/roles`)
+- [x] T007 [P] [US1] Create `server/src/controllers/roles.controller.ts` (list, list perms, create, update, delete, assign, revoke)
+- [x] T008 [P] [US1] Create `server/src/routes/apis/roles.routes.ts` (route definitions guarded by `super_admin`)
+- [x] T009 [P] [US1] Modify `server/src/controllers/auth.controller.ts` — update registration to auto-assign 'user' role. Add `roles[]` and `permissions[]` to `server/src/types/users.ts`
+- [x] T010 [US1] Modify `server/src/controllers/auth.controller.ts` — update login to block 'banned' role (403) and explicitly wrap session revocation in a transaction where possible
+- [x] T011 [US1] Modify guarded routes — add `requirePermission()` to routes needing role gating (Note: cross-ref T002 retaining is_admin column)
+- [x] T012 [US1] Register `roles.routes` in `server/src/routes/index.ts` (import + mount under `/api/roles`)
 
 ### Tests for User Story 1
 

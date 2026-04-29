@@ -33,6 +33,16 @@ class AuthModel {
 
       const result: QueryResult<TUser> = await connection.query(sql, values);
 
+      const userRoleResult: QueryResult<{ role_id: string }> = await connection.query(
+        "SELECT role_id FROM roles WHERE name = 'user'",
+      );
+      if (userRoleResult.rows.length > 0) {
+        await connection.query('INSERT INTO user_roles (user_id, role_id) VALUES ($1, $2)', [
+          result.rows[0].user_id,
+          userRoleResult.rows[0].role_id,
+        ]);
+      }
+
       await connection.query('COMMIT');
 
       return result.rows[0];
@@ -59,6 +69,16 @@ class AuthModel {
       const isPasswordValid = passwords.checkPassword(password, user.password);
       if (!isPasswordValid) {
         throw new Error('Invalid credentials!');
+      }
+
+      const bannedCheck = await connection.query(
+        `SELECT 1 FROM user_roles ur
+         JOIN roles r ON ur.role_id = r.role_id
+         WHERE ur.user_id = $1 AND r.name = 'banned'`,
+        [user.user_id],
+      );
+      if (bannedCheck.rowCount !== 0 && bannedCheck.rowCount !== null) {
+        throw new Error('BANNED');
       }
 
       if (user.is_online === false) {
